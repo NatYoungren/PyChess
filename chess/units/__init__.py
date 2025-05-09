@@ -1,0 +1,1 @@
+# Replace get_piece with this.

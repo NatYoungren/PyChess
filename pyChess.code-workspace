@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "../pyChess"
+		},
+		{
+			"path": "../pygame_pathfinding"
+		},
+		{
+			"path": "../PyPlanets"
+		}
+	],
+	"settings": {}
+}
