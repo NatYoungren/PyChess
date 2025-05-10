@@ -2,6 +2,8 @@ import pygame as pg
 import numpy as np
 import os
 
+# from globalref import OBJREF, board, surface
+
 from chess.chess_types import Loyalty, Piece
 
 from chess.board import Board
@@ -22,7 +24,7 @@ board = Board(board_csv_path, piece_csv_path)
 # Define the background colour 
 # using RGB color coding. 
 background_colour = (234, 212, 252) 
-  
+
 tile_size = (64, 64)
 
 
@@ -36,7 +38,9 @@ pg.display.set_caption('PyChess')
 
 
 def draw_board(surf, b, selected=None, viable=None):
-    surf.fill(background_colour) 
+    v_tiles = list(viable.keys()) if viable is not None else []
+    
+    surf.fill(background_colour)
     for w, h in np.ndindex(board.shape):
         if (w+h)%2 == 0:
             pg.draw.rect(surf, (50, 50, 50), (w*tile_size[0], h*tile_size[1], tile_size[0], tile_size[1]))
@@ -48,10 +52,9 @@ def draw_board(surf, b, selected=None, viable=None):
         w, h = selected.position
         pg.draw.rect(surf, (50, 255, 50), (w*tile_size[0], h*tile_size[1], tile_size[0], tile_size[1]))
 
-    if viable is not None:
-        for (w, h) in viable:
-            pg.draw.rect(surf, (255, 50, 50), (w*tile_size[0], h*tile_size[1], tile_size[0], tile_size[1]))
-
+    for (w, h) in v_tiles:
+        pg.draw.rect(surf, (255, 50, 50), (w*tile_size[0], h*tile_size[1], tile_size[0], tile_size[1]))
+        
     for w, h in np.ndindex(board.shape):
         t = b[w, h]
         p = t.piece
@@ -101,6 +104,8 @@ while running:
                 if piece is not None and piece.loyalty == board.current_turn:
                     # TODO: Indicate when a piece has no moves!
                     piece_moves = piece.options()
+                    # if isinstance(piece_moves, dict):
+                    #     piece_moves = list(piece_moves.keys())
                     viable_moves = piece_moves
                     selected_tile = tile
                     # print('selected', selected_tile)
@@ -114,18 +119,22 @@ while running:
                 
             else:
                 # if viable_moves is not None and viable_moves[x, y] == 1:
-                if viable_moves is not None and any(x == move[0] and y == move[1] for move in viable_moves):
+                if viable_moves is not None:
+                    outcome = viable_moves.get((x, y), None)
+                    if outcome is not None:
+                        outcome.realize((x, y))
+                        board.move_history.append((selected_tile.position, (x, y)))
+                        board.turn += 1
+                    
+                    selected_tile = None
+                    viable_moves = None
+
                     # selected_tile.move((x, y))
                     # TODO: USE BOARD MOVE FUNCTION.
-                    
-                    selected_tile.piece.move((x, y))
+                    # viable_moves
+                    # selected_tile.piece.move((x, y))
                     # board[x, y] = board[selected_square]
                     # board[selected_square] = 0
                     
-                    board.move_history.append((selected_tile.position, (x, y)))
-                    board.turn += 1
-                    
-                selected_tile = None
-                viable_moves = None
                 
             draw_board(screen, board, selected_tile, viable_moves)

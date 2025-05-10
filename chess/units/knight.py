@@ -1,32 +1,40 @@
 import numpy as np
+from typing import Tuple
 
 from chess.chess_types import Position, Vector
 from chess.chess_types import DirCls as D
 from chess.chess_types import Loyalty, Piece
 
 from chess.units.piece import ChessPiece
+from chess.actions.action import Action
+from chess.actions.outcome import Move, Capture
+
+
+class KnightCapture(Action):
+    """
+    Represents a move/capture action for a bishop.
+    """
+    VECTORS: Tuple[Vector] = (D.f+D.f_l, D.f+D.f_r,
+                              D.r+D.f_r, D.r+D.b_r,
+                              D.b+D.b_l, D.b+D.b_r,
+                              D.l+D.f_l, D.l+D.b_l)
+
+    def update(self):
+        super().update()
+        for v in self.VECTORS: # Knight vectors
+            pos, t, p = self.at_vec(v)
+            if t is None: continue # OOB tile
+            
+            if p is None:
+                self.outcomes[tuple(pos)] = Move(self.piece, pos)
+            elif p.loyalty != self.loyalty: # No friendly fire
+                self.outcomes[tuple(pos)] = Capture(self.piece, pos, p)
+
+
 
 # TODO: Make enum?
 class Knight(ChessPiece):
     def __init__(self, board, loyalty: Loyalty, position):
         # TODO: Sprite
         super().__init__(board=board, loyalty=loyalty, piece_type=Piece.KNIGHT, position=position)    
-    
-    def options(self):
-        v_opts = []
-        
-        # TODO: Just precompute these vectors and store them?
-        
-        for i in (-1, 1): # Short L arm
-            for j in (-2, 2): # Long L arm
-                for m in ((D.f * i + D.r * j), (D.f * j + D.r * i)): # Both orientations
-                    poss_pos = self.position + self.orient_vector(m)
-                    t = self.board.get_tile(poss_pos)
-                    if t is None: continue # OOB tile
-                    
-                    p = t.piece
-                    if p is not None and p.loyalty == self.loyalty: continue # No friendly fire
-                    v_opts.append(poss_pos)
-        
-        return v_opts
-        
+        self.actions.append(KnightCapture(self))

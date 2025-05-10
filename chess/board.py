@@ -79,6 +79,14 @@ class Board:
         if isinstance(pos, int): pos = (pos, slice(0, None))
         return self._board[pos[1], pos[0]] # NOTE: Flip x and y for numpy.
         # return self.board[pos[::-1]]
+        
+    def at_pos(self, pos: Position) -> Tuple[Optional[Tile], Optional[ChessPiece]]:
+        """
+        Returns the tile and piece at the given position.
+        """
+        t = self.get_tile(pos)
+        if t is None: return None, None
+        return t, t.piece
     
     def get_tile(self, position: Position) -> Optional[Tile]:
         """

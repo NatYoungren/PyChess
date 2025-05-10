@@ -5,30 +5,25 @@ from chess.chess_types import DirCls as D
 from chess.chess_types import Loyalty, Piece
 
 from chess.units.piece import ChessPiece
+from chess.actions.action import Action
+from chess.actions.outcome import Move, Capture
+
+
+class BishopCapture(Action):
+    """
+    Represents a move/capture action for a bishop.
+    """
+    def update(self):
+        super().update()
+        
+        for v in D.diagonal: # Cardinal vectors
+            for pos, t, p in self.get_line(v, length=7, enemy_ok=True):
+                self.outcomes[tuple(pos)] = Move(self.piece, pos) if p is None else Capture(self.piece, pos, p)
+
 
 # TODO: Make enum?
 class Bishop(ChessPiece):
     def __init__(self, board, loyalty: Loyalty, position):
         # TODO: Sprite
         super().__init__(board=board, loyalty=loyalty, piece_type=Piece.BISHOP, position=position)
-            
-    
-    def options(self):
-        v_opts = []
-        
-        for v in D.diagonal: # Diagonal vectors
-            for i in range(1, 8): # Max distance
-                poss_pos = self.position + self.orient_vector(v * i)
-                
-                t = self.board.get_tile(poss_pos)
-                if t is None: break # OOB tile
-                
-                p = t.piece
-                if p is not None: # Stops at/before first piece
-                    if p.loyalty != self.loyalty: # No friendly fire
-                        v_opts.append(poss_pos)
-                    break
-
-                v_opts.append(poss_pos)
-        return v_opts
-        
+        self.actions.append(BishopCapture(self))

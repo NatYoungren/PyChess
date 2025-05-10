@@ -1,5 +1,5 @@
 import numpy as np
-from typing import Dict, Optional, Self
+from typing import Dict, Optional, Self, Callable
 
 from chess.chess_types import Position, Vector, Direction
 from chess.chess_types import Loyalty, Piece
@@ -20,21 +20,26 @@ from chess.actions.outcome import Outcome
 class Action:
     name: str
     piece: object
-    
+        
     # TODO: Tile -> Action?
     #       Union[Tile, Misc?] -> Action
-    actions: Dict[Position, Outcome]
+    
+     # TODO: Avoid overwriting with multiple positions!
+     #      Use a list?
+     #      Or an 'insert' method which handles this?
+    outcomes: Dict[Position, Outcome]
     
     def __init__(self, piece):
         self.name = self.__class__.__name__
         self.piece = piece
+        self.outcomes: Dict[Position, Outcome] = {}
         # self.action_count = 0
     
     def update(self):
         """
         Update outcomes.
         """
-        pass
+        self.outcomes.clear()
     
     def realize(self, pos: Position):
         """
@@ -67,5 +72,14 @@ class Action:
     def move_count(self) -> int:
         return self.piece.move_count
     
+    @property
+    def orient_vector(self) -> Callable:
+        return self.piece.orient_vector
     
+    @property
+    def at_vec(self) -> Callable:
+        return self.piece.at_vec
     
+    @property
+    def get_line(self) -> Callable:
+        return self.piece.get_line

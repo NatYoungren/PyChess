@@ -5,7 +5,7 @@ from chess.chess_types import Position, Vector, Direction
 from chess.chess_types import Loyalty, Piece
 from chess.chess_types import DirCls as D
 
-from chess.units.get_piece import get_piece_class
+# from chess.units.get_piece import get_piece_class
 
 class Outcome:
     """
@@ -19,7 +19,7 @@ class Outcome:
     
     def __init__(self, *args, **kwargs):
         pass
-
+    
     def realize(self, board):
         """
         Apply this outcome to the board state.
@@ -27,7 +27,7 @@ class Outcome:
         pass
     
     # TODO: This would be neat.
-    def preview(self, board):
+    def preview(self, surf, board, lerp: float):
         """
         Preview the action.
         """
@@ -38,6 +38,8 @@ class Move(Outcome):
     piece: object
     target: Position
     
+    LERP_MAX: float = 0.5 # TODO: Make this a constant?
+    
     def __init__(self, piece, target: Position):
         super().__init__()
         self.piece = piece
@@ -45,7 +47,10 @@ class Move(Outcome):
     
     def realize(self, board):
         self.piece.move(self.target) # TODO: Go through board?
-        
+    
+    def preview(self, surf, board, lerp: float):
+        pass
+    
 class Capture(Move):
     captured: object
     
@@ -67,8 +72,9 @@ class Promote(Move): # TODO: Could be capture???
     def realize(self, board):
         super().realize(board)
         t = board.get_tile(self.target)
-        new_piece = get_piece_class(self.promoted_to)(board, self.piece.loyalty, self.target)
-        t.piece = new_piece
+        print("REMOVED DUE TO CIRCULAR IMPORT ISSUE.")
+        # new_piece = get_piece_class(self.promoted_to)(board, self.piece.loyalty, self.target)
+        # t.piece = new_piece
 
 class Castle(Outcome):
     king_piece: object
@@ -80,6 +86,7 @@ class Castle(Outcome):
         self.rook_piece = rook_piece
     
     def realize(self, board):
-        print('TODO: IMPLEMENT CASTLE')
-        # self.piece.move(self.target)
-        # self.rook.move(self.rook_target)
+        vec = self.rook_piece.position - self.king_piece.position
+        vec = vec // abs(sum(vec)) # NOTE: Should work because it is a cardinal vector
+        self.king_piece.move(self.king_piece.position + vec*2)
+        self.rook_piece.move(self.king_piece.position - vec)

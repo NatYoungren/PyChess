@@ -6,26 +6,45 @@ from chess.chess_types import Loyalty, Piece
 
 from chess.units.piece import ChessPiece
 
+from chess.actions.action import Action
+from chess.actions.outcome import Move, Capture, Castle
+
+
+# TODO: Add some logic for checks and whatnot?
+class KingCapture(Action):
+    """
+    Represents a move/capture action for a king.
+    """
+    def update(self):
+        super().update()
+        
+        for v in D.cardiagonal: # Cardinal vectors
+            for pos, t, p in self.get_line(v, length=1, enemy_ok=True):
+                self.outcomes[tuple(pos)] = Move(self.piece, pos) if p is None else Capture(self.piece, pos, p)
+
+class KingCastle(Action):
+    """
+    Represents a castling action for a king.
+    """
+    def update(self):
+        super().update()
+        
+        if self.piece.move_count > 0:
+            return
+        
+        for v in D.cardinal: # Cardinal vectors
+            for pos, t, p in self.get_line(v, length=5, can_move=False, enemy_ok=False, ally_ok=True):
+                if p is None: continue
+                if p.piece_type != Piece.ROOK: continue
+                if p.loyalty != self.loyalty: continue
+                if p.move_count > 0: continue
+                self.outcomes[tuple(pos)] = Castle(self.piece, p)
+
+
 # TODO: Make enum?
 class King(ChessPiece):
     def __init__(self, board, loyalty: Loyalty, position):
         # TODO: Sprite
         super().__init__(board=board, loyalty=loyalty, piece_type=Piece.KING, position=position)
-    
-    
-    def options(self):
-        v_opts = []
-        
-        # TODO: Just precompute these vectors and store them?
-        
-        for v in D.cardiagonal: # Cardinal & diagonal vectors
-            poss_pos = self.position + self.orient_vector(v)
-            t = self.board.get_tile(poss_pos)
-            if t is None: continue # OOB tile
-            
-            p = t.piece
-            if p is not None and p.loyalty == self.loyalty: continue # No friendly fire
-            v_opts.append(poss_pos)
-    
-        return v_opts
-        
+        self.actions.append(KingCapture(self))
+        self.actions.append(KingCastle(self))
