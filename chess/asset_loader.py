@@ -1,41 +1,130 @@
 import os
 import pygame as pg
 
-from chess.chess_types import Piece, Loyalty
+from chess.chess_types import Loyalty, PieceType, TileType
 
-sprite_prefix = os.path.join('assets', 'units')
-
-# TODO: These should probably be in the unit classes.
-#       Rework at some point.
-# TODO: Make an AssetLoader class?
-sprite_dict = {
-    Loyalty.WHITE: {
-        Piece.PAWN: "W_Pawn.png",
-        Piece.KNIGHT: "W_Knight.png",
-        Piece.BISHOP: "W_Bishop.png",
-        Piece.ROOK: "W_Rook.png",
-        Piece.QUEEN: "W_Queen.png",
-        Piece.KING: "W_King.png",
+# TODO: Rename to 'asset manager'
+#       Add to OBJREF
+class AssetLoader:
+    """
+    A class to load and manage assets for the chess game.
+    """
+    def __new__(cls): # https://www.geeksforgeeks.org/singleton-pattern-in-python-a-complete-guide/#
+        if not hasattr(cls, 'instance'):
+            cls.instance = super(AssetLoader, cls).__new__(cls)
+        return cls.instance
+    
+    PIECE_SPRITE_DIRECTORY = os.path.join('assets', 'units')
+    PIECE_SPRITE_FILES = {
+        Loyalty.WHITE: {
+            PieceType.PAWN: "W_Pawn.png",
+            PieceType.KNIGHT: "W_Knight.png",
+            PieceType.BISHOP: "W_Bishop.png",
+            PieceType.ROOK: "W_Rook.png",
+            PieceType.QUEEN: "W_Queen.png",
+            PieceType.KING: "W_King.png",
+            },
+        
+        Loyalty.BLACK: {
+            PieceType.PAWN: "B_Pawn.png",
+            PieceType.KNIGHT: "B_Knight.png",
+            PieceType.BISHOP: "B_Bishop.png",
+            PieceType.ROOK: "B_Rook.png",
+            PieceType.QUEEN: "B_Queen.png",
+            PieceType.KING: "B_King.png",
         },
-    
-    Loyalty.BLACK: {
-        Piece.PAWN: "B_Pawn.png",
-        Piece.KNIGHT: "B_Knight.png",
-        Piece.BISHOP: "B_Bishop.png",
-        Piece.ROOK: "B_Rook.png",
-        Piece.QUEEN: "B_Queen.png",
-        Piece.KING: "B_King.png",
-    },
-    
-    # TODO: Find better solution.
-    Loyalty.NONE: {
-        Piece.NONE: "defaultpiece.png",
+        
+        # TODO: Find better solution.
+        Loyalty.NONE: {
+            PieceType.NONE: "defaultpiece.png",
+        }
     }
-}
+    
+    BOARD_SPRITE_DIRECTORY = os.path.join('assets', 'boards')
+    BOARD_SPRITE_FILES = {
+        1: "board_plain_01.png",
+        2: "board_plain_02.png",
+        3: "board_plain_03.png",
+        4: "board_plain_04.png",
+        5: "board_plain_05.png",
+    }
 
-for loyalty, piece_sprites in sprite_dict.items():
-    for piece, sprite_file in piece_sprites.items():
-        sprite_dict[loyalty][piece] = pg.image.load(os.path.join(sprite_prefix, sprite_file))
+    
+    TILE_SPRITE_DIRECTORY = os.path.join('assets', 'tiles')
+    TILE_SPRITE_FILES = {
+        TileType.VOID: "tiles5.png",
+        TileType.DEFAULT: (
+            "tiles1.png",
+            "tiles2.png",
+        ),
+        # TileType.WALL: "wall.png", # TODO: Add wall sprite.
+        TileType.WALL: (
+            "tiles3.png",
+            "tiles4.png",
+        ),
+        TileType.CHASM: (
+            "tiles3.png",
+            "tiles4.png",
+        )
+    }
 
-# TODO: Make a 'sprite' getter?
-DEFAULT_SPRITE = sprite_dict[Loyalty.NONE][Piece.NONE]
+    TILE_EFFECT_SPRITE_DIRECTORY = os.path.join('assets', 'tile_effects')
+    TILE_EFFECT_SPRITE_FILES = {
+        'move': "tile_effects1.png",
+        'capture': "tile_effects2.png",
+        'selected': (
+            "tile_effects3.png",
+            "tile_effects4.png",
+        ),
+        'misc': 'tile_effects5.png', # Castle, ?, etc.
+    }
+
+    # UI_SPRITE_DIRECTORY = os.path.join('assets', 'ui')
+    CURSOR_SPRITE_DIRECTORY = os.path.join('assets', 'ui', 'cursors')
+    CURSOR_SPRITE_FILES = {
+        "default": "cursors1.png",
+        "hover": "cursors2.png",
+        "grab": "cursors3.png",
+        "click": "cursors4.png",
+        # "click2": "cursors5.png",
+        # Sword?
+        # Shield?
+    }
+    
+    def __init__(self):
+        
+        # TODO: Could lazily load some on first access?
+        #       Unload sprites in some situations?
+        
+        self.piece_sprites = self.load_sprites({}, self.PIECE_SPRITE_FILES, self.PIECE_SPRITE_DIRECTORY)
+        self.board_sprites = self.load_sprites({}, self.BOARD_SPRITE_FILES, self.BOARD_SPRITE_DIRECTORY)
+        self.tile_sprites = self.load_sprites({}, self.TILE_SPRITE_FILES, self.TILE_SPRITE_DIRECTORY)
+        self.tile_effect_sprites = self.load_sprites({}, self.TILE_EFFECT_SPRITE_FILES, self.TILE_EFFECT_SPRITE_DIRECTORY)
+        self.cursor_sprites = self.load_sprites({}, self.CURSOR_SPRITE_FILES, self.CURSOR_SPRITE_DIRECTORY)
+        
+        # TODO: DEPRECATE
+        self.DEFAULT_PIECE_SPRITE = self.piece_sprites[Loyalty.NONE][PieceType.NONE]
+    
+    @classmethod
+    def load_sprites(cls, sprite_dict: dict, file_dict: dict, directory: str, verbose: bool=False) -> dict:
+        """
+        Recursively populate sprite_dict with image files from file_dict.
+        """
+        for key, value in file_dict.items():
+            if isinstance(value, dict):
+                # If the value is a dictionary, populate a sub dictionary in sprite_dict
+                sprite_dict[key] = cls.load_sprites({}, value, directory)
+            elif isinstance(value, tuple):
+                sprite_dict[key] = tuple([pg.image.load(os.path.join(directory, k)) for k in value])
+                if verbose:
+                    for k in value: print(f"AssetLoader: Loaded {k} from {os.path.join(directory, key)}")
+                
+            elif isinstance(value, str):
+                # If the value is a string, load the image and add it to sprite_dict
+                sprite_dict[key] = pg.image.load(os.path.join(directory, value))
+                if verbose: print(f"AssetLoader: Loaded {key} from {os.path.join(directory, value)}")
+            else:
+                raise ValueError(f"AssetLoader: Invalid value type: {type(value)}. Expected str or dict.")
+        return sprite_dict
+
+asset_loader = AssetLoader()

@@ -166,3 +166,24 @@ class Board:
         #     for x in range(self.width):
         #         yield self.board[y][x]
     
+    
+    
+
+# TODO: Classmethod?
+#       Add a piece constructor?
+def board_constructor(tile_array: List[List[TileType]]) -> BoardTiles:
+    """
+    Constructs a board from a 2D array of TileType.
+    """
+    height = len(tile_array)
+    width = len(tile_array[0])
+    
+    board_tiles = np.zeros((height, width), dtype=object)
+    
+    for y in range(height):
+        for x in range(width):
+            tiletype = tile_array[x][y]
+            tc = get_tile_class(TileType(tiletype))
+            board_tiles[y][x] = tc((x, y))
+    
+    return board_tiles
