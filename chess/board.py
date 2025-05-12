@@ -15,7 +15,7 @@ from chess.units.piece import ChessPiece
 # from chess.units.queen import Queen
 # from chess.units.king import King
 
-from chess.chess_types import Piece, TileType, Position, Vector
+from chess.chess_types import PieceType, TileType, Position, Vector
 from chess.chess_types import Loyalty, Direction
 from chess.chess_types import Direction as D
 
