@@ -3,7 +3,9 @@ from pathlib import Path
 import numpy as np
 from typing import Optional, List, Union, Tuple, TypeAlias
 
-from chess.tile import board_constructor, Tile
+
+from chess.tiles.get_tile import get_tile_class
+from chess.tiles.tile import Tile
 
 from chess.units.get_piece import get_piece_class
 from chess.units.piece import ChessPiece
@@ -61,7 +63,7 @@ class Board:
 
     @property # Deprecate?
     def selected(self) -> Optional[ChessPiece]:
-        return self.selected_tile.piece
+        return self.selected_tile.piece if self.selected_tile is not None else None
     
     @property
     def shape(self) -> Tuple[int, int]: # NOTE: Reverse x and y for numpy.
@@ -72,6 +74,10 @@ class Board:
     @property
     def height(self) -> int:
         return self.shape[1]
+    
+    def __iter__(self):
+        for x, y in np.ndindex(self.shape):
+            yield self[x, y]
     
     def __getitem__(self, pos: Position) -> Union[Tile, BoardTiles]:
         # Add 2nd dimension to 1D slices and indices.
@@ -157,17 +163,6 @@ class Board:
             
         print(f"Loaded board state from {board_csv} and {piece_csv}") 
 
-            
-    # Implement iter to access tiles!
-    # def __iter__(self):
-    #     for x, y in np.ndindex(self.board.shape):
-    #         yield self.board[y][x]
-        # for y in range(self.height):
-        #     for x in range(self.width):
-        #         yield self.board[y][x]
-    
-    
-    
 
 # TODO: Classmethod?
 #       Add a piece constructor?
