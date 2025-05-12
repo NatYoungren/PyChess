@@ -2,7 +2,7 @@ import numpy as np
 
 from chess.chess_types import Position, Vector
 from chess.chess_types import DirCls as D
-from chess.chess_types import Loyalty, Piece
+from chess.chess_types import Loyalty, PieceType
 
 from chess.units.piece import ChessPiece
 
@@ -33,18 +33,18 @@ class KingCastle(Action):
             return
         
         for v in D.cardinal: # Cardinal vectors
-            for pos, t, p in self.get_line(v, length=5, can_move=False, enemy_ok=False, ally_ok=True):
+            # TODO: Allow get_line length to be a 'min-max' tuple!
+            for i, (pos, t, p) in enumerate(self.get_line(v, length=4, can_move=False,
+                                                          enemy_ok=False, ally_ok=True)):
                 if p is None: continue
-                if p.piece_type != Piece.ROOK: continue
+                if p.piece_type != PieceType.ROOK: continue
                 if p.loyalty != self.loyalty: continue
                 if p.move_count > 0: continue
                 self.outcomes[tuple(pos)] = Castle(self.piece, p)
 
 
-# TODO: Make enum?
 class King(ChessPiece):
-    def __init__(self, board, loyalty: Loyalty, position):
-        # TODO: Sprite
-        super().__init__(board=board, loyalty=loyalty, piece_type=Piece.KING, position=position)
+    def __init__(self, loyalty: Loyalty, position):
+        super().__init__(loyalty=loyalty, piece_type=PieceType.KING, position=position)
         self.actions.append(KingCapture(self))
         self.actions.append(KingCastle(self))

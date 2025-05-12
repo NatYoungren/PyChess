@@ -8,22 +8,22 @@ from chess.units.knight import Knight
 from chess.units.queen import Queen
 from chess.units.king import King
 
-from chess.chess_types import Loyalty, Piece
+from chess.chess_types import Loyalty, PieceType
 
 # from chess.chess_types import TileType, Position, Vector
 # from chess.chess_types import Direction as D
 
 
 piece_classes = {
-    Piece.PAWN: Pawn,
-    Piece.BISHOP: Bishop,
-    Piece.ROOK: Rook,
-    Piece.KNIGHT: Knight,
-    Piece.QUEEN: Queen,
-    Piece.KING: King,
+    PieceType.PAWN: Pawn,
+    PieceType.BISHOP: Bishop,
+    PieceType.ROOK: Rook,
+    PieceType.KNIGHT: Knight,
+    PieceType.QUEEN: Queen,
+    PieceType.KING: King,
 }
 
-def get_piece_class(piece_type: Piece):
+def get_piece_class(piece_type: PieceType):
     pc = piece_classes.get(piece_type, None)
     if pc is None:
         print(f"Piece type {piece_type} not found in piece_classes.")

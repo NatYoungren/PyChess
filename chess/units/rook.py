@@ -2,7 +2,7 @@ import numpy as np
 
 from chess.chess_types import Position, Vector
 from chess.chess_types import DirCls as D
-from chess.chess_types import Loyalty, Piece
+from chess.chess_types import Loyalty, PieceType
 
 from chess.units.piece import ChessPiece
 from chess.actions.action import Action
@@ -21,9 +21,7 @@ class RookCapture(Action):
                 self.outcomes[tuple(pos)] = Move(self.piece, pos) if p is None else Capture(self.piece, pos, p)
 
 
-# TODO: Make enum?
 class Rook(ChessPiece):
-    def __init__(self, board, loyalty: Loyalty, position):
-        # TODO: Sprite
-        super().__init__(board=board, loyalty=loyalty, piece_type=Piece.ROOK, position=position)
+    def __init__(self, loyalty: Loyalty, position):
+        super().__init__(loyalty=loyalty, piece_type=PieceType.ROOK, position=position)
         self.actions.append(RookCapture(self))

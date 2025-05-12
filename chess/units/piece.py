@@ -2,17 +2,18 @@ import numpy as np
 from typing import List, Optional, Self, Dict, Tuple
 
 from chess.chess_types import Position, Vector, Direction
-from chess.chess_types import Loyalty, Piece
+from chess.chess_types import Loyalty, PieceType
 from chess.chess_types import DirCls as D
 
-from chess.asset_loader import sprite_dict, DEFAULT_SPRITE
+from chess.asset_loader import asset_loader as al
+
+from globalref import OBJREF
+
 
 class ChessPiece:
     name: str
-    
-    board: object
 
-    piece_type: Piece = Piece.NONE
+    piece_type: PieceType = PieceType.NONE
     loyalty: Loyalty = Loyalty.NONE
     
     actions: List[object]
@@ -20,25 +21,26 @@ class ChessPiece:
     sprite: object # TODO: Type
     facing: Direction # +0- X, +0- Y
     
-    position: tuple[int, int]
+    _position: tuple[int, int]
     move_count: int
     
     # TODO: Can I avoid having the pieces store the board?
     #   Global reference instead?
     #   Or pass it in as needed?
     
-    def __init__(self, board, loyalty: Loyalty=Loyalty.NONE, piece_type: Piece=Piece.NONE, position: Position = (0, 0), sprite=None):
+    def __init__(self,
+                 loyalty: Loyalty=Loyalty.NONE,
+                 piece_type: PieceType=PieceType.NONE,
+                 position: Position = (0, 0)):
         self.name = self.__class__.__name__
 
-        self.board = board
+        # self.board = board
         self.actions: List[object] = []
         
         self.loyalty: Loyalty = loyalty
-        self.piece_type: Piece = piece_type
+        self.piece_type: PieceType = piece_type
         
-        if sprite is None:
-            sprite = sprite_dict.get(self.loyalty, {}).get(self.piece_type, DEFAULT_SPRITE)
-        self.sprite = sprite
+        self.sprite = al.piece_sprites.get(self.loyalty, {}).get(self.piece_type, al.DEFAULT_PIECE_SPRITE)
         
         # TODO: Placeholder, deprecate / improve?
         self.facing = (0, -1) if loyalty == Loyalty.WHITE else (0, 1)
@@ -54,6 +56,7 @@ class ChessPiece:
     
     
     # # # # # # # # # #
+    # ACTION METHODS
     # TODO: Think this through and make it more elegant.
     def update_actions(self):
         """
@@ -110,6 +113,8 @@ class ChessPiece:
         self.board[self.position].piece = None
         # del self # TODO: What should happen?
     
+    # # #
+    # HELPER METHODS
     def get_line(self,
                  dir: Direction, length: int, start: Position=None,
                  can_move: bool = True,
@@ -164,16 +169,15 @@ class ChessPiece:
         if start is None: start = self.position
         pos = start + self.orient_vector(vector)
         return pos, *self.board.at_pos(pos)
-        # t = self.board.get_tile(pos)
-        # if t is None: return None, None
-        # return pos, t, t.piece
     
-    # Input vector is relative to facing: [forward/backward, right/left]
-    #   [+ is forward, + is right]
-    # Output vector is in board coords: [x, y]
     def orient_vector(self, vector: Vector) -> Vector: # TODO: Matrix multiplication solution?
+        # Input vector is relative to facing: [forward/backward, right/left]
+        #   [+ is forward, + is right]
+        # Output vector is in board coords: [x, y]
         return vector * self.facing[1] + vector[::-1] * self.facing[0]
-
+    #
+    # # #
+    
     
     @property
     def position(self) -> Position:
@@ -182,6 +186,10 @@ class ChessPiece:
     @position.setter
     def position(self, value: Position):
         self._position = np.array(value, dtype=int)
+    
+    @property
+    def board(self) -> object:
+        return OBJREF.BOARD
     
     def __repr__(self):
         return f'{self.loyalty.name} {self.name}'

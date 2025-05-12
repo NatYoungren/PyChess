@@ -2,7 +2,7 @@ import numpy as np
 from typing import Dict, Optional, Self
 
 from chess.chess_types import Position, Vector, Direction
-from chess.chess_types import Loyalty, Piece
+from chess.chess_types import Loyalty, PieceType
 from chess.chess_types import DirCls as D
 
 # from chess.units.get_piece import get_piece_class
@@ -12,13 +12,14 @@ class Outcome:
     Represents a change in board state.
     """
     
+    name: str
     # TODO: Store some info that could be used to preview the action?
     # prev_dict: Dict[Piece, Optional[Position]] = {}
     # TODO: Could also contain code to render this preview?
     #       With a lerp value?
     
     def __init__(self, *args, **kwargs):
-        pass
+        self.name = self.__class__.__name__
     
     def realize(self, board):
         """
@@ -64,8 +65,8 @@ class Capture(Move):
 
 
 class Promote(Move): # TODO: Could be capture???
-    promoted_to: Piece
-    def __init__(self, piece, target: Position, promoted_to: Piece = Piece.QUEEN):
+    promoted_to: PieceType
+    def __init__(self, piece, target: Position, promoted_to: PieceType = PieceType.QUEEN):
         super().__init__(piece, target)
         self.promoted_to = promoted_to
         

@@ -148,8 +148,8 @@ class Board:
             l = Loyalty.WHITE if v > 0 else Loyalty.BLACK
             
             # Select piece type based on value (TODO: Update to JSON)
-            pc = get_piece_class(Piece(abs(v)))
-            piece = pc(self, l, (x, y))
+            pc = get_piece_class(PieceType(abs(v)))
+            piece = pc(l, (x, y))
             
             # TODO: Do not place pieces on void?
             #       Have them die instantly? (TODO: Board.update?)

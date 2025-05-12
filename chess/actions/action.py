@@ -2,7 +2,7 @@ import numpy as np
 from typing import Dict, Optional, Self, Callable
 
 from chess.chess_types import Position, Vector, Direction
-from chess.chess_types import Loyalty, Piece
+from chess.chess_types import Loyalty, PieceType
 from chess.chess_types import DirCls as D
 
 # from chess.asset_loader import sprite_dict, DEFAULT_SPRITE
@@ -57,7 +57,7 @@ class Action:
         return self.piece.loyalty
     
     @property
-    def piece_type(self) -> Piece:
+    def piece_type(self) -> PieceType:
         return self.piece.piece_type
     
     @property

@@ -6,7 +6,7 @@ from typing import TypeAlias, Tuple
 
 # # #
 # Aliases for type hints
-Piece: TypeAlias = object # TODO: Deprecate w/ class reference
+PieceType: TypeAlias = object # TODO: Deprecate w/ class reference
 ChessObject: TypeAlias = object # TODO: Depreceate w/ class reference
 Vector: TypeAlias = Tuple[int, int]     # TODO: Use numpy array
 Position: TypeAlias = Tuple[int, int]   # TODO: Use numpy array
@@ -29,8 +29,8 @@ class TileType(Enum):
 #   Position
 #   Piece type
 #   Misc data
-class Piece(Enum):
-    NONE = 0
+class PieceType(Enum):
+    NONE = 0 # TODO: What does this mean now?
     PAWN = 1
     KNIGHT = 2
     BISHOP = 3
