@@ -2,10 +2,12 @@ import pygame as pg
 import numpy as np
 import os
 
-# from globalref import OBJREF, board, surface
+from globalref import OBJREF#, board, surface
 
-from chess.chess_types import Loyalty, Piece
 
+from chess.asset_loader import asset_loader as al
+
+from chess.chess_types import Loyalty, PieceType
 from chess.board import Board
 
 board_csv = 'default_board.csv'
@@ -18,7 +20,12 @@ board_csv_path = os.path.join(board_dir, board_csv)
 piece_csv_path = os.path.join(piece_dir, piece_csv)
 
 board = Board(board_csv_path, piece_csv_path)
+OBJREF.BOARD = board
 
+
+from ui.chess_ui import ChessUI
+
+ui = ChessUI.from_config()
 
 
 # Define the background colour 
@@ -30,49 +37,79 @@ tile_size = (64, 64)
 
 # Create pg window
 window_size = (board.width*tile_size[0], board.height*tile_size[1])
-screen = pg.display.set_mode(window_size) 
-
+surface = pg.display.set_mode(window_size) 
+OBJREF.SURFACE = surface
 
 # Set the caption of the screen 
 pg.display.set_caption('PyChess') 
 
 
 def draw_board(surf, b, selected=None, viable=None):
-    v_tiles = list(viable.keys()) if viable is not None else []
+    # TODO: Replace selected with tile / piece reference?
+    if viable is None: viable = {}
     
     surf.fill(background_colour)
     for w, h in np.ndindex(board.shape):
-        if (w+h)%2 == 0:
-            pg.draw.rect(surf, (50, 50, 50), (w*tile_size[0], h*tile_size[1], tile_size[0], tile_size[1]))
+        t = b[w, h]
+        img = pg.transform.scale(t.sprite, (int(tile_size[0]), int(tile_size[0]))) # DO THIS WHEN LOADING SPRITE.
+        surf.blit(img, (w*tile_size[0], h*tile_size[1]-(img.get_height()-tile_size[1])))
+        
+        # if (w+h)%2 == 0:
+        #     pg.draw.rect(surf, (50, 50, 50), (w*tile_size[0], h*tile_size[1], tile_size[0], tile_size[1]))
             
-        else:
-            pg.draw.rect(surf, (205, 205, 205), (w*tile_size[0], h*tile_size[1], tile_size[0], tile_size[1]))
+        # else:
+        #     pg.draw.rect(surf, (205, 205, 205), (w*tile_size[0], h*tile_size[1], tile_size[0], tile_size[1]))
     
+    # Draw effect on selected tile.
     if selected is not None:
         w, h = selected.position
-        pg.draw.rect(surf, (50, 255, 50), (w*tile_size[0], h*tile_size[1], tile_size[0], tile_size[1]))
+        rand_idx = np.random.randint(0, len(al.tile_effect_sprites['selected']))
+        rand_rot = np.random.randint(0, 4)*90
+        rand_flip = np.random.randint(0, 1, 2)
+        
+        img = al.tile_effect_sprites['selected'][rand_idx]
+        img = pg.transform.rotate(img, rand_rot)
+        img = pg.transform.flip(img, *rand_flip)
+        img = pg.transform.scale(img, (int(tile_size[0]), int(tile_size[0])))
+        surf.blit(img, (w*tile_size[0], h*tile_size[1]-(img.get_height()-tile_size[1])))
+        # pg.draw.rect(surf, (50, 255, 50), (w*tile_size[0], h*tile_size[1], tile_size[0], tile_size[1]))
 
-    for (w, h) in v_tiles:
-        pg.draw.rect(surf, (255, 50, 50), (w*tile_size[0], h*tile_size[1], tile_size[0], tile_size[1]))
+    # Draw effects on selectable tiles.
+    for (w, h), oc in viable.items():
+        # TODO: Just use name as key.
+        match oc.name:
+            case 'Move':
+                img = al.tile_effect_sprites['move']
+            case 'Capture':
+                img = al.tile_effect_sprites['capture']
+            case 'Castle':
+                img = al.tile_effect_sprites['misc']
+            case _:
+                print('DRAWING VIABLE: Unknown outcome:', oc.name)
+                continue
+        rand_rot = np.random.randint(0, 4)*90
+        rand_flip = np.random.randint(0, 1, 2)
+        img = pg.transform.rotate(img, rand_rot)
+        img = pg.transform.flip(img, *rand_flip)
+        img = pg.transform.scale(img, (int(tile_size[0]), int(tile_size[0])))
+        
+        surf.blit(img, (w*tile_size[0], h*tile_size[1]-(img.get_height()-tile_size[1])))
+
+        # pg.draw.rect(surf, (255, 50, 50), (w*tile_size[0], h*tile_size[1], tile_size[0], tile_size[1]))
         
     for w, h in np.ndindex(board.shape):
         t = b[w, h]
         p = t.piece
         if p != None:
             img = p.sprite
-            # img = sprite_dict[b.board[w, h]]
             ratio = img.get_height() / img.get_width()
             img = pg.transform.scale(img, (int(tile_size[0]), int(tile_size[0] * ratio)))
-
             surf.blit(img, (w*tile_size[0], h*tile_size[1]-(img.get_height()-tile_size[1])))
             
     pg.display.flip() 
 
 
-draw_board(screen, board)
-
-# turn_order = [Loyalty.WHITE, Loyalty.BLACK]
-# current_turn = 0
+draw_board(surface, board)
 
 selected_tile = None
 # selected_piece = None
@@ -104,21 +141,10 @@ while running:
                 if piece is not None and piece.loyalty == board.current_turn:
                     # TODO: Indicate when a piece has no moves!
                     piece_moves = piece.options()
-                    # if isinstance(piece_moves, dict):
-                    #     piece_moves = list(piece_moves.keys())
                     viable_moves = piece_moves
                     selected_tile = tile
-                    # print('selected', selected_tile)
-                    # selected_piece = piece
-                    # viable_moves = piece.viable_moves#board.viable_moves(selected_tile)
-                    
-                # if np.sign(board.board[x, y]) == current_turn:
-                #     selected_square = (x, y)
-                #     viable_moves = board.viable_moves(selected_square)
-                    # print('selected', selected_square)
                 
             else:
-                # if viable_moves is not None and viable_moves[x, y] == 1:
                 if viable_moves is not None:
                     outcome = viable_moves.get((x, y), None)
                     if outcome is not None:
@@ -128,13 +154,6 @@ while running:
                     
                     selected_tile = None
                     viable_moves = None
-
-                    # selected_tile.move((x, y))
-                    # TODO: USE BOARD MOVE FUNCTION.
-                    # viable_moves
-                    # selected_tile.piece.move((x, y))
-                    # board[x, y] = board[selected_square]
-                    # board[selected_square] = 0
                     
                 
-            draw_board(screen, board, selected_tile, viable_moves)
+            draw_board(surface, board, selected_tile, viable_moves)
