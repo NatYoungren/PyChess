@@ -25,8 +25,8 @@ class ChessPiece:
     move_count: int
     
     # TODO: Can I avoid having the pieces store the board?
-    #   Global reference instead?
-    #   Or pass it in as needed?
+    #       Global reference instead?
+    #       Or pass it in as needed?
     
     def __init__(self,
                  loyalty: Loyalty=Loyalty.NONE,
@@ -34,7 +34,6 @@ class ChessPiece:
                  position: Position = (0, 0)):
         self.name = self.__class__.__name__
 
-        # self.board = board
         self.actions: List[object] = []
         
         self.loyalty: Loyalty = loyalty
@@ -52,30 +51,23 @@ class ChessPiece:
         # Should track a turn-stamped history of positions?
         self.position_history: List[Position] = [self.position]
         self.move_history: List[Vector] = []
-        # self.capture_history: List[Self] = []
     
     
     # # # # # # # # # #
     # ACTION METHODS
-    # TODO: Think this through and make it more elegant.
-    def update_actions(self):
+    def update(self):
         """
-        Update the actions for this piece.
+        Update all actions for this piece.
         """
         for action in self.actions:
             action.update()
-            
-    def options(self): # Deprecate?
-        self.update_actions()
-        return self.get_options()
     
-    def get_options(self) -> Dict[Position, object]: # Outcome!
+    def outcomes(self) -> Dict[Position, object]: # Outcome!
         """
         Get the possible options for this piece.
         """
         options = {}
         for action in self.actions:
-            # action.update()
             options.update(action.outcomes)
         return options
     #
@@ -84,7 +76,7 @@ class ChessPiece:
     # def can_move(self):
     #     pass
     
-    
+    # Put these methods in board?
     def move(self, position: Position):
         curr_tile = self.board[self.position]
         next_tile = self.board[position]

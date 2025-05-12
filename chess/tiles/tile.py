@@ -26,7 +26,7 @@ class Tile:
         self.tiletype: TileType = tiletype
         
         self.piece: Optional[PieceType] = None
-
+        
         self.objects: List[ChessObject] = [] # TODO: implement?
     
     # # TODO: Implement in subclasses?
@@ -58,6 +58,9 @@ class Tile:
     #             raise ValueError("Object not found in tile.")
             
     #     self.objects.remove(obj)
+    
+    def update(self):
+        pass
     
     def __repr__(self):
         return f"Tile({self.position} : {self.tiletype.name}) -> ({self.piece} : {self.objects})"

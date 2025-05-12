@@ -20,7 +20,7 @@ class KingCapture(Action):
         
         for v in D.cardiagonal: # Cardinal vectors
             for pos, t, p in self.get_line(v, length=1, enemy_ok=True):
-                self.outcomes[tuple(pos)] = Move(self.piece, pos) if p is None else Capture(self.piece, pos, p)
+                self.outcomes[t] = Move(self.piece, pos) if p is None else Capture(self.piece, pos, p)
 
 class KingCastle(Action):
     """
@@ -40,7 +40,7 @@ class KingCastle(Action):
                 if p.piece_type != PieceType.ROOK: continue
                 if p.loyalty != self.loyalty: continue
                 if p.move_count > 0: continue
-                self.outcomes[tuple(pos)] = Castle(self.piece, p)
+                self.outcomes[t] = Castle(self.piece, p)
 
 
 class King(ChessPiece):

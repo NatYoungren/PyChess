@@ -21,6 +21,8 @@ from chess.chess_types import PieceType, TileType, Position, Vector
 from chess.chess_types import Loyalty, Direction
 from chess.chess_types import Direction as D
 
+from chess.actions.outcome import Outcome
+
 # Chesstypes?
 BoardTiles: TypeAlias = np.ndarray[Tile]
 
@@ -31,7 +33,7 @@ class Board:
     turn_order: Tuple[Loyalty]
     turn: int
     
-    selected_tile: Optional[Tile] # ? Have a 'game' manager to handle user interaction?
+    # selected_tile: Optional[Tile] # ? Have a 'game' manager to handle user interaction?
     
     # CSV file references (TODO: DEPRECATE)
     _initial_tiles: str
@@ -48,11 +50,13 @@ class Board:
         self.load_state(tile_csv, piece_csv)
         
         # self.initial_board = self.board.copy() # Store initial piece positions? Or just rely on file...
-        self.move_history: List[Tuple[Position, Position]] = []
+        self.move_history: List[Tuple[Position, Position]] = [] # Deprecate?
+        self.history: List[Outcome] = []
+        
         self.turn_order = turn_order
         self.turn = 0
         
-        self.selected_tile: Optional[Tile] = None # Deprecate?
+        # self.selected_tile: Optional[Tile] = None # Deprecate?
     
     @property
     def current_turn(self) -> Loyalty:
@@ -61,9 +65,9 @@ class Board:
         """
         return self.turn_order[self.turn % len(self.turn_order)]
 
-    @property # Deprecate?
-    def selected(self) -> Optional[ChessPiece]:
-        return self.selected_tile.piece if self.selected_tile is not None else None
+    # @property # Deprecate?
+    # def selected(self) -> Optional[ChessPiece]:
+    #     return self.selected_tile.piece if self.selected_tile is not None else None
     
     @property
     def shape(self) -> Tuple[int, int]: # NOTE: Reverse x and y for numpy.
@@ -85,7 +89,29 @@ class Board:
         if isinstance(pos, int): pos = (pos, slice(0, None))
         return self._board[pos[1], pos[0]] # NOTE: Flip x and y for numpy.
         # return self.board[pos[::-1]]
+    
+    def realize(self, outcome: Optional[Outcome]) -> bool:
+        """
+        Realizes the outcome of an action.
+        """
+        # self.selected_tile = None
+        if outcome is None: return False
         
+        outcome.realize(self) # TODO: Have Outcomes store turn when generated?
+        self.history.append(outcome)
+        self.turn += 1
+        return True
+    
+    def update(self) -> None:
+        """
+        Updates all pieces and board.  
+        Called at start of each turn
+        """
+        for tile in self:
+            tile.update()
+            if tile.piece is not None:
+                tile.piece.update()
+    
     def at_pos(self, pos: Position) -> Tuple[Optional[Tile], Optional[ChessPiece]]:
         """
         Returns the tile and piece at the given position.
@@ -113,7 +139,7 @@ class Board:
     #       JSON will be better.
     def save_state(self, directory: Optional[str] = None) -> None:
         """
-        Saves the current state of the board to a file.
+        Saves current tiles and pieces to CSV files.
         """
         if directory is None:
             # Get path to parent/saves
@@ -140,7 +166,7 @@ class Board:
     def load_state(self, board_csv: str, piece_csv: str):
     # def load_state(self, filename: Optional[str] = None, directory: Optional[str] = None):
         """
-        Loads the state of the board from a file.
+        Loads tiles and pieecs from CSV files.
         """
         tiles = np.loadtxt(board_csv, dtype=int, delimiter=',').T
         pieces = np.loadtxt(piece_csv, dtype=int, delimiter=',').T

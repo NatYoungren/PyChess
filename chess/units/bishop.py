@@ -18,7 +18,7 @@ class BishopCapture(Action):
         
         for v in D.diagonal: # Cardinal vectors
             for pos, t, p in self.get_line(v, length=7, enemy_ok=True):
-                self.outcomes[tuple(pos)] = Move(self.piece, pos) if p is None else Capture(self.piece, pos, p)
+                self.outcomes[t] = Move(self.piece, pos) if p is None else Capture(self.piece, pos, p)
 
 
 class Bishop(ChessPiece):

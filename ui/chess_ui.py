@@ -1,15 +1,20 @@
 import os
 import json
 import numpy as np
+from typing import Optional, Tuple, Union, Dict, List
+
 import pygame as pg
 from pygame import SRCALPHA, Color, Surface
-
-from typing import Optional, Tuple, Union, Dict, List
 
 import chess.chess_types as ct
 from chess.chess_types import Loyalty, PieceType, TileType
 from chess.chess_types import Position, Vector
 from chess.chess_types import DirCls as D
+
+from chess.actions.action import Action
+from chess.actions.outcome import Outcome
+from chess.tiles.tile import Tile
+from chess.units.piece import ChessPiece
 
 from globalref import OBJREF
 
@@ -39,6 +44,16 @@ class ChessUI:
         if config is None: config = graphics_config
         return cls(**{**config, **kwargs})
     
+    window_size: Tuple[int, int]
+    tile_size: Tuple[int, int]
+    bg_color: Tuple[int, int, int]
+    surf: Surface
+    bsurf: Surface
+    
+    s_tile: Optional[Tile]
+    s_pos: Optional[Position]
+    s_piece: Optional[ChessPiece]
+    
     def __init__(self,
                  window_width: int,
                  window_height: int,
@@ -60,9 +75,13 @@ class ChessUI:
         
         pg.display.set_caption(window_title)
         
+        
         for k, v in kwargs.items():
             print('\tChessUI: Unrecognized config:', k, v)
-    
+        
+        # TODO: property?
+        self.s_tile: Tile = None
+
     
     def draw(self):
         self.draw_background()
@@ -70,16 +89,6 @@ class ChessUI:
         
         self.draw_tile_effects()
         self.draw_pieces()
-        
-        # if self.board.selected_tile is not None:
-        #     self.draw_tile_effects()
-            
-        #     # if hovering: # TODO: Implement
-        #     #     self.draw_preview()
-        #     # else:
-        #     self.draw_pieces()
-        # else:
-        #     self.draw_pieces()
         
         self.draw_ui()
         self.draw_cursor()
@@ -92,34 +101,25 @@ class ChessUI:
         self.bsurf.fill(Color(0, 0, 0, 0)) # Clear the board surface
     
     def draw_board(self):
-        # tw, th = self.tile_size
         for t in self.board:
-        # for w, h in np.ndindex(self.board.shape):
-            # t = b[w, h]
-            # x, y = t.position
-            
             # TODO: TRANSFORM ONLY ONCE?
             #       Make .sprite a property which points to assetloader?
             img = self.sprite_transform(t.sprite, size=self.tile_size)
             self.b_blit(img, t.position)
-            # self.surf.blit(img, (x*tw, y*th-(img.get_height()-th)))
         
     def draw_tile_effects(self):
-        selected = self.board.selected_tile
-        if selected is None: return
-        # tw, th = self.tile_size
-        # x, y = selected.position
-        img = self.sprite_transform(img=np.random.choice(al.tile_effect_sprites['selected']),
-                                    randomrotate=True,
-                                    randomflip=True,
-                                    size=self.tile_size)
-        self.b_blit(img, selected.position)
-        # self.surf.blit(img, (x*tw, y*th-(img.get_height()-th)))
+        if self.s_tile is None: return
         
-        p = selected.piece
-        if p is None: return
-        # print(p.get_options())
-        for (x, y), oc in p.get_options().items():
+        
+        # Selected tile effect
+        # TODO: Sprite effects can be in the outcome class?
+        img = np.random.choice(al.tile_effect_sprites['selected'])
+        img = self.sprite_transform(img=img, randomrotate=True, randomflip=True, size=self.tile_size)
+        self.b_blit(img, self.s_pos)
+        
+        if self.s_piece is None: return
+        for t, oc in self.s_piece.outcomes().items():
+            x, y = t.position
             match oc.name:
                 case 'Move':
                     img = al.tile_effect_sprites['move']
@@ -130,27 +130,20 @@ class ChessUI:
                 case _:
                     print('DRAWING VIABLE: Unknown outcome:', oc.name)
                     continue
-            img = self.sprite_transform(img=img,
-                                        randomrotate=True,
-                                        randomflip=True,
-                                        size=self.tile_size)
+            
+            img = self.sprite_transform(img=img, randomrotate=True, randomflip=True, size=self.tile_size)
             self.b_blit(img, (x, y))
-
-            # self.surf.blit(img, (x*tw, y*th-(img.get_height()-th)))
         
     def draw_pieces(self, exclude: Optional[list]=None):
-        # tw, th = self.tile_size
-        # All pieces in board positions
+        # All pieces on board
         for tile in self.board:
             p = tile.piece
             if p is None: continue
             if exclude is not None and p in exclude: continue
             
-            # x, y = tile.position
             ratio = p.sprite.get_height() / p.sprite.get_width()
             img = self.sprite_transform(p.sprite, size=(self.tile_width, int(self.tile_width * ratio)))
             self.b_blit(img, tile.position)
-            # self.surf.blit(img, (x*tw, y*th-(img.get_height()-th)))
     
     def draw_preview(self):
         # Currently-hovered outcome
@@ -190,9 +183,22 @@ class ChessUI:
         self.bsurf.blit(img, self.board_origin + (x*tw, y*th-(img.get_height()-th)))
     
     @property
+    def s_pos(self) -> Position:
+        return self.s_tile.position if self.s_tile is not None else None
+    @s_pos.setter # TODO: Deprecate?
+    def s_pos(self, value: Position):
+        self.s_tile = self.board.get_tile(value)
+    
+    @property
+    def s_piece(self) -> Optional[ChessPiece]:
+        return self.s_tile.piece if self.s_tile is not None else None
+    @s_piece.setter # TODO: Deprecate?
+    def s_piece(self, value: ChessPiece):
+        self.s_tile = self.board.get_tile(value.position)
+    
+    @property
     def board(self) -> object: # TODO: Give more classes getters like this.
         return OBJREF.BOARD
-    
     
     @property
     def width(self) -> int:

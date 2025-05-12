@@ -15,7 +15,7 @@ from chess.chess_types import DirCls as D
 # One action could have multiple possible outcomes depending on selected tile.
 
 from chess.actions.outcome import Outcome
-
+from chess.tiles.tile import Tile
 
 class Action:
     name: str
@@ -27,12 +27,12 @@ class Action:
      # TODO: Avoid overwriting with multiple positions!
      #      Use a list?
      #      Or an 'insert' method which handles this?
-    outcomes: Dict[Position, Outcome]
+    outcomes: Dict[Tile, Outcome]
     
     def __init__(self, piece):
         self.name = self.__class__.__name__
         self.piece = piece
-        self.outcomes: Dict[Position, Outcome] = {}
+        self.outcomes: Dict[Tile, Outcome] = {}
         # self.action_count = 0
     
     def update(self):

@@ -1,5 +1,5 @@
-import pygame as pg
 import os
+import pygame as pg
 
 from globalref import OBJREF
 
@@ -31,6 +31,8 @@ OBJREF.UI = ui
 
 from ui.input_handler import InputHandler
 ih = InputHandler(ui)
+
+board.update()
 
 
 # game loop

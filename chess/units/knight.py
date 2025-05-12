@@ -26,9 +26,9 @@ class KnightCapture(Action):
             if t is None: continue # OOB tile
             
             if p is None:
-                self.outcomes[tuple(pos)] = Move(self.piece, pos)
+                self.outcomes[t] = Move(self.piece, pos)
             elif p.loyalty != self.loyalty: # No friendly fire
-                self.outcomes[tuple(pos)] = Capture(self.piece, pos, p)
+                self.outcomes[t] = Capture(self.piece, pos, p)
 
 
 

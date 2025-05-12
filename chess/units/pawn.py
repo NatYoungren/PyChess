@@ -24,7 +24,7 @@ class PawnMoveOnly(Action):
                               length=2 if self.move_count == 0 else 1,
                               enemy_ok=False)
         for pos, t, p in tdata:
-            self.outcomes[tuple(pos)] = Move(self.piece, pos)
+            self.outcomes[t] = Move(self.piece, pos)
         
 class PawnCaptureOnly(Action):
     """
@@ -39,7 +39,7 @@ class PawnCaptureOnly(Action):
             if t is None: continue # OOB tile
             if p is None: continue # No piece to capture
             if p.loyalty == self.loyalty: continue # No friendly fire
-            self.outcomes[tuple(pos)] = Capture(self.piece, pos, p)
+            self.outcomes[t] = Capture(self.piece, pos, p)
 
 
 class Pawn(ChessPiece):
