@@ -69,10 +69,8 @@ class ChessUI:
         self.bg_color: Tuple[int, int, int] = bg_color
         
         self.surf: Surface = pg.display.set_mode(self.window_size) # Window surface
-        # self.bsurf: Surface = Surface(self.window_size) # Board surface
-        # self.uisurf? # A surface for sidebars, only update every now and again?
         self.bsurf: Surface = Surface(self.window_size, flags=pg.SRCALPHA) # Board surface
-        
+        # self.uisurf? # A surface for sidebars, only update every now and again?
         # self.psurf: Surface = Surface(self.window_size) # Preview surface?
         
         pg.display.set_caption(window_title)
