@@ -44,30 +44,49 @@ class ChessUI:
         if config is None: config = graphics_config
         return cls(**{**config, **kwargs})
     
+    # Graphics config
+    fps: int
     window_size: Tuple[int, int]
     tile_size: Tuple[int, int]
     bg_color: Tuple[int, int, int]
+    
+    # Pygame surfaces
     surf: Surface
     bsurf: Surface
     
+    # # Mouse position
+    # m_pos: Position
+    
+    # Selected tile
     s_tile: Optional[Tile]
     s_pos: Optional[Position]
     s_piece: Optional[ChessPiece]
     
+    # Hovered tile
+    h_tile: Optional[Tile]
+    h_pos: Optional[Position]
+    h_piece: Optional[ChessPiece]
+    
+    # Frame counter
     frame: int
-
+    _hide_cursor: bool = False
+    
     def __init__(self,
-                 window_width: int,
-                 window_height: int,
-                 tile_size: Union[int, Tuple[int, int]],
-                 bg_color: Tuple[int, int, int],
+                 fps: int = 60,
+                 hide_cursor: bool = False,
+                 tile_size: Union[int, Tuple[int, int]] = 65,
+                 window_width: int = 1280,
+                 window_height: int = 720,
+                 bg_color: Tuple[int, int, int] = (0, 0, 0),
                  window_title: str = 'PyChess',
                  **kwargs):
         
+        self.fps: int = fps
         self.window_size: Tuple[int, int] = (window_width, window_height)
         self._tile_size: int = tile_size
         self.bg_color: Tuple[int, int, int] = bg_color
         
+        # TODO: Have window surf exist globally, and just write to it?
         self.surf: Surface = pg.display.set_mode(self.window_size) # Window surface
         self.bsurf: Surface = Surface(self.window_size, flags=pg.SRCALPHA) # Board surface
         # self.uisurf? # A surface for sidebars, only update every now and again?
@@ -75,12 +94,14 @@ class ChessUI:
         
         pg.display.set_caption(window_title)
         
+        self.hide_cursor: bool = hide_cursor
         
         for k, v in kwargs.items():
             print('\tChessUI: Unrecognized config:', k, v)
         
         # TODO: property for protected field?
-        self.s_tile: Tile = None
+        self.s_tile: Optional[Tile] = None
+        self.h_tile: Optional[Tile] = None
         self.frame: int = 0
     
     def draw(self):
@@ -91,9 +112,10 @@ class ChessUI:
         self.draw_pieces()
         
         self.draw_ui()
-        self.draw_cursor()
         
         self.surf.blit(self.bsurf, (0, 0))
+        self.draw_cursor()
+
         pg.display.flip()
         
         self.frame += 1
@@ -110,23 +132,41 @@ class ChessUI:
             self.b_blit(img, t.position)
         
     def draw_tile_effects(self):
+        # TODO: Move somewhere else.
+        #       Do not draw under other effects (move effect drawing into tiles/outcomes).
+        if self.h_tile is not None:
+            # Hovered tile effect
+            img = al.tile_effect_sprites['selected'][self.frame//(self.fps)%len(al.tile_effect_sprites['selected'])]
+            # img = al.tile_effect_sprites['hovered'][self.frame//(self.fps)%len(al.tile_effect_sprites['hovered'])]
+            img = self.sprite_transform(img=img,
+                                        randomrotate=False,
+                                        rotate_by=self.frame//(self.fps//4),
+                                        randomflip=False, size=self.tile_size)
+            self.b_blit(img, self.h_pos)
+            
         if self.s_tile is None: return
         
         # Selected tile effect
         # TODO: Sprite effects can be in the outcome class?
-        img = al.tile_effect_sprites['selected'][self.frame//24%len(al.tile_effect_sprites['selected'])]
+        img = al.tile_effect_sprites['selected'][self.frame//(self.fps)%len(al.tile_effect_sprites['selected'])]
         img = self.sprite_transform(img=img,
                                     randomrotate=False,
-                                    rotate_by=self.frame//6,
+                                    rotate_by=self.frame//(self.fps//4),
                                     randomflip=False, size=self.tile_size)
         self.b_blit(img, self.s_pos)
         
         if self.s_piece is None: return
         for t, oc in self.s_piece.outcomes.items():
             x, y = t.position
+            rot = True
             match oc.name:
                 case 'Move':
-                    img = al.tile_effect_sprites['move']
+                    if t == self.h_tile:
+                        img = al.tile_effect_sprites['blinds']['move'][self.frame//(self.fps//4)%len(al.tile_effect_sprites['blinds']['move'])]
+                        rot = False
+                    else:
+                        img = al.tile_effect_sprites['move']
+                    
                 case 'Capture':
                     img = al.tile_effect_sprites['capture']
                 case 'Castle':
@@ -137,9 +177,10 @@ class ChessUI:
             
             img = self.sprite_transform(img=img,
                                         randomrotate=False,
-                                        rotate_by=self.frame//6,
+                                        rotate_by=self.frame//(self.fps//4) if rot else 0,
                                         randomflip=False, size=self.tile_size)
             self.b_blit(img, (x, y))
+        
         
     def draw_pieces(self, exclude: Optional[list]=None):
         # All pieces on board
@@ -161,7 +202,12 @@ class ChessUI:
         pass
     
     def draw_cursor(self):
-        pass
+        if not self.hide_cursor: return # If using system cursor, don't draw.
+        x, y = pg.mouse.get_pos()
+        # x, y = self.m_pos
+        img = al.cursor_sprites['default']
+        img = pg.transform.scale(img, (self.tile_width//2, self.tile_height//2))
+        self.surf.blit(img, (x - img.get_width()//2.25, y - img.get_height()//5))
     
     def sprite_transform(self,
                          img: Surface,
@@ -175,6 +221,7 @@ class ChessUI:
         if randomflip: img = pg.transform.flip(img, *np.random.randint(0, 2, 2))
         if randomrotate:
             img = pg.transform.rotate(img, np.random.randint(0, 4)*90)
+        
         elif isinstance(rotate_by, int):
             img = pg.transform.rotate(img, rotate_by*90)
             
@@ -207,6 +254,20 @@ class ChessUI:
     @s_piece.setter # TODO: Deprecate?
     def s_piece(self, value: ChessPiece):
         self.s_tile = self.board.get_tile(value.position)
+    
+    @property
+    def h_pos(self) -> Position:
+        return self.h_tile.position if self.h_tile is not None else None
+    @h_pos.setter # TODO: Deprecate?
+    def h_pos(self, value: Position):
+        self.h_tile = self.board.get_tile(value)
+    
+    @property
+    def h_piece(self) -> Optional[ChessPiece]:
+        return self.h_tile.piece if self.h_tile is not None else None
+    @h_piece.setter # TODO: Deprecate?
+    def h_piece(self, value: ChessPiece):
+        self.h_tile = self.board.get_tile(value.position)
     
     @property
     def board(self) -> object: # TODO: Give more classes getters like this.
@@ -247,7 +308,46 @@ class ChessUI:
                         (self.height - self.b_height) // 2))
         # return Vector(0, 0)
     
+    @property
+    def hide_cursor(self) -> bool:
+        return self._hide_cursor
+    @hide_cursor.setter
+    def hide_cursor(self, value: bool):
+        self._hide_cursor = value
+        if value:
+            pg.mouse.set_visible(False)
+            pg.mouse.set_pos(self.width // 2, self.height // 2)
+        else:
+            pg.mouse.set_visible(True)
     
     # TODO: Implement this and call when window is resized or board is zoomed/resized.
     # def update_board_origin(self, x: int, y: int):
     #     self.board_origin = Vector(x, y)
+    
+    
+    # TODO: Remove or rework.
+    def draw_tile_edges(self):
+        for t in self.board:
+            # TODO: This is a total clusterfuck, but it KINDA works.
+            #       Needs half-tiles or a one-gap edge tile.
+            
+            # Draw an edge for the tile above
+            if t.tiletype == TileType.VOID:
+                t1 = self.board.get_tile(t.position - D.f)
+                if t1 is not None and t1.tiletype != TileType.VOID:
+                    flt = self.board.get_tile(t.position - D.f_l)
+                    lt = self.board.get_tile(t.position - D.l)
+                    frt = self.board.get_tile(t.position - D.f_r)
+                    rt = self.board.get_tile(t.position - D.r)
+                    # print(t.tiletype, t1.tiletype, flt.tiletype, lt.tiletype, frt.tiletype, rt.tiletype)
+                    cont_left = flt is not None and flt.tiletype != TileType.VOID and (lt is None or lt.tiletype == TileType.VOID)
+                    cont_right = frt is not None and frt.tiletype != TileType.VOID and (rt is None or rt.tiletype == TileType.VOID)
+                    if cont_left and cont_right:
+                        img = al.tile_sprites[TileType.VOID]['center']
+                    elif cont_left:
+                        img = al.tile_sprites[TileType.VOID]['right']
+                    elif cont_right:
+                        img = al.tile_sprites[TileType.VOID]['left']
+                    img = self.sprite_transform(img, size=self.tile_size)
+                    self.b_blit(img, t.position)
+                    

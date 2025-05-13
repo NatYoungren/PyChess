@@ -4,14 +4,14 @@ import pygame as pg
 from globalref import OBJREF
 
 
-board_csv = 'default_board.csv'
-piece_csv = 'default_pieces.csv'
+# board_csv = 'default_board.csv'
+# piece_csv = 'default_pieces.csv'
 
 # board_csv = 'void_board.csv'
 # piece_csv = 'void_pieces.csv'
 
-# board_csv = 'obstacle_board.csv'
-# piece_csv = 'obstacle_pieces.csv'
+board_csv = 'obstacle_board.csv'
+piece_csv = 'obstacle_pieces.csv'
 
 board_dir = 'chess/board_csvs'
 piece_dir = 'chess/piece_csvs'
@@ -36,12 +36,12 @@ board.update()
 
 
 # game loop
-target_fps = 30
+target_fps = 60
 game_clock = pg.time.Clock()
 while ih.running:
-    ui.draw()
-
+    ih.update_mousepos()
     for event in pg.event.get(): 
         ih.handle_event(event)
+    ui.draw()
     game_clock.tick(target_fps)
 
