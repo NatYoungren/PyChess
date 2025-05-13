@@ -54,6 +54,8 @@ class ChessUI:
     s_pos: Optional[Position]
     s_piece: Optional[ChessPiece]
     
+    frame: int
+
     def __init__(self,
                  window_width: int,
                  window_height: int,
@@ -79,9 +81,9 @@ class ChessUI:
         for k, v in kwargs.items():
             print('\tChessUI: Unrecognized config:', k, v)
         
-        # TODO: property?
+        # TODO: property for protected field?
         self.s_tile: Tile = None
-
+        self.frame: int = 0
     
     def draw(self):
         self.draw_background()
@@ -95,6 +97,8 @@ class ChessUI:
         
         self.surf.blit(self.bsurf, (0, 0))
         pg.display.flip()
+        
+        self.frame += 1
     
     def draw_background(self):
         self.surf.fill(self.bg_color)
@@ -110,11 +114,13 @@ class ChessUI:
     def draw_tile_effects(self):
         if self.s_tile is None: return
         
-        
         # Selected tile effect
         # TODO: Sprite effects can be in the outcome class?
-        img = np.random.choice(al.tile_effect_sprites['selected'])
-        img = self.sprite_transform(img=img, randomrotate=True, randomflip=True, size=self.tile_size)
+        img = al.tile_effect_sprites['selected'][self.frame//24%len(al.tile_effect_sprites['selected'])]
+        img = self.sprite_transform(img=img,
+                                    randomrotate=False,
+                                    rotate_by=self.frame//6,
+                                    randomflip=False, size=self.tile_size)
         self.b_blit(img, self.s_pos)
         
         if self.s_piece is None: return
@@ -131,7 +137,10 @@ class ChessUI:
                     print('DRAWING VIABLE: Unknown outcome:', oc.name)
                     continue
             
-            img = self.sprite_transform(img=img, randomrotate=True, randomflip=True, size=self.tile_size)
+            img = self.sprite_transform(img=img,
+                                        randomrotate=False,
+                                        rotate_by=self.frame//6,
+                                        randomflip=False, size=self.tile_size)
             self.b_blit(img, (x, y))
         
     def draw_pieces(self, exclude: Optional[list]=None):
@@ -160,18 +169,23 @@ class ChessUI:
                          img: Surface,
                          randomflip: bool=False,
                          randomrotate: bool=False,
+                         rotate_by: Optional[int]=None,
                          size: Union[None, int, Tuple[int, int]]=None) -> Surface:
         """
         Transform a sprite to the given size.
         """
         if randomflip: img = pg.transform.flip(img, *np.random.randint(0, 2, 2))
-        if randomrotate: img = pg.transform.rotate(img, np.random.randint(0, 4)*90)
+        if randomrotate:
+            img = pg.transform.rotate(img, np.random.randint(0, 4)*90)
+        elif isinstance(rotate_by, int):
+            img = pg.transform.rotate(img, rotate_by*90)
+            
         if size is not None:
             if isinstance(size, int): size = (size, size)
             img = pg.transform.scale(img, size)
         return pg.transform.scale(img, size)
     
-    # TODO: Method to refresh the 
+    # TODO: Method to refresh tile effects?
     
     
     def b_blit(self, img: Surface, pos: Position):
