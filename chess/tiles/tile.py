@@ -7,7 +7,7 @@ from chess.chess_types import TileType, Loyalty, Direction, Vector
 
 class Tile:
     position: Position
-    sprite: Optional[object] # TODO: Use a sprite typealias or pg type
+    sprite: Optional[object] # TODO: Use a sprite typealias or pg type or property?
     
     tiletype: TileType
     piece: Optional[PieceType]
@@ -31,7 +31,7 @@ class Tile:
         
         self.piece: Optional[PieceType] = None
         
-        self.objects: List[ChessObject] = [] # TODO: implement?
+        # self.objects: List[ChessObject] = [] # TODO: implement?
     
     # # TODO: Implement in subclasses?
     # def can_enter(self, piece: PieceType):

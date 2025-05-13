@@ -52,7 +52,15 @@ class AssetLoader:
     
     TILE_SPRITE_DIRECTORY = os.path.join('assets', 'tiles')
     TILE_SPRITE_FILES = {
-        TileType.VOID: "tiles5.png",
+        TileType.VOID: (
+            "tiles5.png",
+            "tiles6.png"
+        ),
+            
+        #     "center": "tiles6.png", # TODO: Use these on top of VOID tiles, to show perspective/bottom of normal tiles.
+        #     "right": "tiles7.png",  #
+        #     "left": "tiles8.png",   #
+        
         TileType.DEFAULT: (
             "tiles1.png",
             "tiles2.png",
@@ -63,8 +71,8 @@ class AssetLoader:
             "tiles4.png",
         ),
         TileType.CHASM: (
-            "tiles3.png",
-            "tiles4.png",
+            "tiles7.png",
+            "tiles8.png",
         )
     }
 
@@ -77,6 +85,11 @@ class AssetLoader:
             "tile_effects4.png",
         ),
         'misc': 'tile_effects5.png', # Castle, ?, etc.
+        'blinds': {
+            'move': ('tile_effect_blinds1.png',
+                     'tile_effect_blinds2.png',
+                     'tile_effect_blinds3.png'),
+        }
     }
 
     # UI_SPRITE_DIRECTORY = os.path.join('assets', 'ui')

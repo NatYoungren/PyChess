@@ -21,3 +21,9 @@ class WallTile(Tile):
         
         sprite = al.tile_sprites.get(tiletype, (None, None))[int(position[0] % 2 == position[1] % 2)]
         super().__init__(position, tiletype, sprite=sprite)
+        
+    def update(self):
+        super().update()
+        if self.piece is not None:
+            print(f'WallTile: {self.piece} was crushed by an obstacle.')
+            self.piece = None
