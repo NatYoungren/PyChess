@@ -118,7 +118,7 @@ class ChessUI:
         self.b_blit(img, self.s_pos)
         
         if self.s_piece is None: return
-        for t, oc in self.s_piece.outcomes().items():
+        for t, oc in self.s_piece.outcomes.items():
             x, y = t.position
             match oc.name:
                 case 'Move':

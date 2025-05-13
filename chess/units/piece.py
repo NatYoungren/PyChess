@@ -51,7 +51,9 @@ class ChessPiece:
         # Should track a turn-stamped history of positions?
         self.position_history: List[Position] = [self.position]
         self.move_history: List[Vector] = []
-    
+        
+        # Tile -> Outcome
+        self._outcomes: Optional[Dict[object, object]] = None # TODO: Use a better type?
     
     # # # # # # # # # #
     # ACTION METHODS
@@ -59,17 +61,22 @@ class ChessPiece:
         """
         Update all actions for this piece.
         """
+        self._outcomes = None # Delete cached outcomes?
         for action in self.actions:
             action.update()
-    
-    def outcomes(self) -> Dict[Position, object]: # Outcome!
+
+    # returns: Tile -> Outcome
+    @property
+    def outcomes(self) -> Dict[object, object]:
         """
-        Get the possible options for this piece.
+        Returns possible action outcomes for this piece.
         """
-        options = {}
-        for action in self.actions:
-            options.update(action.outcomes)
-        return options
+        if self._outcomes is None:
+            self._outcomes = {}
+            for action in self.actions:
+                self._outcomes.update(action.outcomes)
+                
+        return self._outcomes
     #
     # # # # # # # # # #
     

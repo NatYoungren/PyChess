@@ -54,7 +54,7 @@ class InputHandler:
             return
         
         if self.ui.s_piece is not None:
-            outcome = self.ui.s_piece.outcomes().get(tile, None)
+            outcome = self.ui.s_piece.outcomes.get(tile, None)
             
             if self.board.realize(outcome):
                 self.board.update()
