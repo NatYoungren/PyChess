@@ -13,6 +13,10 @@ class Tile:
     piece: Optional[PieceType]
     # objects: List[ChessObject] # TODO: implement?
     
+    is_blocked: bool = False
+    is_deadly: bool = False
+    is_void: bool = False
+    
     def __init__(self,
                  position: Position,
                  tiletype: TileType = TileType.DEFAULT,

@@ -14,11 +14,16 @@ class VoidTile(Tile):
     """
     Void tile subclass.
     """
+    
+    is_void: bool = True
+    # is_blocked: bool = False
+    # is_deadly: bool = False # ?
+    
     def __init__(self,
                  position: Position,
                  tiletype: TileType = TileType.VOID):
         
-        sprite = al.tile_sprites.get(tiletype, None)# (None, None))[int(position[0] % 2 == position[1] % 2)]
+        sprite = al.tile_sprites.get(tiletype, None)
         super().__init__(position, tiletype, sprite=sprite)
         
         # if self.sprite is None: self.sprite = al.DEFAULT_TILE_SPRITE

@@ -14,6 +14,7 @@ class WallTile(Tile):
     """
     Wall tile subclass.
     """
+    is_blocked: bool = True
     def __init__(self,
                  position: Position,
                  tiletype: TileType = TileType.WALL):

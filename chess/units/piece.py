@@ -129,12 +129,16 @@ class ChessPiece:
             v = dir * i
             pos, tile, piece = self.at_vec(v, start)
             
-            if tile is None:
+            
+            if tile is None or tile.is_void:
                 if jump_gap:
                     continue
                 else:
                     break
-                
+            
+            if tile.is_blocked:
+                break
+            
             piece = tile.piece
             if piece is not None: # If piece on tile
                 if piece.loyalty == self.loyalty:
