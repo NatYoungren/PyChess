@@ -24,6 +24,8 @@ class KnightCapture(Action):
         for v in self.VECTORS: # Knight vectors
             pos, t, p = self.at_vec(v)
             if t is None: continue # OOB tile
+            if t.is_blocked: continue # Blocked tile
+            if t.is_void: continue # Void tile
             
             if p is None:
                 self.outcomes[t] = Move(self.piece, pos)
