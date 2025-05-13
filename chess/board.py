@@ -27,14 +27,14 @@ from chess.actions.outcome import Outcome
 BoardTiles: TypeAlias = np.ndarray[Tile]
 
 class Board:
+    # Board Tiles (contains Pieces)
     _board: BoardTiles
     
+    # Game data
     move_history: List[Tuple[Position, Position]]
     turn_order: Tuple[Loyalty]
     turn: int
-    
-    # selected_tile: Optional[Tile] # ? Have a 'game' manager to handle user interaction?
-    
+        
     # CSV file references (TODO: DEPRECATE)
     _initial_tiles: str
     _initial_pieces: str
@@ -55,19 +55,10 @@ class Board:
         
         self.turn_order = turn_order
         self.turn = 0
-        
-        # self.selected_tile: Optional[Tile] = None # Deprecate?
-    
+            
     @property
     def current_turn(self) -> Loyalty:
-        """
-        Returns the current turn.
-        """
         return self.turn_order[self.turn % len(self.turn_order)]
-
-    # @property # Deprecate?
-    # def selected(self) -> Optional[ChessPiece]:
-    #     return self.selected_tile.piece if self.selected_tile is not None else None
     
     @property
     def shape(self) -> Tuple[int, int]: # NOTE: Reverse x and y for numpy.
