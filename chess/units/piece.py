@@ -28,6 +28,14 @@ class ChessPiece:
     #       Global reference instead?
     #       Or pass it in as needed?
     
+    FACING: Dict[Loyalty, Direction] = {
+        # Loyalty.NONE: (0, 0), # NOTE: SHOULD CREATE ERROR?
+        Loyalty.WHITE: (0, -1),
+        Loyalty.WHITE_AUTO: (0, -1),
+        Loyalty.BLACK: (0, 1),
+        Loyalty.BLACK_AUTO: (0, 1),
+    }
+    
     def __init__(self,
                  loyalty: Loyalty=Loyalty.NONE,
                  position: Position = (0, 0),
@@ -40,10 +48,8 @@ class ChessPiece:
         self.piece_type: PieceType = piece_type
         
         self.sprite = al.piece_sprites.get(self.loyalty, {}).get(self.piece_type, al.DEFAULT_PIECE_SPRITE)
-        
-        # TODO: Placeholder, deprecate / improve?
-        self.facing = (0, -1) if loyalty == Loyalty.WHITE else (0, 1)
-        self.facing = np.asarray(self.facing)
+            
+        self.facing = np.asarray(self.FACING[self.loyalty])
         
         self._position: Position = np.asarray(position) # TODO: Would this be good to store in piece?
         self.move_count: int = 0
@@ -115,7 +121,7 @@ class ChessPiece:
     # # #
     # HELPER METHODS
     def get_line(self,
-                 dir: Direction, length: int, start: Position=None,
+                 line_dir: Direction, length: int, start: Position=None,
                  can_move: bool = True,
                  enemy_ok: bool = True, ally_ok: bool = False,
                  jump_enemy: bool = False, jump_ally: bool = False,
@@ -126,7 +132,7 @@ class ChessPiece:
         """
         line = []
         for i in range(1, length+1):
-            v = dir * i
+            v = line_dir * i
             pos, tile, piece = self.at_vec(v, start)
             
             
@@ -139,7 +145,6 @@ class ChessPiece:
             if tile.is_blocked:
                 break
             
-            piece = tile.piece
             if piece is not None: # If piece on tile
                 if piece.loyalty == self.loyalty:
                     if ally_ok:
