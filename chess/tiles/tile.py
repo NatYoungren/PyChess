@@ -67,5 +67,5 @@ class Tile:
         pass
     
     def __repr__(self):
-        return f"Tile({self.position} : {self.tiletype.name}) -> ({self.piece} : {self.objects})"
+        return f"Tile({self.position} : {self.tiletype.name}) -> ({self.piece})"# : {self.objects})"
     
