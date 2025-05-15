@@ -24,9 +24,11 @@ class AssetLoader:
             PieceType.QUEEN: "W_Queen.png",
             PieceType.KING: "W_King.png",
             PieceType.SUMMONER: "Summoner1.png",
-            PieceType.ZOMBIE: "Zombie1.png",
             },
-        
+        Loyalty.WHITE_AUTO: {
+            PieceType.ZOMBIE: "Zombie1.png",
+        },
+
         Loyalty.BLACK: {
             PieceType.PAWN: "B_Pawn.png",
             PieceType.KNIGHT: "B_Knight.png",
@@ -35,6 +37,8 @@ class AssetLoader:
             PieceType.QUEEN: "B_Queen.png",
             PieceType.KING: "B_King.png",
             PieceType.SUMMONER: "Summoner2.png",
+        },
+        Loyalty.BLACK_AUTO: {
             PieceType.ZOMBIE: "Zombie2.png",
         },
         

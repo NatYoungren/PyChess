@@ -45,15 +45,50 @@ class Summoner(ChessPiece):
 
 
 class ZombieMove(Action):
-    def update(self):
+    def update(self, retry:bool=True):
         super().update()
         for v in (D.f,):
             for pos, t, p in self.get_line(v, length=1, enemy_ok=True, ally_ok=True):
-                if t is None: continue
+                if t is None or t.is_void or t.is_blocked: continue
                 self.outcomes[t] = Move(self.piece, pos) if p is None else Capture(self.piece, pos, p)
+        if not self.outcomes:
+            # print('ZombieMove: no outcomes')
+            if retry:
+                # print('ZombieMove: retrying')
+                self.piece.change_facing()
+                self.update(retry=False)
 
 # TODO: Zombies should die when summoner dies?
 class Zombie(ChessPiece):
-    def __init__(self, loyalty: Loyalty, position):
+    def __init__(self, loyalty: Loyalty, position, facing: Vector=None):
+        # Shift to 'auto' loyalty
+        # TODO: Improve this to not be kinda wonky.
+        if loyalty != loyalty.NONE and loyalty.value % 1 == 0: loyalty = Loyalty(loyalty.value - 0.5)
         super().__init__(loyalty=loyalty, piece_type=PieceType.ZOMBIE, position=position)
         self.actions.append(ZombieMove(self))
+
+    def change_facing(self, sight_range: int=7):
+        # TODO: Remove 'sight' it is confusing.
+        # Left zombies should always turn 90 degrees right?
+        # Right zombies should always turn 90 degrees left?
+        print("USING SHITTY ZOMBIE FACING FUNCTION")
+        dirs = D.cardinal
+        priority = np.zeros(len(dirs), dtype=int)
+        
+        for i, v in enumerate(dirs):
+            if self.orient_vector(v) == self.facing: continue
+            l = self.get_line(v, length=7, enemy_ok=True, ally_ok=True)
+            if not l:
+                # print('no line:', v)
+                continue
+            pos, t, p = l[-1]
+            if p is None:
+                # print('no piece:', v)
+                continue
+            priority[i] = sight_range-len(l)
+            # print('line:', v, l)
+        
+        # print('changing facing:', priority)
+        dir_p = dirs[np.argmax(priority)]
+        self.facing = self.orient_vector(dir_p)
+        # print('new facing:', self.facing)

@@ -49,17 +49,21 @@ class PieceType(Enum):
 
 class Loyalty(Enum):
     NONE = 0
+    
+    WHITE_AUTO = 0.5
     WHITE = 1
+    
+    BLACK_AUTO = 1.5
     BLACK = 2
 
 
 
 
 class Direction(Enum): # Make np?
-    FORWARD = (0, 1)
-    BACKWARD = (0, -1)
-    LEFT = (-1, 0)
-    RIGHT = (1, 0)
+    NORTH = (0, 1)
+    EAST = (1, 0)
+    SOUTH = (0, -1)
+    WEST = (-1, 0)
     
 
 
@@ -77,16 +81,16 @@ class DirCls:
     
     @classproperty
     def f(cls) -> Vector:
-        return np.asarray(Direction.FORWARD.value)
+        return np.asarray(Direction.NORTH.value)
     @classproperty
     def b(cls) -> Vector:
-        return np.asarray(Direction.BACKWARD.value)
+        return np.asarray(Direction.SOUTH.value)
     @classproperty
     def l(cls) -> Vector:
-        return np.asarray(Direction.LEFT.value)
+        return np.asarray(Direction.WEST.value)
     @classproperty
     def r(cls) -> Vector:
-        return np.asarray(Direction.RIGHT.value)
+        return np.asarray(Direction.EAST.value)
     
     @classproperty
     def f_l(cls) -> Vector:
