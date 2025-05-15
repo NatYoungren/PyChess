@@ -2,7 +2,7 @@
 from chess.tiles.tile import Tile
 from chess.chess_types import TileType
 
-from chess.tiles.default import FloorTile
+from chess.tiles.floor import FloorTile
 from chess.tiles.void import VoidTile
 from chess.tiles.wall import WallTile
 from chess.tiles.chasm import ChasmTile
