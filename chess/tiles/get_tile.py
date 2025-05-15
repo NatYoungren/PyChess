@@ -2,16 +2,19 @@
 from chess.tiles.tile import Tile
 from chess.chess_types import TileType
 
-from chess.tiles.default import DefaultTile
+from chess.tiles.default import FloorTile
 from chess.tiles.void import VoidTile
 from chess.tiles.wall import WallTile
 from chess.tiles.chasm import ChasmTile
 
 piece_classes = {
     TileType.VOID: VoidTile,
-    TileType.DEFAULT: DefaultTile,
+    TileType.FLOOR: FloorTile,
     TileType.WALL: WallTile,
     TileType.CHASM: ChasmTile,
+    
+    TileType.DEFAULT: Tile,
+
 }
 
 def get_tile_class(tile_type: TileType):

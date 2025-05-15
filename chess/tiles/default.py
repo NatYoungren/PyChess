@@ -9,13 +9,13 @@ from chess.tiles.tile import Tile
 from chess.asset_loader import asset_loader as al
 # from globalref import OBJREF
 
-class DefaultTile(Tile):
+class FloorTile(Tile):
     """
-    Default tile subclass.
+    Floor tile subclass.
     """
     def __init__(self,
                  position: Position,
-                 tiletype: TileType = TileType.DEFAULT):
+                 tiletype: TileType = TileType.FLOOR):
         
         sprite = al.tile_sprites.get(tiletype, (None, None))[int(position[0] % 2 == position[1] % 2)]
 

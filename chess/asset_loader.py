@@ -32,10 +32,10 @@ class AssetLoader:
             PieceType.KNIGHT: "B_Knight.png",
             PieceType.BISHOP: "B_Bishop.png",
             PieceType.ROOK: "B_Rook.png",
-            PieceType.SUMMONER: "Summoner2.png",
-            PieceType.ZOMBIE: "Zombie2.png",
             PieceType.QUEEN: "B_Queen.png",
             PieceType.KING: "B_King.png",
+            PieceType.SUMMONER: "Summoner2.png",
+            PieceType.ZOMBIE: "Zombie2.png",
         },
         
         # TODO: Find better solution.
@@ -65,7 +65,7 @@ class AssetLoader:
         #     "right": "tiles7.png",  #
         #     "left": "tiles8.png",   #
         
-        TileType.DEFAULT: (
+        TileType.FLOOR: (
             "tiles1.png",
             "tiles2.png",
         ),
@@ -77,7 +77,8 @@ class AssetLoader:
         TileType.CHASM: (
             "tiles7.png",
             "tiles8.png",
-        )
+        ),
+        TileType.DEFAULT: "default_tile.png"
     }
 
     TILE_EFFECT_SPRITE_DIRECTORY = os.path.join('assets', 'tile_effects')

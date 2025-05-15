@@ -19,8 +19,9 @@ Position: TypeAlias = Tuple[int, int]   # TODO: Use numpy array
 class TileType(Enum):
     VOID = -1
     DEFAULT = 0
-    WALL = 1
-    CHASM = 2
+    FLOOR = 1
+    WALL = 2
+    CHASM = 3
 
 
 
