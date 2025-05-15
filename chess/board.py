@@ -39,7 +39,9 @@ class Board:
     _initial_tiles: str
     _initial_pieces: str
     
-    def __init__(self, tile_csv: str, piece_csv: str, turn_order: Tuple[Loyalty] = (Loyalty.WHITE, Loyalty.BLACK)):
+    def __init__(self, tile_csv: str, piece_csv: str,
+                 controlled_factions: Tuple[Loyalty] = (Loyalty.WHITE,),
+                 turn_order: Optional[Tuple[Loyalty]] = None):
         
         # TODO: Do not require csvs.
         #       Use dicts, and store as JSON.
@@ -51,14 +53,43 @@ class Board:
         
         # self.initial_board = self.board.copy() # Store initial piece positions? Or just rely on file...
         self.move_history: List[Tuple[Position, Position]] = [] # Deprecate?
-        self.history: List[Outcome] = []
+        self.history: List[Outcome] = [] # NOTE: List[Optional[Outcome]] now?
         
+        self.controlled_factions = controlled_factions
+        if turn_order is None:
+            turn_order = [value for value in Loyalty]
         self.turn_order = turn_order
         self.turn = 0
-            
+    
+    # TODO: This is a placeholder for future bot logic.
+    def random_outcome(self, loyalty: Optional[Loyalty] = None) -> Tuple[Optional[Tile], Optional[Outcome]]:
+        """
+        Returns a random outcome for the given loyalty.
+        """
+        if loyalty is None: loyalty = self.current_turn
+        
+        # Get all pieces for the given loyalty.
+        pieces = [t.piece for t in self if (t.piece is not None and t.piece.loyalty == loyalty)]
+        np.random.shuffle(pieces)
+        for p in pieces:
+            if p.outcomes:
+                oc_t = np.random.choice(list(p.outcomes.keys()))
+                oc = p.outcomes[oc_t]
+                return oc_t, oc
+            # for oc in np.random.shuffle(list(p.outcomes.values())):
+            #     return oc
+        return None, None       
+    
     @property
     def current_turn(self) -> Loyalty:
         return self.turn_order[self.turn % len(self.turn_order)]
+    
+    @property
+    def controlled_turn(self) -> bool:
+        """
+        Returns True if current turn is controlled by player.
+        """
+        return self.current_turn in self.controlled_factions
     
     @property
     def shape(self) -> Tuple[int, int]: # NOTE: Reverse x and y for numpy.
@@ -87,11 +118,17 @@ class Board:
         """
         # self.selected_tile = None
         if outcome is None: return False
-        
         outcome.realize(self) # TODO: Have Outcomes store turn when generated?
         self.history.append(outcome)
-        self.turn += 1
+        self.next_turn()
         return True
+    
+    def next_turn(self) -> None:
+        """
+        Moves to the next turn.
+        """
+        self.turn += 1
+        self.update()
     
     def update(self) -> None:
         """
