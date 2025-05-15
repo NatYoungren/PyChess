@@ -91,3 +91,21 @@ class Castle(Outcome):
         vec = vec // abs(sum(vec)) # NOTE: Should work because it is a cardinal vector
         self.king_piece.move(self.king_piece.position + vec*2)
         self.rook_piece.move(self.king_piece.position - vec)
+
+class Summon(Outcome):
+    piece: object
+    target: Position
+    summoned: object
+    
+    def __init__(self, piece, target: Position, summoned: object):
+        super().__init__()
+        self.piece = piece
+        self.target = target
+        self.summoned = summoned
+    
+    def realize(self, board):
+        super().realize(board)
+        t, p = board.at_pos(self.target)
+        if p is not None: # TODO: Debug, remove eventually.
+            raise ValueError("CANNOT SUMMON: Board is occupied.")
+        t.piece = self.summoned(loyalty=self.piece.loyalty, position=self.target)
