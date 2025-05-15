@@ -132,55 +132,72 @@ class ChessUI:
             self.b_blit(img, t.position)
         
     def draw_tile_effects(self):
-        # TODO: Move somewhere else.
-        #       Do not draw under other effects (move effect drawing into tiles/outcomes).
-        if self.h_tile is not None:
+        # Draw selected + outcome effects
+        if self.s_piece is not None:
+            
+            # Selected tile effect
+            # TODO: Sprite effects can be in the outcome class?
+            img = al.tile_effect_sprites['selected']
+            img = self.sprite_transform(img=img,
+                                        randomrotate=False,
+                                        rotate_by=self.frame//(self.fps//4),
+                                        randomflip=False, size=self.tile_size)
+            self.b_blit(img, self.s_pos)
+
+            for t, oc in self.s_piece.outcomes.items():
+                x, y = t.position
+                match oc.name:
+                    case 'Move':
+                        img = al.tile_effect_sprites['move']
+                    case 'Capture':
+                        img = al.tile_effect_sprites['capture']
+                    case 'Castle':
+                        img = al.tile_effect_sprites['castle']
+                    case 'Summon':
+                        img = al.tile_effect_sprites['summon']
+                    case _:
+                        print('DRAWING VIABLE: Unknown outcome:', oc.name)
+                        continue
+                
+                img = self.sprite_transform(img=img,
+                                            randomrotate=False,
+                                            rotate_by=self.frame//(self.fps//4),
+                                            randomflip=False, size=self.tile_size)
+                self.b_blit(img, (x, y))
+        
+        # Draw outcome hover effects
+        if self.s_piece is not None and self.h_tile in self.s_piece.outcomes.keys():
+            oc = self.s_piece.outcomes[self.h_tile]
+            match oc.name:
+                case 'Move':
+                    imgs = al.tile_effect_sprites['blinds']['move']
+                case 'Capture':
+                    imgs = al.tile_effect_sprites['blinds']['capture']#[self.frame//(self.fps//4)%len(al.tile_effect_sprites['blinds']['capture'])]
+                case 'Castle':
+                    imgs = al.tile_effect_sprites['blinds']['castle']#[self.frame//(self.fps//4)%len(al.tile_effect_sprites['blinds']['castle'])]
+                case 'Summon':
+                    imgs = al.tile_effect_sprites['blinds']['summon']#[self.frame//(self.fps//4)%len(al.tile_effect_sprites['blinds']['summon'])]
+                case _:
+                    print('DRAWING VIABLE: Unknown outcome:', oc.name)
+                    imgs = []
+            if imgs:
+                img = imgs[self.frame//(self.fps//4)%len(imgs)]
+                img = self.sprite_transform(img=img, size=self.tile_size)
+                self.b_blit(img, self.h_pos)
+        
+        # Draw non-outcome hover effects
+        elif self.h_tile is not None and self.h_tile != self.s_tile:
+            # TODO: Move somewhere else.
+            #       Do not draw under other effects (move effect drawing into tiles/outcomes).
             # Hovered tile effect
-            img = al.tile_effect_sprites['selected'][self.frame//(self.fps)%len(al.tile_effect_sprites['selected'])]
+            img = al.tile_effect_sprites['hover'][self.frame//(self.fps)%len(al.tile_effect_sprites['hover'])]
             # img = al.tile_effect_sprites['hovered'][self.frame//(self.fps)%len(al.tile_effect_sprites['hovered'])]
             img = self.sprite_transform(img=img,
                                         randomrotate=False,
                                         rotate_by=self.frame//(self.fps//4),
                                         randomflip=False, size=self.tile_size)
             self.b_blit(img, self.h_pos)
-            
-        if self.s_tile is None: return
-        
-        # Selected tile effect
-        # TODO: Sprite effects can be in the outcome class?
-        img = al.tile_effect_sprites['selected'][self.frame//(self.fps)%len(al.tile_effect_sprites['selected'])]
-        img = self.sprite_transform(img=img,
-                                    randomrotate=False,
-                                    rotate_by=self.frame//(self.fps//4),
-                                    randomflip=False, size=self.tile_size)
-        self.b_blit(img, self.s_pos)
-        
-        if self.s_piece is None: return
-        for t, oc in self.s_piece.outcomes.items():
-            x, y = t.position
-            rot = True
-            match oc.name:
-                case 'Move':
-                    if t == self.h_tile:
-                        img = al.tile_effect_sprites['blinds']['move'][self.frame//(self.fps//4)%len(al.tile_effect_sprites['blinds']['move'])]
-                        rot = False
-                    else:
-                        img = al.tile_effect_sprites['move']
-                    
-                case 'Capture':
-                    img = al.tile_effect_sprites['capture']
-                case 'Castle':
-                    img = al.tile_effect_sprites['misc']
-                case _:
-                    print('DRAWING VIABLE: Unknown outcome:', oc.name)
-                    continue
-            
-            img = self.sprite_transform(img=img,
-                                        randomrotate=False,
-                                        rotate_by=self.frame//(self.fps//4) if rot else 0,
-                                        randomflip=False, size=self.tile_size)
-            self.b_blit(img, (x, y))
-        
+
         
     def draw_pieces(self, exclude: Optional[list]=None):
         # All pieces on board

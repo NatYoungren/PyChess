@@ -1,8 +1,10 @@
 {
+"fps": 60,
+"hide_cursor": true,
+"tile_size": 64,
 "window_width": 1280,
 "window_height": 720,
 
-"bg_color": [45, 60, 75],
+"bg_color": [45, 60, 75]
 
-"tile_size": 64
 }
