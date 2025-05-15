@@ -44,14 +44,14 @@ class AssetLoader:
         }
     }
     
-    BOARD_SPRITE_DIRECTORY = os.path.join('assets', 'boards')
-    BOARD_SPRITE_FILES = {
-        1: "board_plain_01.png",
-        2: "board_plain_02.png",
-        3: "board_plain_03.png",
-        4: "board_plain_04.png",
-        5: "board_plain_05.png",
-    }
+    # BOARD_SPRITE_DIRECTORY = os.path.join('assets', 'boards')
+    # BOARD_SPRITE_FILES = {
+    #     1: "board_plain_01.png",
+    #     2: "board_plain_02.png",
+    #     3: "board_plain_03.png",
+    #     4: "board_plain_04.png",
+    #     5: "board_plain_05.png",
+    # }
 
     
     TILE_SPRITE_DIRECTORY = os.path.join('assets', 'tiles')
@@ -127,7 +127,7 @@ class AssetLoader:
         #       Unload sprites in some situations?
         
         self.piece_sprites = self.load_sprites({}, self.PIECE_SPRITE_FILES, self.PIECE_SPRITE_DIRECTORY)
-        self.board_sprites = self.load_sprites({}, self.BOARD_SPRITE_FILES, self.BOARD_SPRITE_DIRECTORY)
+        # self.board_sprites = self.load_sprites({}, self.BOARD_SPRITE_FILES, self.BOARD_SPRITE_DIRECTORY)
         self.tile_sprites = self.load_sprites({}, self.TILE_SPRITE_FILES, self.TILE_SPRITE_DIRECTORY)
         self.tile_effect_sprites = self.load_sprites({}, self.TILE_EFFECT_SPRITE_FILES, self.TILE_EFFECT_SPRITE_DIRECTORY)
         self.cursor_sprites = self.load_sprites({}, self.CURSOR_SPRITE_FILES, self.CURSOR_SPRITE_DIRECTORY)
