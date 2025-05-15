@@ -30,8 +30,8 @@ class ChessPiece:
     
     def __init__(self,
                  loyalty: Loyalty=Loyalty.NONE,
-                 piece_type: PieceType=PieceType.NONE,
-                 position: Position = (0, 0)):
+                 position: Position = (0, 0),
+                 piece_type: PieceType=PieceType.NONE,):
         self.name = self.__class__.__name__
 
         self.actions: List[object] = []
@@ -163,7 +163,6 @@ class ChessPiece:
                 else:
                     continue
         return line
-
     
     def at_vec(self, vector: Vector, start: Optional[Position]=None) -> Tuple[Position, Optional[object], Optional[Self]]:
         """

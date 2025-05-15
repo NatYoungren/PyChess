@@ -1,12 +1,16 @@
 
 from chess.units.piece import ChessPiece
 
+# Base chess pieces
 from chess.units.bishop import Bishop
 from chess.units.pawn import Pawn
 from chess.units.rook import Rook
 from chess.units.knight import Knight
 from chess.units.queen import Queen
 from chess.units.king import King
+
+# New chess pieces
+from chess.units.summoner import Summoner, Zombie
 
 from chess.chess_types import Loyalty, PieceType
 
@@ -21,6 +25,8 @@ piece_classes = {
     PieceType.KNIGHT: Knight,
     PieceType.QUEEN: Queen,
     PieceType.KING: King,
+    PieceType.SUMMONER: Summoner,
+    PieceType.ZOMBIE: Zombie,
 }
 
 def get_piece_class(piece_type: PieceType):

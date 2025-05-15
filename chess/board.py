@@ -172,7 +172,7 @@ class Board:
             
             # Select piece type based on value (TODO: Update to JSON)
             pc = get_piece_class(PieceType(abs(v)))
-            piece = pc(l, (x, y))
+            piece = pc(loyalty=l, position=(x, y))
             
             # TODO: Do not place pieces on void?
             #       Have them die instantly? (TODO: Board.update?)
