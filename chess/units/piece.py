@@ -1,5 +1,6 @@
+import pygame as pg
 import numpy as np
-from typing import List, Optional, Self, Dict, Tuple
+from typing import List, Optional, Self, Dict, Tuple, Union
 
 from chess.chess_types import Position, Vector, Direction
 from chess.chess_types import Loyalty, PieceType, InitFacing
@@ -18,7 +19,8 @@ class ChessPiece:
     
     actions: List[object]
     
-    sprite: object # TODO: Type
+    _sprite: Union[pg.Surface, Tuple[pg.Surface]]
+    
     facing: Direction # +0- X, +0- Y
     
     _position: tuple[int, int]
@@ -39,7 +41,7 @@ class ChessPiece:
         self.loyalty: Loyalty = loyalty
         self.piece_type: PieceType = piece_type
         
-        self.sprite = al.piece_sprites.get(self.loyalty, {}).get(self.piece_type, al.DEFAULT_PIECE_SPRITE)
+        self._sprite = al.piece_sprites.get(self.loyalty, {}).get(self.piece_type, al.DEFAULT_PIECE_SPRITE)
             
         self.facing = np.asarray(InitFacing[self.loyalty])
         
@@ -177,6 +179,9 @@ class ChessPiece:
     #
     # # #
     
+    @property
+    def sprite(self) -> pg.Surface:
+        return self._sprite
     
     @property
     def position(self) -> Position:
