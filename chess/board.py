@@ -85,14 +85,35 @@ class Board:
     # Getters
     def loyal_pieces(self, loyalty: Optional[Loyalty] = None) -> List[ChessPiece]:
         """
-        Returns the pieces for the given faction (defaults to current faction).
+        Returns all pieces from the given faction (defaults to current faction).
         """
         if loyalty is None: loyalty = self.current_turn
         # return [t.piece for t in self if (t.piece is not None and t.piece.loyalty == loyalty)]
         return [p for p in self.pieces if p.loyalty == loyalty]
     
+    def disloyal_pieces(self, loyalty: Optional[Loyalty] = None) -> List[ChessPiece]:
+        """
+        Returns all pieces not from to given faction (defaults to current faction).
+        """
+        if loyalty is None: loyalty = self.current_turn
+        return [p for p in self.pieces if p.loyalty != loyalty]
+    
     def loyal_leaders(self, loyalty: Optional[Loyalty] = None) -> List[ChessPiece]:
         return [p for p in self.loyal_pieces(loyalty) if p.is_leader]
+    
+    def in_check(self, loyalty: Optional[Loyalty] = None) -> bool:
+        checks = []
+        ll = self.loyal_leaders(loyalty)
+        for p in self.disloyal_pieces(loyalty):
+            for l in ll:
+                # TODO: This could be made much more accurate.
+                check_oc = p.outcomes.get(self[l.position], None)
+                if check_oc is not None and check_oc.name == 'Capture': # and isinstance(check_oc, Capture):
+                    checks.append((ll, p, check_oc))
+                    # TODO: Add an effect or highlight to show checking pieces?
+                    #       A preview system which has backtracking is becoming more necessary
+        return checks
+                    
     
     def at_pos(self, pos: Position) -> Tuple[Optional[Tile], Optional[ChessPiece]]:
         """
