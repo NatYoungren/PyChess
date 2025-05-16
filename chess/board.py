@@ -158,17 +158,22 @@ class Board:
         self.next_turn()
         return True
     
-    def next_turn(self) -> None:
+    def next_turn(self, loop_to: Optional[Loyalty]=None) -> None:
         """
         Moves to the next turn.
         """
+        if loop_to is None: loop_to = self.current_turn
         self.turn += 1
         self.update()
+        if loop_to == self.current_turn: # TODO: This is hacky, improve.
+            print('Looping, no moves.')
+            return
         
+        # Skip turns
         lp = self.loyal_pieces()
         lpoc = [True if p.outcomes else False for p in lp]
         if not lp or not any(lpoc):
-            self.next_turn() # TODO: Infinite loop is possible here
+            self.next_turn(loop_to=loop_to) # TODO: Infinite loop is possible here
     # # #
     
     
