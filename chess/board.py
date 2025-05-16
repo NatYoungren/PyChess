@@ -65,11 +65,9 @@ class Board:
     def random_outcome(self, loyalty: Optional[Loyalty] = None) -> Tuple[Optional[Tile], Optional[Outcome]]:
         """
         Returns a random outcome for the given loyalty.
-        """
-        if loyalty is None: loyalty = self.current_turn
-        
+        """        
         # Get all pieces for the given loyalty.
-        pieces = [t.piece for t in self if (t.piece is not None and t.piece.loyalty == loyalty)]
+        pieces = self.loyal_pieces(loyalty)
         np.random.shuffle(pieces)
         for p in pieces:
             if p.outcomes:
@@ -112,6 +110,22 @@ class Board:
         return self._board[pos[1], pos[0]] # NOTE: Flip x and y for numpy.
         # return self.board[pos[::-1]]
     
+    @property
+    def pieces(self):
+        """
+        Returns all pieces on the board.
+        """
+        return [t.piece for t in self if t.piece is not None]
+    
+    def loyal_pieces(self, loyalty: Optional[Loyalty] = None) -> List[ChessPiece]:
+        """
+        Returns the pieces for the given faction (defaults to current faction).
+        """
+        if loyalty is None: loyalty = self.current_turn
+        # return [t.piece for t in self if (t.piece is not None and t.piece.loyalty == loyalty)]
+        return [p for p in self.pieces if p.loyalty == loyalty]
+
+    
     def realize(self, outcome: Optional[Outcome]) -> bool:
         """
         Realizes the outcome of an action.
@@ -129,6 +143,13 @@ class Board:
         """
         self.turn += 1
         self.update()
+        
+        lp = self.loyal_pieces()
+        lpoc = [True if p.outcomes else False for p in lp]
+        if not lp or not any(lpoc):
+            self.next_turn() # TODO: Infinite loop is possible here
+            
+
     
     def update(self) -> None:
         """
