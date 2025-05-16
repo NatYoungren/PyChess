@@ -60,7 +60,9 @@ class Board:
             turn_order = [value for value in Loyalty]
         self.turn_order = turn_order
         self.turn = 0
-    
+        
+    # # #
+    # TEMPORARY - AI TURN LOGIC
     # TODO: This is a placeholder for future bot logic.
     def random_outcome(self, loyalty: Optional[Loyalty] = None) -> Tuple[Optional[Tile], Optional[Outcome]]:
         """
@@ -77,46 +79,10 @@ class Board:
             # for oc in np.random.shuffle(list(p.outcomes.values())):
             #     return oc
         return None, None       
+    # # #
     
-    @property
-    def current_turn(self) -> Loyalty:
-        return self.turn_order[self.turn % len(self.turn_order)]
-    
-    @property
-    def controlled_turn(self) -> bool:
-        """
-        Returns True if current turn is controlled by player.
-        """
-        return self.current_turn in self.controlled_factions
-    
-    @property
-    def shape(self) -> Tuple[int, int]: # NOTE: Reverse x and y for numpy.
-        return self._board.shape[::-1]
-    @property
-    def width(self) -> int:
-        return self.shape[0]
-    @property
-    def height(self) -> int:
-        return self.shape[1]
-    
-    def __iter__(self):
-        for x, y in np.ndindex(self.shape):
-            yield self[x, y]
-    
-    def __getitem__(self, pos: Position) -> Union[Tile, BoardTiles]:
-        # Add 2nd dimension to 1D slices and indices.
-        if isinstance(pos, slice): pos = (pos, slice(0, None))
-        if isinstance(pos, int): pos = (pos, slice(0, None))
-        return self._board[pos[1], pos[0]] # NOTE: Flip x and y for numpy.
-        # return self.board[pos[::-1]]
-    
-    @property
-    def pieces(self):
-        """
-        Returns all pieces on the board.
-        """
-        return [t.piece for t in self if t.piece is not None]
-    
+    # # #
+    # Getters
     def loyal_pieces(self, loyalty: Optional[Loyalty] = None) -> List[ChessPiece]:
         """
         Returns the pieces for the given faction (defaults to current faction).
@@ -124,8 +90,39 @@ class Board:
         if loyalty is None: loyalty = self.current_turn
         # return [t.piece for t in self if (t.piece is not None and t.piece.loyalty == loyalty)]
         return [p for p in self.pieces if p.loyalty == loyalty]
-
     
+    def at_pos(self, pos: Position) -> Tuple[Optional[Tile], Optional[ChessPiece]]:
+        """
+        Returns the tile and piece at the given position.
+        """
+        t = self.get_tile(pos)
+        if t is None: return None, None
+        return t, t.piece
+    
+    def get_tile(self, position: Position) -> Optional[Tile]:
+        """
+        Returns the tile at the given position.
+        """
+        if len(position) != 2:
+            raise ValueError("Position must be a tuple of (x, y).")
+        if 0 <= position[0] < self.width and 0 <= position[1] < self.height:
+            return self[*position]
+        return None
+    # # #
+    
+    
+    # # #
+    # Turn logic
+    def update(self) -> None:
+        """
+        Updates all pieces and board.  
+        Called at start of each turn
+        """
+        for tile in self:
+            tile.update()
+            if tile.piece is not None:
+                tile.piece.update()
+
     def realize(self, outcome: Optional[Outcome]) -> bool:
         """
         Realizes the outcome of an action.
@@ -148,36 +145,50 @@ class Board:
         lpoc = [True if p.outcomes else False for p in lp]
         if not lp or not any(lpoc):
             self.next_turn() # TODO: Infinite loop is possible here
-            
-
+    # # #
     
-    def update(self) -> None:
-        """
-        Updates all pieces and board.  
-        Called at start of each turn
-        """
-        for tile in self:
-            tile.update()
-            if tile.piece is not None:
-                tile.piece.update()
     
-    def at_pos(self, pos: Position) -> Tuple[Optional[Tile], Optional[ChessPiece]]:
-        """
-        Returns the tile and piece at the given position.
-        """
-        t = self.get_tile(pos)
-        if t is None: return None, None
-        return t, t.piece
+    # # #
+    # Properties
+    @property
+    def current_turn(self) -> Loyalty:
+        return self.turn_order[self.turn % len(self.turn_order)]
     
-    def get_tile(self, position: Position) -> Optional[Tile]:
+    @property
+    def controlled_turn(self) -> bool:
         """
-        Returns the tile at the given position.
+        Returns True if current turn is controlled by player.
         """
-        if len(position) != 2:
-            raise ValueError("Position must be a tuple of (x, y).")
-        if 0 <= position[0] < self.width and 0 <= position[1] < self.height:
-            return self[*position]
-        return None
+        return self.current_turn in self.controlled_factions
+    
+    @property
+    def shape(self) -> Tuple[int, int]: # NOTE: Reverse x and y for numpy.
+        return self._board.shape[::-1]
+    @property
+    def width(self) -> int:
+        return self.shape[0]
+    @property
+    def height(self) -> int:
+        return self.shape[1]
+    # # #
+    
+    def __iter__(self):
+        for x, y in np.ndindex(self.shape):
+            yield self[x, y]
+    
+    def __getitem__(self, pos: Position) -> Union[Tile, BoardTiles]:
+        # Add 2nd dimension to 1D slices and indices.
+        if isinstance(pos, slice): pos = (pos, slice(0, None))
+        if isinstance(pos, int): pos = (pos, slice(0, None))
+        return self._board[pos[1], pos[0]] # NOTE: Flip x and y for numpy.
+        # return self.board[pos[::-1]]
+    
+    @property
+    def pieces(self):
+        """
+        Returns all pieces on the board.
+        """
+        return [t.piece for t in self if t.piece is not None]
     
     
     # TODO: More complex state will be needed.
