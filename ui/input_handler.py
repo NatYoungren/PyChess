@@ -1,13 +1,23 @@
 import pygame as pg
 import numpy as np
 
+from globalref import OBJREF
+
 class InputHandler:
     """
     A class to handle user input for the chess game.
     """
-    def __init__(self, ui):
-        self.ui = ui
+    
+    ui: object
+    running: bool
+    
+    def __init__(self):
         self.running = True
+        
+    
+    @property
+    def ui(self):
+        return OBJREF.UI
     
     @property
     def board(self):

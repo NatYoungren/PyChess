@@ -32,7 +32,8 @@ OBJREF.UI = ui
 
 
 from ui.input_handler import InputHandler
-ih = InputHandler(ui)
+ih = InputHandler()
+OBJREF.IH = ih
 
 board.update()
 
@@ -47,7 +48,7 @@ auto_tile = None
 auto_oc = None
 
 while ih.running:
-
+    
     # TODO: Need a game manager and bot classes.
     if not board.controlled_turn:
         if auto_turn_timer <= 0:
@@ -58,19 +59,22 @@ while ih.running:
                 auto_turn_timer = 60
             else:
                 auto_turn_timer = 0
+                
         # Show selected outcome after delay
         if auto_turn_timer <= 40:
             ui.h_tile = auto_tile
+            
         # Trigger selected outcome
         auto_turn_timer -= 1
         if auto_turn_timer <= 0:
             board.realize(auto_oc) if auto_oc is not None else board.next_turn()
             ui.s_tile = None
-        
-        
+    
+    # Handle user input
     ih.update_mousepos(locked_board=auto_turn_timer > 0)
     for event in pg.event.get(): 
         ih.handle_event(event, locked_board=auto_turn_timer > 0)
+        
     ui.draw()
     game_clock.tick(target_fps)
 
