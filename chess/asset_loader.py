@@ -24,6 +24,7 @@ class AssetLoader:
             PieceType.QUEEN: "W_Queen.png",
             PieceType.KING: "W_King.png",
             PieceType.SUMMONER: "Summoner1.png",
+            PieceType.JESTER: ("Jester1.png", "Jester2.png"),
             },
         Loyalty.WHITE_AUTO: {
             PieceType.ZOMBIE: "Zombie1.png",
@@ -37,6 +38,7 @@ class AssetLoader:
             PieceType.QUEEN: "B_Queen.png",
             PieceType.KING: "B_King.png",
             PieceType.SUMMONER: "Summoner2.png",
+            PieceType.JESTER: ("Jester3.png", "Jester4.png"),
         },
         Loyalty.BLACK_AUTO: {
             PieceType.ZOMBIE: "Zombie2.png",

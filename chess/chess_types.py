@@ -38,8 +38,10 @@ class PieceType(Enum):
     ROOK = 4
     QUEEN = 5
     KING = 6
+    
     SUMMONER = 7
     ZOMBIE = 8
+    JESTER = 9
 
 
 # class TileState(Enum):
