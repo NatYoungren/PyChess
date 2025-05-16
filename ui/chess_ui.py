@@ -106,7 +106,7 @@ class ChessUI:
     
     def draw(self):
         self.draw_background()
-        self.draw_board()
+        self.draw_tiles()
         
         self.draw_tile_effects()
         self.draw_pieces()
@@ -124,7 +124,7 @@ class ChessUI:
         self.surf.fill(self.bg_color)
         self.bsurf.fill(Color(0, 0, 0, 0)) # Clear the board surface
     
-    def draw_board(self):
+    def draw_tiles(self):
         for t in self.board:
             # TODO: TRANSFORM ONLY ONCE?
             #       Make .sprite a property which points to assetloader?
@@ -139,63 +139,37 @@ class ChessUI:
             # TODO: Sprite effects can be in the outcome class?
             img = al.tile_effect_sprites['selected']
             img = self.sprite_transform(img=img,
-                                        randomrotate=False,
                                         rotate_by=self.frame//(self.fps//4),
-                                        randomflip=False, size=self.tile_size)
+                                        size=self.tile_size)
             self.b_blit(img, self.s_pos)
 
             for t, oc in self.s_piece.outcomes.items():
-                x, y = t.position
-                match oc.name:
-                    case 'Move':
-                        img = al.tile_effect_sprites['move']
-                    case 'Capture':
-                        img = al.tile_effect_sprites['capture']
-                    case 'Castle':
-                        img = al.tile_effect_sprites['castle']
-                    case 'Summon':
-                        img = al.tile_effect_sprites['summon']
-                    case _:
-                        print('DRAWING VIABLE: Unknown outcome:', oc.name)
-                        continue
-                
-                img = self.sprite_transform(img=img,
-                                            randomrotate=False,
-                                            rotate_by=self.frame//(self.fps//4),
-                                            randomflip=False, size=self.tile_size)
-                self.b_blit(img, (x, y))
+                img = oc.get_effect()
+                if img is not None:
+                    self.b_blit(img, t.position)
+                else:
+                    print(f'TILE_EFFECT: No effect for outcome:', oc.name)
+                    continue
         
         # Draw outcome hover effects
         if self.s_piece is not None and self.h_tile in self.s_piece.outcomes.keys():
             oc = self.s_piece.outcomes[self.h_tile]
-            match oc.name:
-                case 'Move':
-                    imgs = al.tile_effect_sprites['blinds']['move']
-                case 'Capture':
-                    imgs = al.tile_effect_sprites['blinds']['capture']#[self.frame//(self.fps//4)%len(al.tile_effect_sprites['blinds']['capture'])]
-                case 'Castle':
-                    imgs = al.tile_effect_sprites['blinds']['castle']#[self.frame//(self.fps//4)%len(al.tile_effect_sprites['blinds']['castle'])]
-                case 'Summon':
-                    imgs = al.tile_effect_sprites['blinds']['summon']#[self.frame//(self.fps//4)%len(al.tile_effect_sprites['blinds']['summon'])]
-                case _:
-                    print('DRAWING VIABLE: Unknown outcome:', oc.name)
-                    imgs = []
-            if imgs:
-                img = imgs[self.frame//(self.fps//4)%len(imgs)]
-                img = self.sprite_transform(img=img, size=self.tile_size)
+            img = oc.get_hover_effect()
+            if img is not None:
                 self.b_blit(img, self.h_pos)
-        
+            else:
+                print(f'TILE_EFFECT: No hover effect for outcome:', oc.name)
+
         # Draw non-outcome hover effects
         elif self.h_tile is not None and self.h_tile != self.s_tile:
             # TODO: Move somewhere else.
             #       Do not draw under other effects (move effect drawing into tiles/outcomes).
+            
             # Hovered tile effect
             img = al.tile_effect_sprites['hover'][self.frame//(self.fps)%len(al.tile_effect_sprites['hover'])]
-            # img = al.tile_effect_sprites['hovered'][self.frame//(self.fps)%len(al.tile_effect_sprites['hovered'])]
             img = self.sprite_transform(img=img,
-                                        randomrotate=False,
                                         rotate_by=self.frame//(self.fps//4),
-                                        randomflip=False, size=self.tile_size)
+                                        size=self.tile_size)
             self.b_blit(img, self.h_pos)
 
         
@@ -222,7 +196,13 @@ class ChessUI:
         if not self.hide_cursor: return # If using system cursor, don't draw.
         x, y = pg.mouse.get_pos()
         # x, y = self.m_pos
-        img = al.cursor_sprites['default']
+        if pg.mouse.get_pressed()[0]:
+            img = al.cursor_sprites['click']
+        elif self.h_piece is not None:
+            img = al.cursor_sprites['hover']
+        else:
+            img = al.cursor_sprites['default']
+            
         img = pg.transform.scale(img, (self.tile_width//2, self.tile_height//2))
         self.surf.blit(img, (x - img.get_width()//2.25, y - img.get_height()//5))
     

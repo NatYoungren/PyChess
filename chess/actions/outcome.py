@@ -1,10 +1,13 @@
+import pygame as pg
 import numpy as np
-from typing import Dict, Optional, Self
+from typing import Dict, Optional, Self, Union, Tuple
 
 from chess.chess_types import Position, Vector, Direction
 from chess.chess_types import Loyalty, PieceType
 from chess.chess_types import DirCls as D
 
+from globalref import OBJREF
+from chess.asset_loader import asset_loader as al
 # from chess.units.get_piece import get_piece_class
 
 class Outcome:
@@ -17,6 +20,9 @@ class Outcome:
     # prev_dict: Dict[Piece, Optional[Position]] = {}
     # TODO: Could also contain code to render this preview?
     #       With a lerp value?
+    
+    _effect_sprite: Union[pg.Surface, None]
+    _hover_sprites: Union[Tuple[pg.Surface], None]
     
     def __init__(self, *args, **kwargs):
         self.name = self.__class__.__name__
@@ -33,6 +39,32 @@ class Outcome:
         Preview the action.
         """
         pass
+    
+    def get_effect(self) -> Optional[pg.Surface]: # TODO: Add override arguments for board/ui?
+        """
+        Get the tile effect sprite for this outcome.
+        """
+        if self._effect_sprite is None: return None
+        ui = self.ui
+        img = ui.sprite_transform(img=self._effect_sprite,
+                                  rotate_by=ui.frame//(ui.fps//4),
+                                  size=ui.tile_size)
+        return img
+    
+    def get_hover_effect(self) -> Optional[pg.Surface]:
+        if self._hover_sprites is None: return None
+        ui = self.ui
+        img = self._hover_sprites[ui.frame//(ui.fps//4)%len(self._hover_sprites)]
+        img = ui.sprite_transform(img=img, size=ui.tile_size)
+        return img
+    
+    @property
+    def ui(self):
+        return OBJREF.UI
+    @property
+    def board(self):
+        return OBJREF.BOARD
+
 
 
 class Move(Outcome):
@@ -41,6 +73,9 @@ class Move(Outcome):
     
     LERP_MAX: float = 0.5 # TODO: Make this a constant?
     
+    _effect_sprite = al.tile_effect_sprites['Move']
+    _hover_sprites = al.tile_effect_sprites['blinds']['Move']
+
     def __init__(self, piece, target: Position):
         super().__init__()
         self.piece = piece
@@ -51,17 +86,19 @@ class Move(Outcome):
     
     def preview(self, surf, board, lerp: float):
         pass
-    
+        
 class Capture(Move):
     captured: object
     
+    _effect_sprite = al.tile_effect_sprites['Capture']
+    _hover_sprites = al.tile_effect_sprites['blinds']['Capture']
+
     def __init__(self, piece, target: Position, captured: object):
         super().__init__(piece, target)
         self.captured = captured
     
     def realize(self, board):
         super().realize(board)
-        # board.remove_piece(self.captured)
 
 
 class Promote(Move): # TODO: Could be capture???
@@ -73,13 +110,19 @@ class Promote(Move): # TODO: Could be capture???
     def realize(self, board):
         super().realize(board)
         t = board.get_tile(self.target)
+        # Add method to board?
         print("REMOVED DUE TO CIRCULAR IMPORT ISSUE.")
         # new_piece = get_piece_class(self.promoted_to)(board, self.piece.loyalty, self.target)
         # t.piece = new_piece
 
+
 class Castle(Outcome):
     king_piece: object
     rook_piece: object
+    
+    _effect_sprite = al.tile_effect_sprites['Castle']
+    _hover_sprites = al.tile_effect_sprites['blinds']['Castle']
+
     
     def __init__(self, king_piece, rook_piece):
         super().__init__()
@@ -92,11 +135,15 @@ class Castle(Outcome):
         self.king_piece.move(self.king_piece.position + vec*2)
         self.rook_piece.move(self.king_piece.position - vec)
 
+
 class Summon(Outcome):
     piece: object
     target: Position
     summoned: object
     
+    _effect_sprite = al.tile_effect_sprites['Summon']
+    _hover_sprites = al.tile_effect_sprites['blinds']['Summon']
+
     def __init__(self, piece, target: Position, summoned: object):
         super().__init__()
         self.piece = piece
