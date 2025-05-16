@@ -44,6 +44,7 @@ class KingCastle(Action):
 
 
 class King(ChessPiece):
+    is_leader: bool = True
     def __init__(self, loyalty: Loyalty, position):
         super().__init__(loyalty=loyalty, piece_type=PieceType.KING, position=position)
         self.actions.append(KingCapture(self))

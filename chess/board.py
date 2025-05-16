@@ -91,6 +91,9 @@ class Board:
         # return [t.piece for t in self if (t.piece is not None and t.piece.loyalty == loyalty)]
         return [p for p in self.pieces if p.loyalty == loyalty]
     
+    def loyal_leaders(self, loyalty: Optional[Loyalty] = None) -> List[ChessPiece]:
+        return [p for p in self.loyal_pieces(loyalty) if p.is_leader]
+    
     def at_pos(self, pos: Position) -> Tuple[Optional[Tile], Optional[ChessPiece]]:
         """
         Returns the tile and piece at the given position.

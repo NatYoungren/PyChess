@@ -26,6 +26,7 @@ class ChessPiece:
     _position: tuple[int, int]
     move_count: int
     
+    is_leader: bool = False
     # TODO: Can I avoid having the pieces store the board?
     #       Global reference instead?
     #       Or pass it in as needed?
