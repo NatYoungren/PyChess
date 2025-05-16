@@ -87,27 +87,29 @@ class AssetLoader:
     
     TILE_EFFECT_SPRITE_DIRECTORY = os.path.join('assets', 'tile_effects')
     TILE_EFFECT_SPRITE_FILES = { # TODO: Create enums for outcomes?
-        'move': "tile_effects1.png",
-        'capture': "tile_effects2.png",
+        'Move': "tile_effects1.png",
+        'Capture': "tile_effects2.png",
+        'Castle': 'tile_effects5.png',
+        'Summon': 'tile_effects6.png',
+
         'hover': (
             "tile_effects3.png",
             "tile_effects4.png",
         ),
-        'castle': 'tile_effects5.png',
-        'summon': 'tile_effects6.png',
+        
         'selected' : 'tile_effects7.png',
         
         'blinds': {
-            'move': ('tile_effect_blinds1.png',
+            'Move': ('tile_effect_blinds1.png',
                      'tile_effect_blinds2.png',
                      'tile_effect_blinds3.png'),
-            'capture': ('tile_effect_blinds4.png',
+            'Capture': ('tile_effect_blinds4.png',
                         'tile_effect_blinds5.png',
                         'tile_effect_blinds6.png'),
-            'castle': ('tile_effect_blinds7.png',
+            'Castle': ('tile_effect_blinds7.png',
                        'tile_effect_blinds8.png',
                        'tile_effect_blinds9.png'),
-            'summon': ('tile_effect_blinds10.png',
+            'Summon': ('tile_effect_blinds10.png',
                        'tile_effect_blinds11.png',
                        'tile_effect_blinds12.png'),
         }
