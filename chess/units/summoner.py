@@ -76,7 +76,7 @@ class Zombie(ChessPiece):
         priority = np.zeros(len(dirs), dtype=int)
         
         for i, v in enumerate(dirs):
-            if self.orient_vector(v) == self.facing: continue
+            if np.all(self.orient_vector(v) == self.facing): continue
             l = self.get_line(v, length=7, enemy_ok=True, ally_ok=True)
             if not l:
                 # print('no line:', v)
