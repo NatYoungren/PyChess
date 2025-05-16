@@ -132,47 +132,53 @@ class ChessUI:
             self.b_blit(img, t.position)
         
     def draw_tile_effects(self):
-        # Draw selected + outcome effects
-        if self.s_piece is not None:
-            
-            # Selected tile effect
-            # TODO: Sprite effects can be in the outcome class?
-            img = al.tile_effect_sprites['selected']
-            img = self.sprite_transform(img=img,
-                                        rotate_by=self.frame//(self.fps//4),
-                                        size=self.tile_size)
-            self.b_blit(img, self.s_pos)
+        self.draw_selected()
+        self.draw_hover()
 
-            for t, oc in self.s_piece.outcomes.items():
-                img = oc.get_effect()
-                if img is not None:
-                    self.b_blit(img, t.position)
-                else:
-                    print(f'TILE_EFFECT: No effect for outcome:', oc.name)
-                    continue
+    def draw_selected(self):
+        # Draw effects on selected + outcome tiles
+        if self.s_piece is None: return
+            
+        # Selected tile effect
+        img = al.tile_effect_sprites['selected']
+        img = self.sprite_transform(img=img,
+                                    rotate_by=self.frame//(self.fps//4),
+                                    size=self.tile_size)
+        self.b_blit(img, self.s_pos)
+        
+        # Draw outcome tile effects
+        for t, oc in self.s_piece.outcomes.items():
+            img = oc.get_effect()
+            if img is not None:
+                self.b_blit(img, t.position)
+            else:
+                print(f'TILE_EFFECT: No effect for outcome:', oc.name)
+                continue
+            
+    def draw_hover(self):
+        # Draw effects on hovered tile (scrolling effect on hovered outcomes)
+        if self.h_tile is None: return
+        if self.h_tile == self.s_tile: return
         
         # Draw outcome hover effects
         if self.s_piece is not None and self.h_tile in self.s_piece.outcomes.keys():
-            oc = self.s_piece.outcomes[self.h_tile]
-            img = oc.get_hover_effect()
-            if img is not None:
-                self.b_blit(img, self.h_pos)
-            else:
-                print(f'TILE_EFFECT: No hover effect for outcome:', oc.name)
-
-        # Draw non-outcome hover effects
-        elif self.h_tile is not None and self.h_tile != self.s_tile:
-            # TODO: Move somewhere else.
-            #       Do not draw under other effects (move effect drawing into tiles/outcomes).
-            
-            # Hovered tile effect
+            if self.h_tile in self.s_piece.outcomes.keys():
+                oc = self.s_piece.outcomes[self.h_tile]
+                img = oc.get_hover_effect()
+                if img is not None:
+                    self.b_blit(img, self.h_pos)
+                else:
+                    print(f'TILE_EFFECT: No hover effect for outcome:', oc.name)
+                    
+        # Draw non-outcome hover effect
+        else:
             img = al.tile_effect_sprites['hover'][self.frame//(self.fps)%len(al.tile_effect_sprites['hover'])]
             img = self.sprite_transform(img=img,
                                         rotate_by=self.frame//(self.fps//4),
                                         size=self.tile_size)
             self.b_blit(img, self.h_pos)
 
-        
+
     def draw_pieces(self, exclude: Optional[list]=None):
         # All pieces on board
         for tile in self.board:
