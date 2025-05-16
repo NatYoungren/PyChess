@@ -1,6 +1,6 @@
 import numpy as np
 from enum import Enum
-from typing import TypeAlias, Tuple
+from typing import TypeAlias, Tuple, Dict
 
 
 
@@ -57,14 +57,19 @@ class Loyalty(Enum):
     BLACK = 2
 
 
-
-
 class Direction(Enum): # Make np?
     NORTH = (0, 1)
     EAST = (1, 0)
     SOUTH = (0, -1)
     WEST = (-1, 0)
-    
+
+InitFacing: Dict[Loyalty, Direction] = {
+    # Loyalty.NONE: (0, 0), # NOTE: SHOULD CREATE ERROR?
+    Loyalty.WHITE: (0, -1),
+    Loyalty.WHITE_AUTO: (0, -1),
+    Loyalty.BLACK: (0, 1),
+    Loyalty.BLACK_AUTO: (0, 1),
+}
 
 
 # Utility, allows class properties

@@ -2,7 +2,7 @@ import numpy as np
 from typing import List, Optional, Self, Dict, Tuple
 
 from chess.chess_types import Position, Vector, Direction
-from chess.chess_types import Loyalty, PieceType
+from chess.chess_types import Loyalty, PieceType, InitFacing
 from chess.chess_types import DirCls as D
 
 from chess.asset_loader import asset_loader as al
@@ -28,14 +28,6 @@ class ChessPiece:
     #       Global reference instead?
     #       Or pass it in as needed?
     
-    FACING: Dict[Loyalty, Direction] = {
-        # Loyalty.NONE: (0, 0), # NOTE: SHOULD CREATE ERROR?
-        Loyalty.WHITE: (0, -1),
-        Loyalty.WHITE_AUTO: (0, -1),
-        Loyalty.BLACK: (0, 1),
-        Loyalty.BLACK_AUTO: (0, 1),
-    }
-    
     def __init__(self,
                  loyalty: Loyalty=Loyalty.NONE,
                  position: Position = (0, 0),
@@ -49,7 +41,7 @@ class ChessPiece:
         
         self.sprite = al.piece_sprites.get(self.loyalty, {}).get(self.piece_type, al.DEFAULT_PIECE_SPRITE)
             
-        self.facing = np.asarray(self.FACING[self.loyalty])
+        self.facing = np.asarray(InitFacing[self.loyalty])
         
         self._position: Position = np.asarray(position) # TODO: Would this be good to store in piece?
         self.move_count: int = 0
