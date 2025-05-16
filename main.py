@@ -52,19 +52,23 @@ while ih.running:
     if not board.controlled_turn:
         if auto_turn_timer <= 0:
             auto_tile, auto_oc = board.random_outcome()
+            # Show selected piece + outcomes
             if auto_oc is not None:
-                ui.h_tile = auto_tile
                 ui.s_piece = auto_oc.piece
                 auto_turn_timer = 60
             else:
                 auto_turn_timer = 0
+        # Show selected outcome after delay
+        if auto_turn_timer <= 40:
+            ui.h_tile = auto_tile
+        # Trigger selected outcome
         auto_turn_timer -= 1
         if auto_turn_timer <= 0:
             board.realize(auto_oc) if auto_oc is not None else board.next_turn()
             ui.s_tile = None
         
         
-    ih.update_mousepos()
+    ih.update_mousepos(locked_board=auto_turn_timer > 0)
     for event in pg.event.get(): 
         ih.handle_event(event, locked_board=auto_turn_timer > 0)
     ui.draw()
