@@ -104,7 +104,14 @@ class InputHandler:
         _x, _y = (x - bx) // tx, (y - by) // ty
         
         tile, piece = self.board.at_pos((_x, _y))
-        self.board_click(tile, piece)
+        if event.button == 1: # Left click
+            self.board_click(tile, piece)
+            
+        # TODO: Remove eventually.
+        elif event.button == 3: # Right click
+            print('DEBUG: INPUT_HANDLER.handle_click: Right click')
+            tile.piece = None
+            self.ui.board.update()
 
     def board_click(self, tile=None, piece=None):
         """
