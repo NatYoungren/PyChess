@@ -111,6 +111,8 @@ class ChessUI:
         self.draw_tile_effects()
         self.draw_pieces()
         
+        self.draw_moodles()
+        
         self.draw_ui()
         
         self.surf.blit(self.bsurf, (0, 0))
@@ -189,6 +191,20 @@ class ChessUI:
             ratio = p.sprite.get_height() / p.sprite.get_width()
             img = self.sprite_transform(p.sprite, size=(self.tile_width, int(self.tile_width * ratio)))
             self.b_blit(img, tile.position)
+    
+    def draw_moodles(self):
+        
+        # Check moodles
+        moodle_sprites = al.icon_sprites['moodle']
+        check_moodles = moodle_sprites['check']
+        for (checkee, checker, oc) in self.board._checks:
+            if checker.loyalty in (Loyalty.WHITE, Loyalty.WHITE_AUTO):
+                img = check_moodles[0]
+            else:
+                img = check_moodles[1]
+            img = self.sprite_transform(img, size=self.tile_size)
+            self.b_blit(img, checker.position)
+            
     
     def draw_preview(self):
         # Currently-hovered outcome
