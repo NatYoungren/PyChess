@@ -89,7 +89,7 @@ class InputHandler:
         #     return
         
     
-    def handle_click(self, event, locked_board:bool=False):
+    def handle_click(self, event, locked_board: bool=False):
         if locked_board: return
         
         bx, by = self.ui.board_origin
@@ -111,6 +111,7 @@ class InputHandler:
         elif event.button == 3: # Right click
             print('DEBUG: INPUT_HANDLER.handle_click: Right click')
             tile.piece = None
+            self.ui.s_tile = None
             self.ui.board.update()
 
     def board_click(self, tile=None, piece=None):
