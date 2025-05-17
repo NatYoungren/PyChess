@@ -153,16 +153,28 @@ class AssetLoader:
                 # If the value is a dictionary, populate a sub dictionary in sprite_dict
                 sprite_dict[key] = cls.load_sprites({}, value, directory)
             elif isinstance(value, tuple):
-                sprite_dict[key] = tuple([pg.image.load(os.path.join(directory, k)) for k in value])
+                sprite_dict[key] = tuple([cls.load_image(os.path.join(directory, k)) for k in value])
                 if verbose:
                     for k in value: print(f"AssetLoader: Loaded {k} from {os.path.join(directory, key)}")
                 
             elif isinstance(value, str):
                 # If the value is a string, load the image and add it to sprite_dict
-                sprite_dict[key] = pg.image.load(os.path.join(directory, value))
+                sprite_dict[key] = cls.load_image(os.path.join(directory, value))
                 if verbose: print(f"AssetLoader: Loaded {key} from {os.path.join(directory, value)}")
             else:
                 raise ValueError(f"AssetLoader: Invalid value type: {type(value)}. Expected str or dict.")
         return sprite_dict
+
+    @classmethod
+    def load_image(cls, image_path: str, alpha:bool=True) -> pg.Surface:
+        """
+        Load a single sprite from a file.
+        """
+        img = pg.image.load(image_path)
+        return img
+        # TODO: Test whether this actually speeds up drawing?
+        # if alpha:
+        #     return img#.convert_alpha()
+        # return img#.convert()
 
 asset_loader = AssetLoader()
