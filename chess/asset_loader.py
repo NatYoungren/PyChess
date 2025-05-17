@@ -129,16 +129,34 @@ class AssetLoader:
         # Shield?
     }
     
+    ICON_SPRITE_DIRECTORY = os.path.join('assets', 'ui', 'icons')
+    ICON_SPRITE_FILES = {
+        'ui': { # NOTE: ui icon tuples are (unclicked, clicked)
+            'pause': ("ui_icons1.png", "ui_icons2.png"),
+            'play': ("ui_icons3.png", "ui_icons4.png"),
+            'undo': ("ui_icons5.png", "ui_icons6.png"),
+            'settings': ("ui_icons7.png", "ui_icons8.png"),
+        },
+        'moodle': { # NOTE: moodle icon tuples are (white, black)
+            # TODO: Subdict by loyalty?
+            #       Best to avoid storing/loading one sprite multiple times.
+            'check': ("Moodles1.png", "Moodles2.png"), # Swords
+            # 'check': ("MoodlesSmall1.png", "MoodlesSmall2.png"), # Swords small
+        }
+    }
+    
     def __init__(self):
         
         # TODO: Could lazily load some on first access?
         #       Unload sprites in some situations?
         
+        # TODO: Shorten names.
         self.piece_sprites = self.load_sprites({}, self.PIECE_SPRITE_FILES, self.PIECE_SPRITE_DIRECTORY)
         # self.board_sprites = self.load_sprites({}, self.BOARD_SPRITE_FILES, self.BOARD_SPRITE_DIRECTORY)
         self.tile_sprites = self.load_sprites({}, self.TILE_SPRITE_FILES, self.TILE_SPRITE_DIRECTORY)
         self.tile_effect_sprites = self.load_sprites({}, self.TILE_EFFECT_SPRITE_FILES, self.TILE_EFFECT_SPRITE_DIRECTORY)
         self.cursor_sprites = self.load_sprites({}, self.CURSOR_SPRITE_FILES, self.CURSOR_SPRITE_DIRECTORY)
+        self.icon_sprites = self.load_sprites({}, self.ICON_SPRITE_FILES, self.ICON_SPRITE_DIRECTORY)
         
         # TODO: DEPRECATE
         self.DEFAULT_PIECE_SPRITE = self.piece_sprites[Loyalty.NONE][PieceType.NONE]
