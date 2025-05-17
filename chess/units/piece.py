@@ -172,11 +172,13 @@ class ChessPiece:
         pos = start + self.orient_vector(vector)
         return pos, *self.board.at_pos(pos)
     
-    def orient_vector(self, vector: Vector) -> Vector: # TODO: Matrix multiplication solution?
+    # TODO: Add as board method or start a utilities file.
+    def orient_vector(self, vector: Vector, facing: Optional[Direction]=None) -> Vector: # TODO: Matrix multiplication solution?
         # Input vector is relative to facing: [forward/backward, right/left]
         #   [+ is forward, + is right]
         # Output vector is in board coords: [x, y]
-        return vector * self.facing[1] + vector[::-1] * self.facing[0]
+        facing = self.facing if facing is None else facing
+        return vector * facing[1] + vector[::-1] * facing[0]
     #
     # # #
     

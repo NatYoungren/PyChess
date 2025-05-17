@@ -10,7 +10,7 @@ from chess.actions.action import Action
 from chess.actions.outcome import Move, Capture
 
 
-class KnightCapture(Action):
+class KnightJump(Action):
     """
     Represents a move/capture action for a bishop.
     """
@@ -37,4 +37,4 @@ class KnightCapture(Action):
 class Knight(ChessPiece):
     def __init__(self, loyalty: Loyalty, position):
         super().__init__(loyalty=loyalty, piece_type=PieceType.KNIGHT, position=position)    
-        self.actions.append(KnightCapture(self))
+        self.actions.append(KnightJump(self))
