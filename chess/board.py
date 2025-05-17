@@ -39,6 +39,9 @@ class Board:
     _initial_tiles: str
     _initial_pieces: str
     
+    # Checkee, checker, outcome
+    _checks: List[Tuple[ChessPiece, ChessPiece, Outcome]] = []
+    
     def __init__(self, tile_csv: str, piece_csv: str,
                  controlled_factions: Tuple[Loyalty] = (Loyalty.WHITE,),
                  turn_order: Optional[Tuple[Loyalty]] = None):
@@ -109,7 +112,7 @@ class Board:
                 # TODO: This could be made much more accurate.
                 check_oc = p.outcomes.get(self[l.position], None)
                 if check_oc is not None and check_oc.name == 'Capture': # and isinstance(check_oc, Capture):
-                    checks.append((ll, p, check_oc))
+                    checks.append((l, p, check_oc))
                     # TODO: Add an effect or highlight to show checking pieces?
                     #       A preview system which has backtracking is becoming more necessary
         return checks
@@ -165,15 +168,18 @@ class Board:
         if loop_to is None: loop_to = self.current_turn
         self.turn += 1
         self.update()
-        if loop_to == self.current_turn: # TODO: This is hacky, improve.
-            print('Looping, no moves.')
-            return
         
-        # Skip turns
-        lp = self.loyal_pieces()
-        lpoc = [True if p.outcomes else False for p in lp]
-        if not lp or not any(lpoc):
-            self.next_turn(loop_to=loop_to) # TODO: Infinite loop is possible here
+        # Infinite loop prevention turn skipping.
+        if loop_to != self.current_turn: # TODO: This is hacky, improve.    
+            # Skip turns
+            lp = self.loyal_pieces()
+            lpoc = [True if p.outcomes else False for p in lp]
+            if not lp or not any(lpoc):
+                self.next_turn(loop_to=loop_to)
+        
+        # TODO: Move to update?
+        #       Give outcomes a 'checking' flag which they can set?
+        self._checks = self.in_check()
     # # #
     
     
