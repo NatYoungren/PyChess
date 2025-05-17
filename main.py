@@ -21,16 +21,19 @@ board_csv_path = os.path.join(board_dir, board_csv)
 piece_csv_path = os.path.join(piece_dir, piece_csv)
 
 
+# INITIALIZE BOARD
 from chess.board import Board
 board = Board(board_csv_path, piece_csv_path)
 OBJREF.BOARD = board
 
 
+# INITIALIZE UI INSTANCE
 from ui.chess_ui import ChessUI
 ui = ChessUI.from_config()
 OBJREF.UI = ui
 
 
+# INITIALIZE INPUT HANDLER
 from ui.input_handler import InputHandler
 ih = InputHandler()
 OBJREF.IH = ih
