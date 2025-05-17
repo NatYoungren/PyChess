@@ -16,6 +16,7 @@ class Outcome:
     """
     
     name: str
+    piece: object
     # TODO: Store some info that could be used to preview the action?
     # prev_dict: Dict[Piece, Optional[Position]] = {}
     # TODO: Could also contain code to render this preview?
@@ -24,8 +25,9 @@ class Outcome:
     _effect_sprite: Union[pg.Surface, None]
     _hover_sprites: Union[Tuple[pg.Surface], None]
     
-    def __init__(self, *args, **kwargs):
+    def __init__(self, piece, *args, **kwargs):
         self.name = self.__class__.__name__
+        self.piece = piece
     
     def realize(self, board):
         """
@@ -68,7 +70,6 @@ class Outcome:
 
 
 class Move(Outcome):
-    piece: object
     target: Position
     
     LERP_MAX: float = 0.5 # TODO: Make this a constant?
@@ -77,8 +78,7 @@ class Move(Outcome):
     _hover_sprites = al.tile_effect_sprites['blinds']['Move']
 
     def __init__(self, piece, target: Position):
-        super().__init__()
-        self.piece = piece
+        super().__init__(piece=piece)
         self.target = target
     
     def realize(self, board):
@@ -94,7 +94,7 @@ class Capture(Move):
     _hover_sprites = al.tile_effect_sprites['blinds']['Capture']
 
     def __init__(self, piece, target: Position, captured: object):
-        super().__init__(piece, target)
+        super().__init__(piece=piece, target=target)
         self.captured = captured
     
     def realize(self, board):
@@ -104,7 +104,7 @@ class Capture(Move):
 class Promote(Move): # TODO: Could be capture???
     promoted_to: PieceType
     def __init__(self, piece, target: Position, promoted_to: PieceType = PieceType.QUEEN):
-        super().__init__(piece, target)
+        super().__init__(piece=piece, target=target)
         self.promoted_to = promoted_to
         
     def realize(self, board):
@@ -117,7 +117,6 @@ class Promote(Move): # TODO: Could be capture???
 
 
 class Castle(Outcome):
-    king_piece: object
     rook_piece: object
     
     _effect_sprite = al.tile_effect_sprites['Castle']
@@ -125,15 +124,16 @@ class Castle(Outcome):
 
     
     def __init__(self, king_piece, rook_piece):
-        super().__init__()
-        self.king_piece = king_piece
+        super().__init__(piece=king_piece)
+        # NOTE: self.piece is the king piece.
         self.rook_piece = rook_piece
     
     def realize(self, board):
-        vec = self.rook_piece.position - self.king_piece.position
+        # TODO: Should we really care if the king is in check?
+        vec = self.rook_piece.position - self.piece.position
         vec = vec // abs(sum(vec)) # NOTE: Should work because it is a cardinal vector
-        self.king_piece.move(self.king_piece.position + vec*2)
-        self.rook_piece.move(self.king_piece.position - vec)
+        self.piece.move(self.piece.position + vec*2)
+        self.rook_piece.move(self.piece.position - vec)
 
 
 class Summon(Outcome):
@@ -145,8 +145,7 @@ class Summon(Outcome):
     _hover_sprites = al.tile_effect_sprites['blinds']['Summon']
 
     def __init__(self, piece, target: Position, summoned: object):
-        super().__init__()
-        self.piece = piece
+        super().__init__(piece=piece)
         self.target = target
         self.summoned = summoned
     
