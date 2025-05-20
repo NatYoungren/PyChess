@@ -19,8 +19,7 @@ class WallTile(Tile):
                  position: Position,
                  tiletype: TileType = TileType.WALL):
         
-        sprite = al.tile_sprites.get(tiletype, (None, None))[int(position[0] % 2 == position[1] % 2)]
-        super().__init__(position, tiletype, sprite=sprite)
+        super().__init__(position, tiletype)
         
     def update(self):
         super().update()

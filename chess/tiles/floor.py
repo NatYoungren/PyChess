@@ -16,9 +16,5 @@ class FloorTile(Tile):
     def __init__(self,
                  position: Position,
                  tiletype: TileType = TileType.FLOOR):
+        super().__init__(position, tiletype)
         
-        sprite = al.tile_sprites.get(tiletype, (None, None))[int(position[0] % 2 == position[1] % 2)]
-
-        super().__init__(position, tiletype, sprite=sprite)
-        
-        # if self.sprite is None: self.sprite = al.DEFAULT_TILE_SPRITE

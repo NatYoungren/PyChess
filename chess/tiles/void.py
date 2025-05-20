@@ -23,7 +23,6 @@ class VoidTile(Tile):
                  position: Position,
                  tiletype: TileType = TileType.VOID):
         
-        sprite = al.tile_sprites.get(tiletype, None)
-        super().__init__(position, tiletype, sprite=sprite)
+        super().__init__(position, tiletype)
         
         # if self.sprite is None: self.sprite = al.DEFAULT_TILE_SPRITE
