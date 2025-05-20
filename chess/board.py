@@ -143,6 +143,7 @@ class Board(GlobalAccessObject):
             tile.update()
             if tile.piece is not None:
                 tile.piece.update()
+        self._checks = self.get_checks() # TODO: Give outcomes a 'checking' flag which they can set?
 
     def realize(self, outcome: Optional[Outcome]) -> bool:
         """
@@ -170,10 +171,6 @@ class Board(GlobalAccessObject):
             lpoc = [True if p.outcomes else False for p in lp]
             if not lp or not any(lpoc):
                 self.next_turn(loop_to=loop_to)
-        
-        # TODO: Move to update?
-        #       Give outcomes a 'checking' flag which they can set?
-        self._checks = self.get_checks()
     # # #
     
     
