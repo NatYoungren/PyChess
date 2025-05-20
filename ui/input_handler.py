@@ -1,9 +1,18 @@
 import pygame as pg
 import numpy as np
 
-from globalref import OBJREF
+from globalref import GlobalAccessObject
 
-class InputHandler:
+# # # # #
+# DEBUG #
+from utils.debug_utils import next_in_enum
+from chess.tiles.get_tile import get_tile_class
+from chess.units.get_piece import get_piece_class
+from utils.chess_types import TileType, PieceType, Loyalty
+# # # #
+
+
+class InputHandler(GlobalAccessObject):
     """
     A class to handle user input for the chess game.
     """
@@ -113,12 +122,56 @@ class InputHandler:
         if event.button == 1: # Left click
             self.board_click(tile, piece)
         
+        # # # # #
+        # DEBUG #
         # TODO: Remove eventually.
+        #
+        # Change piece loyalty
+        elif event.button == 3 and pg.key.get_mods() & pg.KMOD_CTRL and pg.key.get_mods() & pg.KMOD_SHIFT: # Ctrl + Shift + Right click
+            print('DEBUG: INPUT_HANDLER.handle_click: Ctrl + Shift + Right click on tile:', _x, _y)
+            if tile is None or piece is None:
+                print('DEBUG: INPUT_HANDLER.handle_click: No tile or piece at position:', _x, _y)
+                return
+            new_loyalty = next_in_enum(piece.loyalty, Loyalty)
+            new_piece = get_piece_class(piece.piece_type)(new_loyalty, tile.position)
+            tile.piece = new_piece
+            self.board.update()
+        #
+        # Change piece type
+        elif event.button == 3 and pg.key.get_mods() & pg.KMOD_CTRL: # Ctrl + Right click
+            print('DEBUG: INPUT_HANDLER.handle_click: Ctrl + Right click on tile:', _x, _y)
+            if tile is None:
+                print('DEBUG: INPUT_HANDLER.handle_click: No tile at position:', _x, _y)
+                return
+            if piece is None:
+                next_piecetype = PieceType.NONE
+                loyalty = Loyalty.WHITE
+            else:
+                next_piecetype = next_in_enum(piece.piece_type, PieceType)
+                loyalty = piece.loyalty
+            # print(piece, next_piecetype, loyalty)
+            tile.piece = get_piece_class(next_piecetype)(loyalty, tile.position)
+            self.board.update()
+        #
+        # Change tile type
+        elif event.button == 3 and pg.key.get_mods() & pg.KMOD_SHIFT: # Shift + Right click
+            print('DEBUG: INPUT_HANDLER.handle_click: Shift + Right click on tile:', _x, _y)
+            if tile is None:
+                next_tiletype = TileType.DEFAULT
+            else:
+                next_tiletype = next_in_enum(tile.tiletype, TileType)
+            self.board[tile.position] = get_tile_class(next_tiletype)(tile.position)
+            self.board[tile.position].piece = tile.piece
+            tile.piece = None
+            self.board.update() # NOTE: Kills pieces when toggling past deadly tiletypes.
+        #
+        # Remove piece
         elif event.button == 3: # Right click
             print('DEBUG: INPUT_HANDLER.handle_click: Right click on tile:', _x, _y)
             tile.piece = None
             self.ui.s_tile = None
-            self.ui.board.update()
+            self.board.update()
+        # # # # #
 
 
     def board_click(self, tile=None, piece=None):
@@ -146,12 +199,3 @@ class InputHandler:
             else:
                 if piece is not None and piece.loyalty == self.board.current_turn:
                     self.ui.s_tile = tile
-
-
-    @property
-    def ui(self):
-        return OBJREF.UI
-    
-    @property
-    def board(self):
-        return self.ui.board
