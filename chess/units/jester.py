@@ -68,4 +68,6 @@ class Jester(ChessPiece):
     
     @property
     def sprite(self):
-        return self._sprite[(1+self.move_count) % 2]
+        if isinstance(self._sprite, tuple):
+            return self._sprite[(1+self.move_count) % 2]
+        return self._sprite
