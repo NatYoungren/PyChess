@@ -32,7 +32,7 @@ class Board:
     
     # Game data
     move_history: List[Tuple[Position, Position]]
-    turn_order: Tuple[Loyalty]
+    turn_order: List[Loyalty]
     turn: int
         
     # CSV file references (TODO: DEPRECATE)
@@ -43,8 +43,8 @@ class Board:
     _checks: List[Tuple[ChessPiece, ChessPiece, Outcome]] = []
     
     def __init__(self, tile_csv: str, piece_csv: str,
-                 controlled_factions: Tuple[Loyalty] = (Loyalty.WHITE,),
-                 turn_order: Optional[Tuple[Loyalty]] = None):
+                 controlled_factions: Tuple[Loyalty, ...] = (Loyalty.WHITE,),
+                 turn_order: Optional[List[Loyalty]] = None):
         
         # TODO: Do not require csvs.
         #       Use dicts, and store as JSON.
@@ -104,7 +104,7 @@ class Board:
     def loyal_leaders(self, loyalty: Optional[Loyalty] = None) -> List[ChessPiece]:
         return [p for p in self.loyal_pieces(loyalty) if p.is_leader]
     
-    def in_check(self, loyalty: Optional[Loyalty] = None) -> bool:
+    def get_checks(self, loyalty: Optional[Loyalty] = None) -> List[Tuple[ChessPiece, ChessPiece, Outcome]]:
         checks = []
         ll = self.loyal_leaders(loyalty)
         for p in self.disloyal_pieces(loyalty):
@@ -179,7 +179,7 @@ class Board:
         
         # TODO: Move to update?
         #       Give outcomes a 'checking' flag which they can set?
-        self._checks = self.in_check()
+        self._checks = self.get_checks()
     # # #
     
     
@@ -197,11 +197,20 @@ class Board:
         return self.current_turn in self.controlled_factions
     
     @property
+    def pieces(self):
+        """
+        Returns all pieces on the board.
+        """
+        return [t.piece for t in self if t.piece is not None]
+    
+    @property
     def shape(self) -> Tuple[int, int]: # NOTE: Reverse x and y for numpy.
         return self._board.shape[::-1]
+    
     @property
     def width(self) -> int:
         return self.shape[0]
+    
     @property
     def height(self) -> int:
         return self.shape[1]
@@ -217,13 +226,6 @@ class Board:
         if isinstance(pos, int): pos = (pos, slice(0, None))
         return self._board[pos[1], pos[0]] # NOTE: Flip x and y for numpy.
         # return self.board[pos[::-1]]
-    
-    @property
-    def pieces(self):
-        """
-        Returns all pieces on the board.
-        """
-        return [t.piece for t in self if t.piece is not None]
     
     
     # TODO: More complex state will be needed.
