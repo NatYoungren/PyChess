@@ -16,7 +16,7 @@ class JesterDiagonal(Action):
     """
     def update(self):
         super().update()
-        if self.move_count % 2 == 1:
+        if self.move_count % 2 == 0:
             return
         for v in D.diagonal: # Cardinal vectors
             for pos, t, p in self.get_line(v, length=2, enemy_ok=True): # NOTE: Testing limited length
@@ -42,7 +42,7 @@ class JesterJump(Action):
     
     def update(self):
         super().update()
-        if self.move_count % 2 == 0:
+        if self.move_count % 2 == 1:
             return
         for d in D.cardinal: # Cardinal vectors
             for v in self.VECTORS: # Knight vectors
@@ -68,4 +68,4 @@ class Jester(ChessPiece):
     
     @property
     def sprite(self):
-        return self._sprite[self.move_count % 2]
+        return self._sprite[(1+self.move_count) % 2]
