@@ -160,6 +160,7 @@ class AssetLoader:
         
         # TODO: DEPRECATE
         self.DEFAULT_PIECE_SPRITE = self.piece_sprites[Loyalty.NONE][PieceType.NONE]
+        self.DEFAULT_TILE_SPRITE = self.tile_sprites[TileType.DEFAULT]
     
     @classmethod
     def load_sprites(cls, sprite_dict: dict, file_dict: dict, directory: str, verbose: bool=False) -> dict:
