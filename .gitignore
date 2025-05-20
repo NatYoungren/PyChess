@@ -1,7 +1,5 @@
 **/.DS_Store
-pixel chess_v1.2.zip
-aseprite/**
 **/__pycache__/**
-chess/todo.txt
-chess/units/unit_ideas.txt
-pixel chess_v1.2/**
+
+_dev_ignore/**
+aseprite/**
