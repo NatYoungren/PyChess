@@ -137,18 +137,20 @@ class Summon(Outcome):
     piece: object
     target: Position
     summoned: object
+    summon_loyalty: Loyalty
     
     _effect_sprite = al.tile_effect_sprites['Summon']
     _hover_sprites = al.tile_effect_sprites['blinds']['Summon']
 
-    def __init__(self, piece, target: Position, summoned: object):
+    def __init__(self, piece, target: Position, summoned: type, loyalty: Optional[Loyalty] = None):
         super().__init__(piece=piece)
         self.target = target
         self.summoned = summoned
+        self.summon_loyalty = loyalty if loyalty is not None else self.piece.loyalty
     
     def realize(self, board):
         super().realize(board)
         t, p = board.at_pos(self.target)
         if p is not None: # TODO: Debug, remove eventually.
             raise ValueError("CANNOT SUMMON: Board is occupied.")
-        t.piece = self.summoned(loyalty=self.piece.loyalty, position=self.target)
+        t.piece = self.summoned(loyalty=self.summon_loyalty, position=self.target)

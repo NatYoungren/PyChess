@@ -24,6 +24,12 @@ class SummonerSummon(Action):
     """
     Represents a zombie summoning action for a summoner.
     """
+    summon_loyalty: Loyalty = Loyalty.NONE
+    def __init__(self, piece):
+        super().__init__(piece)
+        if self.piece.loyalty != Loyalty.NONE and self.piece.loyalty.value % 1 == 0:
+            self.summon_loyalty = Loyalty(self.piece.loyalty.value - 0.5)
+            
     def update(self):
         super().update()
         
@@ -34,14 +40,13 @@ class SummonerSummon(Action):
             if t.is_void: continue # Void tile
             if p is not None: continue # Blocked by piece
             # print('Summon:', pos)
-            self.outcomes[t] = Summon(self.piece, pos, Zombie)
+            self.outcomes[t] = Summon(self.piece, pos, Zombie, self.summon_loyalty)
             
 class Summoner(ChessPiece):
     def __init__(self, loyalty: Loyalty, position):
         super().__init__(loyalty=loyalty, piece_type=PieceType.SUMMONER, position=position)
         self.actions.append(SummonerMove(self))
         self.actions.append(SummonerSummon(self))
-
 
 
 class ZombieMove(Action):
@@ -63,7 +68,6 @@ class Zombie(ChessPiece):
     def __init__(self, loyalty: Loyalty, position, facing: Vector=None):
         # Shift to 'auto' loyalty
         # TODO: Improve this to not be kinda wonky.
-        if loyalty != loyalty.NONE and loyalty.value % 1 == 0: loyalty = Loyalty(loyalty.value - 0.5)
         super().__init__(loyalty=loyalty, piece_type=PieceType.ZOMBIE, position=position)
         self.actions.append(ZombieMove(self))
 
