@@ -1,7 +1,6 @@
 import os
 import pygame as pg
 
-from globalref import OBJREF
 
 
 board_csv = 'default_board.csv'
@@ -20,6 +19,7 @@ piece_dir = 'chess/piece_csvs'
 board_csv_path = os.path.join(board_dir, board_csv)
 piece_csv_path = os.path.join(piece_dir, piece_csv)
 
+from globalref import OBJREF
 
 # INITIALIZE BOARD
 from chess.board import Board
@@ -38,49 +38,11 @@ from ui.input_handler import InputHandler
 ih = InputHandler()
 OBJREF.IH = ih
 
-board.update()
+
+# INITIALIZE GAME MANAGER
+from engine.game_manager import GameManager
+gm = GameManager()
+OBJREF.GM = gm
 
 
-# game loop
-target_fps = 60
-game_clock = pg.time.Clock()
-
-# Auto turn variables
-auto_turn_timer = -1
-auto_tile = None
-auto_oc = None
-
-while ih.running:
-    
-    # TODO: Need a game manager and bot classes.
-    if not board.controlled_turn:
-        if auto_turn_timer <= 0:
-            auto_tile, auto_oc = board.random_outcome()
-            # Show selected piece + outcomes
-            if auto_oc is not None:
-                ui.s_piece = auto_oc.piece
-                ui.h_piece = auto_oc.piece
-                auto_turn_timer = 60
-            else:
-                auto_turn_timer = 0
-                
-        # Show selected outcome after delay
-        if auto_turn_timer <= 40:
-            ui.h_tile = auto_tile
-            
-        # Trigger selected outcome
-        auto_turn_timer -= 1
-        if auto_turn_timer <= 0:
-            board.realize(auto_oc) if auto_oc is not None else board.next_turn()
-            ui.s_tile = None
-            
-    
-    # Handle user input
-    ih.locked_board = auto_turn_timer > 0
-    ih.update_mousepos()
-    for event in pg.event.get(): 
-        ih.handle_event(event)
-        
-    ui.draw()
-    game_clock.tick(target_fps)
-
+gm.run()
