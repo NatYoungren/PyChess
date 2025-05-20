@@ -6,7 +6,7 @@ from chess.chess_types import Position, Vector, Direction
 from chess.chess_types import Loyalty, PieceType
 from chess.chess_types import DirCls as D
 
-from globalref import OBJREF
+from globalref import GlobalAccessObject
 
 from ui.ui_utils import sprite_transform
 from chess.asset_loader import asset_loader as al
@@ -14,7 +14,7 @@ from chess.asset_loader import asset_loader as al
 
 
 
-class Outcome:
+class Outcome(GlobalAccessObject):
     """
     Represents a change in board state.
     """
@@ -63,13 +63,6 @@ class Outcome:
         img = self._hover_sprites[ui.frame//(ui.fps//4)%len(self._hover_sprites)]
         img = sprite_transform(img=img, size=ui.tile_size)
         return img
-    
-    @property
-    def ui(self):
-        return OBJREF.UI
-    @property
-    def board(self):
-        return OBJREF.BOARD
 
 
 

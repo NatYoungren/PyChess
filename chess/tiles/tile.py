@@ -1,11 +1,13 @@
 import numpy as np
 from typing import Optional, List, Union
 
+from globalref import GlobalAccessObject
+
 from chess.chess_types import PieceType, Vector, Position
 from chess.chess_types import TileType, Loyalty, Direction, Vector
 
 
-class Tile:
+class Tile(GlobalAccessObject):
     position: Position
     sprite: Optional[object] # TODO: Use a sprite typealias or pg type or property?
     

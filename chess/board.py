@@ -3,6 +3,7 @@ from pathlib import Path
 import numpy as np
 from typing import Optional, List, Union, Tuple, TypeAlias
 
+from globalref import GlobalAccessObject
 
 from chess.tiles.get_tile import get_tile_class
 from chess.tiles.tile import Tile
@@ -26,7 +27,7 @@ from chess.actions.outcome import Outcome
 # Chesstypes?
 BoardTiles: TypeAlias = np.ndarray[Tile]
 
-class Board:
+class Board(GlobalAccessObject):
     # Board Tiles (contains Pieces)
     _board: BoardTiles
     

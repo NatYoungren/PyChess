@@ -8,10 +8,10 @@ from chess.chess_types import DirCls as D
 
 from chess.asset_loader import asset_loader as al
 
-from globalref import OBJREF
+from globalref import OBJREF, GlobalAccessObject
 
 
-class ChessPiece:
+class ChessPiece(GlobalAccessObject):
     name: str
 
     piece_type: PieceType = PieceType.NONE
@@ -194,9 +194,9 @@ class ChessPiece:
     def position(self, value: Position):
         self._position = np.array(value, dtype=int)
     
-    @property
-    def board(self) -> object:
-        return OBJREF.BOARD
+    # @property
+    # def board(self) -> object:
+    #     return OBJREF.BOARD
     
     def __repr__(self):
         return f'{self.loyalty.name} {self.name}'

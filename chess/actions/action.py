@@ -1,6 +1,9 @@
 import numpy as np
 from typing import Dict, Optional, Self, Callable
 
+from globalref import GlobalAccessObject
+
+
 from chess.chess_types import Position, Vector, Direction
 from chess.chess_types import Loyalty, PieceType
 from chess.chess_types import DirCls as D
@@ -17,7 +20,7 @@ from chess.chess_types import DirCls as D
 from chess.actions.outcome import Outcome
 from chess.tiles.tile import Tile
 
-class Action:
+class Action(GlobalAccessObject):
     name: str
     piece: object
         
@@ -64,9 +67,9 @@ class Action:
     def facing(self) -> Direction:
         return self.piece.facing
     
-    @property
-    def board(self) -> object:
-        return self.piece.board
+    # @property
+    # def board(self) -> object:
+    #     return self.piece.board
     
     @property
     def move_count(self) -> int:
