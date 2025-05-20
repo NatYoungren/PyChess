@@ -2,12 +2,10 @@ import numpy as np
 from enum import Enum
 from typing import TypeAlias, Tuple, Dict
 
-
-
 # # #
 # Aliases for type hints
 # PieceType: TypeAlias = object # TODO: Deprecate w/ class reference
-ChessObject: TypeAlias = object # TODO: Depreceate w/ class reference
+# ChessObject: TypeAlias = object # TODO: Depreceate w/ class reference
 Vector: TypeAlias = Tuple[int, int]     # TODO: Use numpy array
 Position: TypeAlias = Tuple[int, int]   # TODO: Use numpy array
 # # #
@@ -119,6 +117,3 @@ class DirCls:
     @classproperty # HAHA rename this though jesus christ
     def cardiagonal(cls) -> list[Vector]:
         return cls.cardinal + cls.diagonal
-    
-# for dir in Direction:
-#     dir.value.flags.writeable = False
