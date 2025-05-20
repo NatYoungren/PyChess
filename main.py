@@ -59,6 +59,7 @@ while ih.running:
             # Show selected piece + outcomes
             if auto_oc is not None:
                 ui.s_piece = auto_oc.piece
+                ui.h_piece = auto_oc.piece
                 auto_turn_timer = 60
             else:
                 auto_turn_timer = 0
