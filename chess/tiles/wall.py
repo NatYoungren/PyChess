@@ -1,7 +1,7 @@
 # import numpy as np
 # from typing import Optional, List, Union
 
-# from chess.chess_types import PieceType, ChessObject, Vector,
+# from chess.chess_types import PieceType, Vector,
 from chess.chess_types import Position
 from chess.chess_types import TileType#, Loyalty, Direction, Vector
 
