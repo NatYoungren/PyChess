@@ -18,6 +18,7 @@ from chess.units.piece import ChessPiece
 
 from globalref import OBJREF
 
+from ui.ui_utils import sprite_transform
 from chess.asset_loader import asset_loader as al # Move to objref?
 
 # # #
@@ -47,7 +48,7 @@ class ChessUI:
     # Graphics config
     fps: int
     window_size: Tuple[int, int]
-    tile_size: Tuple[int, int]
+    _tile_size: Union[int, Tuple[int, int]]
     bg_color: Tuple[int, int, int]
     
     # Pygame surfaces
@@ -59,13 +60,9 @@ class ChessUI:
     
     # Selected tile
     s_tile: Optional[Tile]
-    s_pos: Optional[Position]
-    s_piece: Optional[ChessPiece]
     
     # Hovered tile
     h_tile: Optional[Tile]
-    h_pos: Optional[Position]
-    h_piece: Optional[ChessPiece]
     
     # Frame counter
     frame: int
@@ -83,7 +80,7 @@ class ChessUI:
         
         self.fps: int = fps
         self.window_size: Tuple[int, int] = (window_width, window_height)
-        self._tile_size: int = tile_size
+        self._tile_size: Union[int, Tuple[int, int]] = tile_size
         self.bg_color: Tuple[int, int, int] = bg_color
         
         # TODO: Have window surf exist globally, and just write to it?
@@ -130,7 +127,7 @@ class ChessUI:
         for t in self.board:
             # TODO: TRANSFORM ONLY ONCE?
             #       Make .sprite a property which points to assetloader?
-            img = self.sprite_transform(t.sprite, size=self.tile_size)
+            img = sprite_transform(t.sprite, size=self.tile_size)
             self.b_blit(img, t.position)
         
     def draw_tile_effects(self):
@@ -143,9 +140,9 @@ class ChessUI:
             
         # Selected tile effect
         img = al.tile_effect_sprites['selected']
-        img = self.sprite_transform(img=img,
-                                    rotate_by=self.frame//(self.fps//4),
-                                    size=self.tile_size)
+        img = sprite_transform(img=img,
+                               rotate_by=self.frame//(self.fps//4),
+                               size=self.tile_size)
         self.b_blit(img, self.s_pos)
         
         # Draw outcome tile effects
@@ -165,7 +162,7 @@ class ChessUI:
         # Draw outcome hover effects
         if self.s_piece is not None and self.h_tile in self.s_piece.outcomes.keys():
             if self.h_tile in self.s_piece.outcomes.keys():
-                oc = self.s_piece.outcomes[self.h_tile]
+                oc: Outcome = self.s_piece.outcomes[self.h_tile]
                 img = oc.get_hover_effect()
                 if img is not None:
                     self.b_blit(img, self.h_pos)
@@ -175,9 +172,9 @@ class ChessUI:
         # Draw non-outcome hover effect
         else:
             img = al.tile_effect_sprites['hover'][self.frame//(self.fps)%len(al.tile_effect_sprites['hover'])]
-            img = self.sprite_transform(img=img,
-                                        rotate_by=self.frame//(self.fps//4),
-                                        size=self.tile_size)
+            img = sprite_transform(img=img,
+                                   rotate_by=self.frame//(self.fps//4),
+                                   size=self.tile_size)
             self.b_blit(img, self.h_pos)
 
 
@@ -189,7 +186,7 @@ class ChessUI:
             if exclude is not None and p in exclude: continue
             
             ratio = p.sprite.get_height() / p.sprite.get_width()
-            img = self.sprite_transform(p.sprite, size=(self.tile_width, int(self.tile_width * ratio)))
+            img = sprite_transform(p.sprite, size=(self.tile_width, int(self.tile_width * ratio)))
             self.b_blit(img, tile.position)
     
     def draw_moodles(self):
@@ -202,7 +199,7 @@ class ChessUI:
                 img = check_moodles[0]
             else:
                 img = check_moodles[1]
-            img = self.sprite_transform(img, size=self.tile_size)
+            img = sprite_transform(img, size=self.tile_size)
             self.b_blit(img, checker.position)
             
     
@@ -228,26 +225,6 @@ class ChessUI:
         img = pg.transform.scale(img, (self.tile_width//2, self.tile_height//2))
         self.surf.blit(img, (x - img.get_width()//2.25, y - img.get_height()//5))
     
-    def sprite_transform(self,
-                         img: Surface,
-                         randomflip: bool=False,
-                         randomrotate: bool=False,
-                         rotate_by: Optional[int]=None,
-                         size: Union[None, int, Tuple[int, int]]=None) -> Surface:
-        """
-        Transform a sprite to the given size.
-        """
-        if randomflip: img = pg.transform.flip(img, *np.random.randint(0, 2, 2))
-        if randomrotate:
-            img = pg.transform.rotate(img, np.random.randint(0, 4)*90)
-        
-        elif isinstance(rotate_by, int):
-            img = pg.transform.rotate(img, rotate_by*90)
-            
-        if size is not None:
-            if isinstance(size, int): size = (size, size)
-            img = pg.transform.scale(img, size)
-        return pg.transform.scale(img, size)
     
     # TODO: Method to refresh tile effects?
     
@@ -367,6 +344,6 @@ class ChessUI:
                         img = al.tile_sprites[TileType.VOID]['right']
                     elif cont_right:
                         img = al.tile_sprites[TileType.VOID]['left']
-                    img = self.sprite_transform(img, size=self.tile_size)
+                    img = sprite_transform(img, size=self.tile_size)
                     self.b_blit(img, t.position)
                     

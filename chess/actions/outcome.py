@@ -7,8 +7,12 @@ from chess.chess_types import Loyalty, PieceType
 from chess.chess_types import DirCls as D
 
 from globalref import OBJREF
+
+from ui.ui_utils import sprite_transform
 from chess.asset_loader import asset_loader as al
 # from chess.units.get_piece import get_piece_class
+
+
 
 class Outcome:
     """
@@ -48,16 +52,16 @@ class Outcome:
         """
         if self._effect_sprite is None: return None
         ui = self.ui
-        img = ui.sprite_transform(img=self._effect_sprite,
-                                  rotate_by=ui.frame//(ui.fps//4),
-                                  size=ui.tile_size)
+        img = sprite_transform(img=self._effect_sprite,
+                               rotate_by=ui.frame//(ui.fps//4),
+                               size=ui.tile_size)
         return img
     
     def get_hover_effect(self) -> Optional[pg.Surface]:
         if self._hover_sprites is None: return None
         ui = self.ui
         img = self._hover_sprites[ui.frame//(ui.fps//4)%len(self._hover_sprites)]
-        img = ui.sprite_transform(img=img, size=ui.tile_size)
+        img = sprite_transform(img=img, size=ui.tile_size)
         return img
     
     @property
