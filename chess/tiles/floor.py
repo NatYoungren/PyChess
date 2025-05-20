@@ -1,12 +1,12 @@
 import numpy as np
 from typing import Optional, List, Union
 
-from chess.chess_types import PieceType, Vector, Position
-from chess.chess_types import TileType, Loyalty, Direction, Vector
+from utils.chess_types import PieceType, Vector, Position
+from utils.chess_types import TileType, Loyalty, Direction, Vector
 
 from chess.tiles.tile import Tile
 
-from chess.asset_loader import asset_loader as al
+from utils.asset_loader import asset_loader as al
 # from globalref import OBJREF
 
 class FloorTile(Tile):

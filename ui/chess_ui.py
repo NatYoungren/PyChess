@@ -1,25 +1,27 @@
 import os
 import json
 import numpy as np
-from typing import Optional, Tuple, Union, Dict, List
-
 import pygame as pg
 from pygame import SRCALPHA, Color, Surface
+from typing import Optional, Tuple, Union, Dict, List
 
-import chess.chess_types as ct
-from chess.chess_types import Loyalty, PieceType, TileType
-from chess.chess_types import Position, Vector
-from chess.chess_types import DirCls as D
+
+from globalref import GlobalAccessObject
+
+
+import utils.chess_types as ct
+from utils.chess_types import Loyalty, PieceType, TileType
+from utils.chess_types import Position, Vector
+from utils.chess_types import DirCls as D
 
 from chess.actions.action import Action
 from chess.actions.outcome import Outcome
 from chess.tiles.tile import Tile
 from chess.units.piece import ChessPiece
 
-from globalref import OBJREF
 
-from ui.ui_utils import sprite_transform
-from chess.asset_loader import asset_loader as al # Move to objref?
+from utils.ui_utils import sprite_transform
+from utils.asset_loader import asset_loader as al # Move to objref?
 
 # # #
 # Load the graphics JSON configuration
@@ -30,15 +32,11 @@ with open(graphics_config_file, 'r') as f:
     # TODO: Store configs globally?
 # # #
 
-class ChessUI:
+class ChessUI(GlobalAccessObject):
     """
-    A singleton class for the chess UI.  
+    Singleton object which handles chess game UI.  
     This class is responsible for rendering the board, pieces, and effects.
     """
-    # def __new__(cls): # TODO: Does this break with arguments??
-    #     if not hasattr(cls, 'instance'):
-    #         cls.instance = super(ChessUI, cls).__new__(cls)
-    #     return cls.instance
 
     @classmethod
     def from_config(cls, config=None, **kwargs):
@@ -54,10 +52,7 @@ class ChessUI:
     # Pygame surfaces
     surf: Surface
     bsurf: Surface
-    
-    # # Mouse position
-    # m_pos: Position
-    
+
     # Selected tile
     s_tile: Optional[Tile]
     
@@ -213,7 +208,7 @@ class ChessUI:
     
     def draw_cursor(self):
         if not self.hide_cursor: return # If using system cursor, don't draw.
-        x, y = pg.mouse.get_pos()
+        x, y = self.ih.m_pos#pg.mouse.get_pos()
         # x, y = self.m_pos
         if pg.mouse.get_pressed()[0]:
             img = al.cursor_sprites['click']
@@ -228,22 +223,21 @@ class ChessUI:
     
     # TODO: Method to refresh tile effects?
     
-    
     def b_blit(self, img: Surface, pos: Position):
         """
         Blit an image to the board surface.
         """
         x, y = pos
         tw, th = self.tile_size
-        self.bsurf.blit(img, self.board_origin + (x*tw, y*th-(img.get_height()-th)))
+        self.bsurf.blit(img, self.b_origin + (x*tw, y*th-(img.get_height()-th)))
     
+    # Selection get/set
     @property
     def s_pos(self) -> Position:
         return self.s_tile.position if self.s_tile is not None else None
     @s_pos.setter # TODO: Deprecate?
     def s_pos(self, value: Position):
         self.s_tile = self.board.get_tile(value)
-    
     @property
     def s_piece(self) -> Optional[ChessPiece]:
         return self.s_tile.piece if self.s_tile is not None else None
@@ -251,13 +245,13 @@ class ChessUI:
     def s_piece(self, value: ChessPiece):
         self.s_tile = self.board.get_tile(value.position)
     
+    # Hover get/set
     @property
     def h_pos(self) -> Position:
         return self.h_tile.position if self.h_tile is not None else None
     @h_pos.setter # TODO: Deprecate?
     def h_pos(self, value: Position):
         self.h_tile = self.board.get_tile(value)
-    
     @property
     def h_piece(self) -> Optional[ChessPiece]:
         return self.h_tile.piece if self.h_tile is not None else None
@@ -265,10 +259,7 @@ class ChessUI:
     def h_piece(self, value: ChessPiece):
         self.h_tile = self.board.get_tile(value.position)
     
-    @property
-    def board(self) -> object: # TODO: Give more classes getters like this.
-        return OBJREF.BOARD
-    
+    # Window properties
     @property
     def width(self) -> int:
         return self.window_size[0]
@@ -276,6 +267,7 @@ class ChessUI:
     def height(self) -> int:
         return self.window_size[1]
     
+    # Board properties
     @property
     def b_size(self) -> Tuple[int, int]:
         return self.b_width, self.b_height
@@ -285,7 +277,15 @@ class ChessUI:
     @property
     def b_height(self) -> Union[int, Tuple[int, int]]:
         return self.tile_height * self.board.height
-    
+    @property
+    def b_origin(self) -> Vector:
+        """ Pixel coordinates of top-left corner of board. """
+        # TODO: Allow board origin to be scrolled w/ right click?
+        # TODO: Implement event response which readjusts board origin when window size changes.
+        return np.array(((self.width - self.b_width) // 2, \
+                        (self.height - self.b_height) // 2))
+
+    # Tile properties
     @property
     def tile_size(self) -> tuple:
         return self._tile_size if isinstance(self._tile_size, tuple) else (self._tile_size, self._tile_size)
@@ -296,14 +296,7 @@ class ChessUI:
     def tile_height(self) -> int:
         return self.tile_size[1]
     
-    # TODO: Allow board origin to be scrolled w/ right click!
-    @property
-    def board_origin(self) -> Vector:
-        # width, tile_width*board.width
-        return np.array(((self.width - self.b_width) // 2, \
-                        (self.height - self.b_height) // 2))
-        # return Vector(0, 0)
-    
+    # Display properties
     @property
     def hide_cursor(self) -> bool:
         return self._hide_cursor
@@ -315,10 +308,6 @@ class ChessUI:
             pg.mouse.set_pos(self.width // 2, self.height // 2)
         else:
             pg.mouse.set_visible(True)
-    
-    # TODO: Implement this and call when window is resized or board is zoomed/resized.
-    # def update_board_origin(self, x: int, y: int):
-    #     self.board_origin = Vector(x, y)
     
     
     # TODO: Remove or rework.

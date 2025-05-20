@@ -13,19 +13,32 @@ class InputHandler:
     
     def __init__(self):
         self.running = True
-        
         self.locked_board = False
+        
+        # TODO: Store input state?
+        self.m_pos = np.zeros(2, dtype=int) # Mouse position (for custom cursor)
+    
+    def update(self):
+        """
+        Update the input handler.
+        """
+        self.update_mousepos()
+        for event in pg.event.get():
+            self.handle_event(event)
     
     def update_mousepos(self):
         """
         Update based on mouse position (hovered tile, dragged piece, etc).
         """
+        
+        x, y = pg.mouse.get_pos()
+        self.m_pos[:] = x, y # TODO: Only use one get_pos per frame?
+        
         if self.locked_board: return
-        # self.ui.m_pos = pg.mouse.get_pos()
-        x, y = pg.mouse.get_pos() # TODO: Only use one get_pos per frame?
-        bx, by = self.ui.board_origin
+        
+        bx, by = self.ui.b_origin
         bw, bh = self.ui.b_size
-
+        
         if not (bx < x < bx+bw and by < y < by+bh):
             self.ui.h_tile = None
             return
@@ -33,10 +46,10 @@ class InputHandler:
         tx, ty = self.ui.tile_size
         _x, _y = (x - bx) // tx, (y - by) // ty
         
+        # NOTE: Update UI with hovered tile.
         tile = self.board.get_tile((_x, _y))
         self.ui.h_tile = tile # NOTE: Could be None
     
-    # TODO: Locked board could just be a class flag.
     def handle_event(self, event): 
         """
         Handle user input events.
@@ -85,10 +98,10 @@ class InputHandler:
     def handle_click(self, event):
         if self.locked_board: return
         
-        bx, by = self.ui.board_origin
+        x, y = event.pos
+        bx, by = self.ui.b_origin
         bw, bh = self.ui.b_size
 
-        x, y = pg.mouse.get_pos()
         if not (bx < x < bx+bw and by < y < by+bh):
             print("Clicked outside the board")
             return
@@ -102,10 +115,11 @@ class InputHandler:
         
         # TODO: Remove eventually.
         elif event.button == 3: # Right click
-            print('DEBUG: INPUT_HANDLER.handle_click: Right click')
+            print('DEBUG: INPUT_HANDLER.handle_click: Right click on tile:', _x, _y)
             tile.piece = None
             self.ui.s_tile = None
             self.ui.board.update()
+
 
     def board_click(self, tile=None, piece=None):
         """

@@ -4,9 +4,9 @@ from typing import Dict, Optional, Self, Callable
 from globalref import GlobalAccessObject
 
 
-from chess.chess_types import Position, Vector, Direction
-from chess.chess_types import Loyalty, PieceType
-from chess.chess_types import DirCls as D
+from utils.chess_types import Position, Vector, Direction
+from utils.chess_types import Loyalty, PieceType
+from utils.chess_types import DirCls as D
 
 # from chess.asset_loader import sprite_dict, DEFAULT_SPRITE
 

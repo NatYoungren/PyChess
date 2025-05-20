@@ -1,7 +1,7 @@
 import os
 import pygame as pg
 
-from chess.chess_types import Loyalty, PieceType, TileType
+from utils.chess_types import Loyalty, PieceType, TileType
 
 # TODO: Rename to 'asset manager'
 #       Add to OBJREF

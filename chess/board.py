@@ -11,16 +11,9 @@ from chess.tiles.tile import Tile
 from chess.units.get_piece import get_piece_class
 from chess.units.piece import ChessPiece
 
-# from chess.units.pawn import Pawn
-# from chess.units.bishop import Bishop
-# from chess.units.rook import Rook
-# from chess.units.knight import Knight
-# from chess.units.queen import Queen
-# from chess.units.king import King
-
-from chess.chess_types import PieceType, TileType, Position, Vector
-from chess.chess_types import Loyalty, Direction
-from chess.chess_types import Direction as D
+from utils.chess_types import PieceType, TileType, Position, Vector
+from utils.chess_types import Loyalty, Direction
+from utils.chess_types import Direction as D
 
 from chess.actions.outcome import Outcome
 
@@ -228,6 +221,11 @@ class Board(GlobalAccessObject):
         return self._board[pos[1], pos[0]] # NOTE: Flip x and y for numpy.
         # return self.board[pos[::-1]]
     
+    def __setitem__(self, pos: Position, value: Tile) -> None:
+        # Add 2nd dimension to 1D slices and indices.
+        if isinstance(pos, slice): pos = (pos, slice(0, None))
+        if isinstance(pos, int): pos = (pos, slice(0, None))
+        self._board[pos[1], pos[0]] = value
     
     # TODO: More complex state will be needed.
     #       One option is using 3+dimensional arrays.

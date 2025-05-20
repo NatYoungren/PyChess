@@ -1,9 +1,9 @@
 import numpy as np
 from typing import Tuple
 
-from chess.chess_types import Position, Vector
-from chess.chess_types import DirCls as D
-from chess.chess_types import Loyalty, PieceType
+from utils.chess_types import Position, Vector
+from utils.chess_types import DirCls as D
+from utils.chess_types import Loyalty, PieceType
 
 from chess.units.piece import ChessPiece
 from chess.actions.action import Action

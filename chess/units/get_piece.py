@@ -13,7 +13,7 @@ from chess.units.king import King
 from chess.units.summoner import Summoner, Zombie
 from chess.units.jester import Jester
 
-from chess.chess_types import Loyalty, PieceType
+from utils.chess_types import Loyalty, PieceType
 
 # from chess.chess_types import TileType, Position, Vector
 # from chess.chess_types import Direction as D

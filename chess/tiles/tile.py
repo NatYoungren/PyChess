@@ -3,8 +3,8 @@ from typing import Optional, List, Union
 
 from globalref import GlobalAccessObject
 
-from chess.chess_types import PieceType, Vector, Position
-from chess.chess_types import TileType, Loyalty, Direction, Vector
+from utils.chess_types import PieceType, Vector, Position
+from utils.chess_types import TileType, Loyalty, Direction, Vector
 
 
 class Tile(GlobalAccessObject):

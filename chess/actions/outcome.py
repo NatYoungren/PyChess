@@ -2,14 +2,14 @@ import pygame as pg
 import numpy as np
 from typing import Dict, Optional, Self, Union, Tuple
 
-from chess.chess_types import Position, Vector, Direction
-from chess.chess_types import Loyalty, PieceType
-from chess.chess_types import DirCls as D
+from utils.chess_types import Position, Vector, Direction
+from utils.chess_types import Loyalty, PieceType
+from utils.chess_types import DirCls as D
 
 from globalref import GlobalAccessObject
 
-from ui.ui_utils import sprite_transform
-from chess.asset_loader import asset_loader as al
+from utils.ui_utils import sprite_transform
+from utils.asset_loader import asset_loader as al
 # from chess.units.get_piece import get_piece_class
 
 

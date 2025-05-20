@@ -2,11 +2,11 @@ import pygame as pg
 import numpy as np
 from typing import List, Optional, Self, Dict, Tuple, Union
 
-from chess.chess_types import Position, Vector, Direction
-from chess.chess_types import Loyalty, PieceType, InitFacing
-from chess.chess_types import DirCls as D
+from utils.chess_types import Position, Vector, Direction
+from utils.chess_types import Loyalty, PieceType, InitFacing
+from utils.chess_types import DirCls as D
 
-from chess.asset_loader import asset_loader as al
+from utils.asset_loader import asset_loader as al
 
 from globalref import OBJREF, GlobalAccessObject
 

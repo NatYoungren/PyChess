@@ -1,6 +1,6 @@
 
 from chess.tiles.tile import Tile
-from chess.chess_types import TileType
+from utils.chess_types import TileType
 
 from chess.tiles.floor import FloorTile
 from chess.tiles.void import VoidTile
