@@ -61,7 +61,7 @@ class Direction(Enum): # Make np?
     WEST = (-1, 0)
 
 InitFacing: Dict[Loyalty, Direction] = {
-    # Loyalty.NONE: (0, 0), # NOTE: SHOULD CREATE ERROR?
+    Loyalty.NONE: (0, 0), # NOTE: SHOULD CREATE ERROR?
     Loyalty.WHITE: (0, -1),
     Loyalty.WHITE_AUTO: (0, -1),
     Loyalty.BLACK: (0, 1),
