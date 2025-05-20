@@ -72,11 +72,13 @@ while ih.running:
         if auto_turn_timer <= 0:
             board.realize(auto_oc) if auto_oc is not None else board.next_turn()
             ui.s_tile = None
+            
     
     # Handle user input
-    ih.update_mousepos(locked_board=auto_turn_timer > 0)
+    ih.locked_board = auto_turn_timer > 0
+    ih.update_mousepos()
     for event in pg.event.get(): 
-        ih.handle_event(event, locked_board=auto_turn_timer > 0)
+        ih.handle_event(event)
         
     ui.draw()
     game_clock.tick(target_fps)

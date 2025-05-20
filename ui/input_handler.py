@@ -8,26 +8,19 @@ class InputHandler:
     A class to handle user input for the chess game.
     """
     
-    ui: object
     running: bool
+    locked_board: bool
     
     def __init__(self):
         self.running = True
         
+        self.locked_board = False
     
-    @property
-    def ui(self):
-        return OBJREF.UI
-    
-    @property
-    def board(self):
-        return self.ui.board
-    
-    def update_mousepos(self, locked_board:bool=False):
+    def update_mousepos(self):
         """
         Update based on mouse position (hovered tile, dragged piece, etc).
         """
-        if locked_board: return
+        if self.locked_board: return
         # self.ui.m_pos = pg.mouse.get_pos()
         x, y = pg.mouse.get_pos() # TODO: Only use one get_pos per frame?
         bx, by = self.ui.board_origin
@@ -44,37 +37,37 @@ class InputHandler:
         self.ui.h_tile = tile # NOTE: Could be None
     
     # TODO: Locked board could just be a class flag.
-    def handle_event(self, event, locked_board:bool=False): 
+    def handle_event(self, event): 
         """
         Handle user input events.
         """
-        if event.type == pg.QUIT:
-            self.running = False
-            return
+        match event.type:
+            case pg.QUIT:
+                self.running = False
         
-        if event.type == pg.KEYDOWN:
-            self.handle_keydown(event, locked_board=locked_board)
-            return
+            case pg.KEYDOWN:
+                self.handle_keydown(event)
         
-        if event.type == pg.MOUSEBUTTONDOWN:
-            self.handle_click(event, locked_board=locked_board)
-            return
+            case pg.MOUSEBUTTONDOWN:
+                self.handle_click(event)
 
-        if event.type == pg.MOUSEMOTION:
-            # self.
-            return
+            case pg.MOUSEMOTION:
+                pass
+            
+            case _:
+                pass
+                # print(f"DEBUG: INPUT_HANDLER.handle_event: Unknown event type: {event.type}")
         
-    def handle_keydown(self, event, locked_board:bool=False):
+    def handle_keydown(self, event):
         if event.key == pg.K_ESCAPE:
             self.running = False
             return
-        
 
         if event.key == pg.K_SPACE:
             self.ui.hide_cursor = not self.ui.hide_cursor
             return
 
-        if locked_board: return
+        if self.locked_board: return
 
         # if event.key == pg.K_r:
         #     self.board.reset()
@@ -89,8 +82,8 @@ class InputHandler:
         #     return
         
     
-    def handle_click(self, event, locked_board: bool=False):
-        if locked_board: return
+    def handle_click(self, event):
+        if self.locked_board: return
         
         bx, by = self.ui.board_origin
         bw, bh = self.ui.b_size
@@ -106,7 +99,7 @@ class InputHandler:
         tile, piece = self.board.at_pos((_x, _y))
         if event.button == 1: # Left click
             self.board_click(tile, piece)
-            
+        
         # TODO: Remove eventually.
         elif event.button == 3: # Right click
             print('DEBUG: INPUT_HANDLER.handle_click: Right click')
@@ -139,3 +132,12 @@ class InputHandler:
             else:
                 if piece is not None and piece.loyalty == self.board.current_turn:
                     self.ui.s_tile = tile
+
+
+    @property
+    def ui(self):
+        return OBJREF.UI
+    
+    @property
+    def board(self):
+        return self.ui.board
