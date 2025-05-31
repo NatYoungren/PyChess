@@ -53,3 +53,83 @@ def sprite_transform(img: pg.Surface,
         img = pg.transform.scale(img, size)
     
     return img
+
+# UI Base Classes
+
+class UIClickable:
+    """
+    Simple class for clickable buttons/sprites/text.  
+    Can be provided with a callback function.
+    """
+    _origin: Position
+    _size: Vector
+    _sprites: Union[None, pg.Surface, Tuple[pg.Surface, ...]]
+    _sprite_offset: Vector
+    _callback: Callable
+    
+    # TODO: Consider inheriting from sprite or spritegroup?
+    _sprite_idx: int = 0  # For tuple sprites, to keep track of which sprite to draw.
+    
+    def __init__(self,
+                 origin: Position,
+                 size: Vector,
+                 sprite: Union[None, pg.Surface, Tuple[pg.Surface, ...]] = None,
+                 sprite_offset: Vector = (0, 0),
+                 callback: Callable = lambda _: None,
+                 sprite_idx: int = 0):
+        self._origin = np.array(origin)
+        self._size = np.array(size)
+        self._sprites = (sprite,) if type(sprite) is pg.Surface else sprite
+        self._sprite_offset = np.array(sprite_offset)
+        self._callback = callback
+        self._sprite_idx = sprite_idx
+    
+    def draw(self, surf: pg.Surface):
+        s = self.sprite
+        if s is None: return
+        # NOTE: Tuples require custom implementation.
+        surf.blit(s, self.sprite_pos) # TODO: What could area argument do?
+    
+    def at_pos(self, pos: Position):
+        return self.origin[0] <= pos[0] <= self.origin[0] + self.size[0] and \
+               self.origin[1] <= pos[1] <= self.origin[1] + self.size[1]
+    
+    def is_hovered(self, pos: Position):
+        return self.at_pos(pos)
+        
+    def get_hovered(self, pos: Position) -> Optional[Self]:
+        return self if self.at_pos(pos) else None
+
+    def click(self, pos: Position = None, m1: bool = True, m2: bool = False):
+        """
+        Trigger callback if clicked.
+        """
+        if pos is None or self.at_pos(pos): self.callback(self)
+    
+    @property
+    def sprite_pos(self):
+        return self.origin + self.sprite_offset
+    @property
+    def origin(self):
+        return self._origin
+    @property
+    def size(self):
+        return self._size
+    @property
+    def sprite(self):
+        return self.sprites[self.sprite_idx]
+    @property
+    def sprites(self):
+        return self._sprites if isinstance(self._sprites, tuple) else (self._sprites,)
+    @property
+    def sprite_offset(self):
+        return self._sprite_offset
+    @property
+    def callback(self):
+        return self._callback
+    @property
+    def sprite_idx(self):
+        return self._sprite_idx
+
+
+
