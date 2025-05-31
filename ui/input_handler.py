@@ -111,8 +111,10 @@ class InputHandler(GlobalAccessObject):
         bx, by = self.ui.b_origin
         bw, bh = self.ui.b_size
 
+        # TODO: Handle UI interaction.
         if not (bx < x < bx+bw and by < y < by+bh):
             print("Clicked outside the board")
+            self.ui_click(event)
             return
         
         tx, ty = self.ui.tile_size
@@ -199,3 +201,6 @@ class InputHandler(GlobalAccessObject):
             else:
                 if piece is not None and piece.loyalty == self.board.current_turn:
                     self.ui.s_tile = tile
+
+    def ui_click(self, event: pg.event.Event):
+        print('HANDLING UI CLICK', self.ui.ui_click(event.pos))

@@ -318,6 +318,13 @@ class ChessUI(GlobalAccessObject):
             pg.mouse.set_visible(True)
     
     
+    def ui_click(self, pos: Position, m1=True, m2=False):
+        self.l_sbar.click(pos, m1=m1, m2=m2)
+    
+    def ui_get_hovered(self, pos: Position) -> Optional[UIClickable]:
+        return self.l_sbar.get_hovered(pos)
+    
+    
     # TODO: Remove or rework.
     def draw_tile_edges(self):
         for t in self.board:
