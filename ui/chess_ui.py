@@ -20,8 +20,11 @@ from chess.tiles.tile import Tile
 from chess.units.piece import ChessPiece
 
 
-from utils.ui_utils import sprite_transform
+from utils.ui_utils import sprite_transform, UIClickable, UIRegion
 from utils.asset_loader import asset_loader as al # Move to objref?
+
+from ui.sidebar_ui import LeftSidebar
+
 
 # # #
 # Load the graphics JSON configuration
@@ -63,6 +66,9 @@ class ChessUI(GlobalAccessObject):
     frame: int
     _hide_cursor: bool = False
     
+    # Subregions
+    l_sbar: LeftSidebar
+    
     def __init__(self,
                  fps: int = 60,
                  hide_cursor: bool = False,
@@ -95,6 +101,8 @@ class ChessUI(GlobalAccessObject):
         self.s_tile: Optional[Tile] = None
         self.h_tile: Optional[Tile] = None
         self.frame: int = 0
+        
+        self.l_sbar: LeftSidebar = LeftSidebar(self)
     
     def draw(self):
         self.draw_background()
@@ -204,7 +212,7 @@ class ChessUI(GlobalAccessObject):
     
     def draw_ui(self):
         # Buttons, text, menus
-        pass
+        self.l_sbar.draw(self.surf)
     
     def draw_cursor(self):
         if not self.hide_cursor: return # If using system cursor, don't draw.
