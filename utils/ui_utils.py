@@ -1,6 +1,19 @@
 import pygame as pg
 import numpy as np
-from typing import Optional, Union, Tuple
+from typing import Optional, Union, Tuple, Dict, List, Callable, Self
+
+from utils.chess_types import Position, Vector
+
+
+pg.font.init()
+MHEADER_FONT = pg.font.Font("assets/fonts/merlin-16x16-monospaced.ttf", 16)
+MSTANDARD_FONT = pg.font.Font("assets/fonts/merlin-8x8-monospaced.ttf", 8)
+MTHIN_FONT = pg.font.Font("assets/fonts/merlin-light-8x8-monospaced.ttf", 8)
+
+HEADER_FONT = pg.font.Font("assets/fonts/merlin-16x16.ttf", 16)
+STANDARD_FONT = pg.font.Font("assets/fonts/merlin-8x8.ttf", 8)
+THIN_FONT = pg.font.Font("assets/fonts/merlin-light-8x8.ttf", 8)
+
 
 
 def sprite_transform(img: pg.Surface,
