@@ -142,6 +142,14 @@ class AssetLoader:
             #       Best to avoid storing/loading one sprite multiple times.
             'check': ("Moodles1.png", "Moodles2.png"), # Swords
             # 'check': ("MoodlesSmall1.png", "MoodlesSmall2.png"), # Swords small
+        },
+        'faction': {
+            'bg': ('faction_icons1.png', 'faction_icons2.png'), # Background (unselected, selected)
+            Loyalty.NONE: 'faction_icons3.png', # Crossed sword/spear
+            Loyalty.WHITE: 'faction_icons4.png', # White King
+            Loyalty.WHITE_AUTO: 'faction_icons5.png', # White Orb
+            Loyalty.BLACK: 'faction_icons6.png', # Black King
+            Loyalty.BLACK_AUTO: 'faction_icons7.png', # Black Orb
         }
     }
     
