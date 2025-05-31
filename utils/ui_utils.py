@@ -133,3 +133,59 @@ class UIClickable:
 
 
 
+class UIRegion(UIClickable):
+    clickables: List[UIClickable]
+    
+    def __init__(self,
+                 origin: Position,
+                 size: Vector,
+                 sprite: Union[None, pg.Surface, Tuple[pg.Surface, ...]] = None,
+                 sprite_offset: Vector = (0, 0),
+                 callback: Callable = lambda _: None):
+        super().__init__(origin, size, sprite, sprite_offset, callback)
+        self.clickables = []
+    
+    def draw(self, surf: pg.Surface):
+        super().draw(surf)
+        for cl in self.clickables:
+            cl.draw(surf)
+    
+    def add_clickable(self, clickable: UIClickable):
+        self.clickables.append(clickable)
+    
+    def get_hovered(self, pos: Position) -> Optional[UIClickable]:
+        """
+        Check if any clickable is hovered at the given position.
+        Returns the first hovered clickable or None.
+        """
+        if not super().is_hovered(pos): return None
+        for cl in self.clickables:
+            if cl.is_hovered(pos):
+                return cl
+        return None
+    
+    
+    def is_hovered(self, pos: Position) -> bool:
+        # TODO: This check may be counterproductive.
+        if not super().is_hovered(pos): return False
+        for cl in self.clickables:
+            if cl.is_hovered(pos):
+                return True
+        return False
+
+    def get_hovered(self, pos: Position) -> Optional[UIClickable]:
+        if not super().is_hovered(pos): return None
+        for cl in self.clickables:
+            if cl.is_hovered(pos):
+                return cl
+        return None
+    
+    def click(self, pos: Position = None, m1: bool = True, m2: bool = False):
+        """
+        Trigger callback if clicked.
+        If a clickable is hovered, trigger its callback instead.
+        """
+        cl = self.get_hovered(pos)
+        if cl is not None:
+            cl.click(pos, m1, m2)
+        # TODO: Trigger callback if hovered but no subclickable?
