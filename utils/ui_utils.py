@@ -16,6 +16,22 @@ THIN_FONT = pg.font.Font("assets/fonts/merlin-light-8x8.ttf", 8)
 
 
 
+def render_text(text: str,
+                font: pg.font.Font = STANDARD_FONT,
+                color: Union[pg.Color, Tuple[int, int, int]] = (255, 255, 255),
+                scale: Optional[int] = None) -> pg.Surface:
+    """
+    Render text to a surface.
+    """
+    
+    text_surface = font.render(text, True, color)
+    if scale is not None:
+        text_surface = pg.transform.scale(text_surface,
+                                          (text_surface.get_width() * scale,
+                                           text_surface.get_height() * scale))
+    return text_surface
+
+
 def sprite_transform(img: pg.Surface,
                      randomflip: bool = False,
                      randomrotate: bool = False,
