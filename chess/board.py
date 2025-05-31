@@ -213,15 +213,14 @@ class Board(GlobalAccessObject):
     
     def __getitem__(self, pos: Position) -> Union[Tile, BoardTiles]:
         # Add 2nd dimension to 1D slices and indices.
-        if isinstance(pos, slice): pos = (pos, slice(0, None))
-        if isinstance(pos, int): pos = (pos, slice(0, None))
+        if isinstance(pos, (slice, int, np.int64)): pos = (pos, slice(0, None))
         return self._board[pos[1], pos[0]] # NOTE: Flip x and y for numpy.
         # return self.board[pos[::-1]]
     
+    # TODO: Validate setitem with slices.
     def __setitem__(self, pos: Position, value: Tile) -> None:
         # Add 2nd dimension to 1D slices and indices.
-        if isinstance(pos, slice): pos = (pos, slice(0, None))
-        if isinstance(pos, int): pos = (pos, slice(0, None))
+        if isinstance(pos, (slice, int, np.int64)): pos = (pos, slice(0, None))
         self._board[pos[1], pos[0]] = value
     
     # TODO: More complex state will be needed.
