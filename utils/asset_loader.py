@@ -144,12 +144,13 @@ class AssetLoader:
             # 'check': ("MoodlesSmall1.png", "MoodlesSmall2.png"), # Swords small
         },
         'faction': {
-            'bg': ('faction_icons1.png', 'faction_icons2.png'), # Background (unselected, selected)
-            Loyalty.NONE: 'faction_icons3.png', # Crossed sword/spear
-            Loyalty.WHITE: 'faction_icons4.png', # White King
-            Loyalty.WHITE_AUTO: 'faction_icons5.png', # White Orb
-            Loyalty.BLACK: 'faction_icons6.png', # Black King
-            Loyalty.BLACK_AUTO: 'faction_icons7.png', # Black Orb
+            'bg': ('icon_bgs1.png', 'icon_bgs2.png'), # Unselected background (normal, hover)
+            'bgselect': ('icon_bgs3.png', 'icon_bgs4.png'), # Selected background (normal, hover)
+            Loyalty.NONE: 'faction_icons1.png', # Crossed sword/spear
+            Loyalty.WHITE: 'faction_icons2.png', # White King
+            Loyalty.WHITE_AUTO: 'faction_icons3.png', # White Orb
+            Loyalty.BLACK: 'faction_icons4.png', # Black King
+            Loyalty.BLACK_AUTO: 'faction_icons5.png', # Black Orb
         }
     }
     

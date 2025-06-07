@@ -272,30 +272,33 @@ class LeftSidebar(UIRegion):
         x -= padding // 2
         for faction in factions:
             
-            # # Highlight current faction
-            # # TODO: Use sprite tuples?
-            # if faction == curr_faction:
-            #     _bg = faction_sprites['bg'][1]
-            # else:
-            #     _bg = faction_sprites['bg'][0]
-                
+            # Get sprite which represents faction
             faction_sprite = sprite_transform(faction_sprites[faction], size=icon_size)
 
-            _unselected_sprite = sprite_transform(bg[0], size=icon_size)
-            _unselected_sprite.blit(faction_sprite, (0, 0))
-            _selected_sprite = sprite_transform(bg[1], size=icon_size)
-            _selected_sprite.blit(faction_sprite, (0, 0))
-            print(_unselected_sprite, _selected_sprite)
+            # Apply to unselected + hover backgrounds
+            _unselected = sprite_transform(bg[0], size=icon_size)
+            _unselected.blit(faction_sprite, (0, 0))
+            _unselected_h = sprite_transform(bg[1], size=icon_size)
+            _unselected_h.blit(faction_sprite, (0, 0))
+            
+            # Apply to selected + hover backgrounds
+            _selected = sprite_transform(bgselect[0], size=icon_size)
+            _selected.blit(faction_sprite, (0, 0))
+            _selected_h = sprite_transform(bgselect[1], size=icon_size)
+            _selected_h.blit(faction_sprite, (0, 0))
+            
+            
             # sprite = render_text(faction.name, THIN_FONT, scale=self.scale)
             
             x += padding
-            f_clickable = UIClickable((x, y), faction_sprite.get_size(), sprite=(_unselected_sprite, _selected_sprite),)
+            f_clickable = UIClickable((x, y), faction_sprite.get_size(),
+                                      sprite=(_unselected, _selected),
+                                      hsprite=(_unselected_h, _selected_h),)
             x += faction_sprite.get_size()[0] + padding
 
             
             self.add_clickable(f_clickable)
             self._faction_clickables[faction] = f_clickable
-            # y += _sprite.get_size()[1] + padding
         
         
         
