@@ -39,15 +39,20 @@ class InputHandler(GlobalAccessObject):
         """
         Update based on mouse position (hovered tile, dragged piece, etc).
         """
-        
+
         x, y = pg.mouse.get_pos()
         self.m_pos[:] = x, y # TODO: Only use one get_pos per frame?
+        
+        # Update UI hclickable.
+        self.ui.update_hclickable((x, y)) # 
+        # _ = self.ui.ui_get_hovered((x, y)) # Update hovered UI element, if any.
         
         if self.locked_board: return
         
         bx, by = self.ui.b_origin
         bw, bh = self.ui.b_size
         
+        # If outside board, reset hovered tile.
         if not (bx < x < bx+bw and by < y < by+bh):
             self.ui.h_tile = None
             return
@@ -58,7 +63,7 @@ class InputHandler(GlobalAccessObject):
         # NOTE: Update UI with hovered tile.
         tile = self.board.get_tile((_x, _y))
         self.ui.h_tile = tile # NOTE: Could be None
-    
+            
     def handle_event(self, event): 
         """
         Handle user input events.
@@ -113,7 +118,7 @@ class InputHandler(GlobalAccessObject):
 
         # TODO: Handle UI interaction.
         if not (bx < x < bx+bw and by < y < by+bh):
-            print("Clicked outside the board")
+            # print("Clicked outside the board")
             self.ui_click(event)
             return
         
@@ -203,4 +208,5 @@ class InputHandler(GlobalAccessObject):
                     self.ui.s_tile = tile
 
     def ui_click(self, event: pg.event.Event):
-        print('HANDLING UI CLICK', self.ui.ui_click(event.pos))
+        # print('HANDLING UI CLICK')
+        self.ui.ui_click(event.pos) # TODO: Add m1, m2 parameters

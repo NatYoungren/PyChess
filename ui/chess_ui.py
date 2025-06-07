@@ -66,8 +66,11 @@ class ChessUI(GlobalAccessObject):
     frame: int
     _hide_cursor: bool = False
     
-    # Subregions
+    # Clickable Regions
     l_sbar: LeftSidebar
+    
+    # Hovered clickable
+    h_clickable: Optional[UIClickable] = None
     
     def __init__(self,
                  fps: int = 60,
@@ -212,7 +215,7 @@ class ChessUI(GlobalAccessObject):
     
     def draw_ui(self):
         # Buttons, text, menus
-        self.l_sbar.draw(self.surf)
+        self.l_sbar.draw(self.surf, self.h_clickable)
     
     def draw_cursor(self):
         if not self.hide_cursor: return # If using system cursor, don't draw.
@@ -317,12 +320,20 @@ class ChessUI(GlobalAccessObject):
         else:
             pg.mouse.set_visible(True)
     
+    def update_hclickable(self, pos: Position):
+        """
+        Update the currently hovered clickable UI element.
+        """
+        self.h_clickable = self.l_sbar.get_hovered(pos)
     
-    def ui_click(self, pos: Position, m1=True, m2=False):
-        self.l_sbar.click(pos, m1=m1, m2=m2)
-    
-    def ui_get_hovered(self, pos: Position) -> Optional[UIClickable]:
-        return self.l_sbar.get_hovered(pos)
+    def ui_click(self, pos: Position, m1:bool=True, m2:bool=False):
+        # Click the currently hovered clickable
+        if self.h_clickable is not None:
+            self.h_clickable.click(pos, m1=m1, m2=m2)
+            # print(f'UI Clicked: {self.h_clickable.__class__.__name__} at {pos}, m1={m1}, m2={m2}')
+        else:
+            pass
+            # print('No UI element hovered to click.')
     
     
     # TODO: Remove or rework.
