@@ -264,6 +264,7 @@ class LeftSidebar(UIRegion):
 
         faction_sprites = al.icon_sprites['faction']
         bg = faction_sprites['bg']
+        bgselect = faction_sprites['bgselect']
         
         # TODO: Skip NONE faction?
         #       Shrink or skip 'auto' faction icons?
