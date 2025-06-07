@@ -154,18 +154,25 @@ class AssetLoader:
         }
     }
     
+    INDICATOR_SPRITE_DIRECTORY = os.path.join('assets', 'ui', 'indicators')
+    INDICATOR_SPRITE_FILES = {
+        'turn': 'pointers4.png'
+    }
+    
+    
     def __init__(self):
         
         # TODO: Could lazily load some on first access?
         #       Unload sprites in some situations?
         
-        # TODO: Shorten names.
+        # TODO: Shorten names?
         self.piece_sprites = self.load_sprites({}, self.PIECE_SPRITE_FILES, self.PIECE_SPRITE_DIRECTORY)
         # self.board_sprites = self.load_sprites({}, self.BOARD_SPRITE_FILES, self.BOARD_SPRITE_DIRECTORY)
         self.tile_sprites = self.load_sprites({}, self.TILE_SPRITE_FILES, self.TILE_SPRITE_DIRECTORY)
         self.tile_effect_sprites = self.load_sprites({}, self.TILE_EFFECT_SPRITE_FILES, self.TILE_EFFECT_SPRITE_DIRECTORY)
         self.cursor_sprites = self.load_sprites({}, self.CURSOR_SPRITE_FILES, self.CURSOR_SPRITE_DIRECTORY)
         self.icon_sprites = self.load_sprites({}, self.ICON_SPRITE_FILES, self.ICON_SPRITE_DIRECTORY)
+        self.indicator_sprites = self.load_sprites({}, self.INDICATOR_SPRITE_FILES, self.INDICATOR_SPRITE_DIRECTORY)
         
         # TODO: DEPRECATE
         self.DEFAULT_PIECE_SPRITE = self.piece_sprites[Loyalty.NONE][PieceType.NONE]
