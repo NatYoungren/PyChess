@@ -56,10 +56,6 @@ class ButtonsUI(UIRegion):
                                           callback=self.pause_callback,
                                           x=self.origin[0] + padding)
         
-        # self.playB, x = self.make_button(self.play_sprites[0],
-        #                                  self.play_callback,
-        #                                  x=x + padding)
-        
         self.undoB, x = self.make_button(sprite=self.undo_sprites[0],
                                          hsprite=self.undo_sprites[1],
                                          callback=self.undo_callback,
@@ -77,34 +73,6 @@ class ButtonsUI(UIRegion):
         #                                     self.quit_callback,
         #                                     x=x + padding)
         
-        
-        
-        # x = self.origin[0] + padding
-        # self.pauseB = UIClickable(self.origin + (x, 0),
-        #                           self.pause_sprites[0].get_size(),
-        #                           self.pause_sprites[0],
-        #                           callback=self.pause_callback)
-        # x = self.pauseB.origin[0] + self.pauseB.size[0] + padding
-        
-        # # # TODO: Remove play button?
-        # # self.playB = UIClickable(self.origin + (x, 0),
-        # #                          self.play_sprites[0].get_size(),
-        # #                          self.play_sprites[0],
-        # #                          callback=self.play_callback)
-        # # x = self.playB.origin[0] + self.playB.size[0] + padding
-
-        # self.undoB = UIClickable(self.origin + (x, 0),
-        #                          self.undo_sprites[0].get_size(),
-        #                          self.undo_sprites[0],
-        #                          callback=self.undo_callback)
-        # x = self.undoB.origin[0] + self.undoB.size[0] + padding
-        
-        # # x = self.settingsB.origin[0] + self.settingsB.size[0] + padding
-        
-        # # self.add_clickable(self.pauseB)
-        # # self.add_clickable(self.playB)
-        # # self.add_clickable(self.undoB)
-        # # self.add_clickable(self.settingsB)
         
     # TODO:
     #       Map button
