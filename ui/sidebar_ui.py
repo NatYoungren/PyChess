@@ -51,21 +51,25 @@ class ButtonsUI(UIRegion):
         
         #        
         padding = 8
-        self.pauseB, x = self.make_button(self.pause_sprites + self.play_sprites,
-                                          self.pause_callback,
+        self.pauseB, x = self.make_button(sprite=(self.pause_sprites[0], self.play_sprites[0]),
+                                          hsprite=(self.pause_sprites[1], self.play_sprites[1]),
+                                          callback=self.pause_callback,
                                           x=self.origin[0] + padding)
         
         # self.playB, x = self.make_button(self.play_sprites[0],
         #                                  self.play_callback,
         #                                  x=x + padding)
         
-        self.undoB, x = self.make_button(self.undo_sprites,
-                                         self.undo_callback,
+        self.undoB, x = self.make_button(sprite=self.undo_sprites[0],
+                                         hsprite=self.undo_sprites[1],
+                                         callback=self.undo_callback,
                                          x=x + padding)
         
-        self.settingsB, x = self.make_button(self.settings_sprites,
-                                             self.settings_callback,
-                                             x=x + padding)
+        self.settingsB, x = self.make_button(sprite=self.settings_sprites[0],
+                                         hsprite=self.settings_sprites[1],
+                                         callback=self.settings_callback,
+                                         x=x + padding)
+        
         # self.mapB, x = self.make_button(self.map_sprites[0],
         #                                     self.map_callback,
         #                                     x=x + padding)
@@ -107,35 +111,37 @@ class ButtonsUI(UIRegion):
     #       Quit button
     def make_button(self,
                     sprite: Union[pg.Surface, Tuple[pg.Surface, ...]],
+                    hsprite: Union[None, pg.Surface, Tuple[pg.Surface, ...]],
                     callback: Callable,
                     x: int,
                     y: Optional[int] = None,
-                    clickable: bool = True) -> Tuple[UIClickable, int]:
+                    add_clickable: bool = True) -> Tuple[UIClickable, int]:
         size = sprite.get_size() if isinstance(sprite, pg.Surface) else sprite[0].get_size()
-        btn = UIClickable(self.origin + (x, y if y is not None else 0),
-                          size,
+        btn = UIClickable(origin=self.origin + (x, y if y is not None else 0),
+                          size=size,
                           sprite=sprite,
+                          hsprite=hsprite,
                           callback=callback)
         x = btn.origin[0] + btn.size[0]
-        if clickable:
+        if add_clickable:
             self.add_clickable(btn)
         return btn, x
     
     def pause_callback(self, btn: UIClickable): # Remove?
         print('Pause button clicked')
         btn._callback = self.play_callback
-        btn._sprite_idx = (btn._sprite_idx + 1) % 2
+        btn._sprite_idx = 1
         # Switch to play?
     
     def play_callback(self, btn: UIClickable): # TODO: Remove? Play button may be in menu.
         print('Play button clicked')
         btn._callback = self.pause_callback
-        btn._sprite_idx = (btn._sprite_idx + 1) % 2 + 2
+        btn._sprite_idx = 0
         # Switch to pause?
     
     def settings_callback(self, btn: UIClickable):
         print('Settings button clicked')
-        btn._sprite_idx = (btn._sprite_idx + 1) % len(btn.sprites)
+        # btn._sprite_idx = (btn._sprite_idx + 1) % len(btn.sprites)
         # Open settings menu?
     
     # TODO: CREATE SPRITE
@@ -145,7 +151,7 @@ class ButtonsUI(UIRegion):
     
     def undo_callback(self, btn: UIClickable):
         print('Undo button clicked')
-        btn._sprite_idx = (btn._sprite_idx + 1) % len(btn.sprites)
+        # btn._sprite_idx = (btn._sprite_idx + 1) % len(btn.sprites)
         # Undo last move?
 
 
