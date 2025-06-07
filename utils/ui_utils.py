@@ -149,44 +149,33 @@ class UIRegion(UIClickable):
                  origin: Position,
                  size: Vector,
                  sprite: Union[None, pg.Surface, Tuple[pg.Surface, ...]] = None,
+                 hsprite: Union[None, pg.Surface, Tuple[pg.Surface, ...]] = None,
                  sprite_offset: Vector = (0, 0),
                  callback: Callable = lambda _: None):
-        super().__init__(origin, size, sprite, sprite_offset, callback)
+        super().__init__(origin=origin, size=size,
+                         sprite=sprite, hsprite=hsprite,
+                         sprite_offset=sprite_offset, callback=callback)
         self.clickables = []
     
-    def draw(self, surf: pg.Surface):
-        super().draw(surf)
+    def draw(self, surf: pg.Surface, hovered: Optional[Self]=None):
+        super().draw(surf, hovered=hovered)
         for cl in self.clickables:
-            cl.draw(surf)
+            cl.draw(surf, hovered=hovered)
     
     def add_clickable(self, clickable: UIClickable):
         self.clickables.append(clickable)
     
+    # TODO: Rename update hovered?
     def get_hovered(self, pos: Position) -> Optional[UIClickable]:
         """
         Check if any clickable is hovered at the given position.
         Returns the first hovered clickable or None.
         """
-        if not super().is_hovered(pos): return None
+        # if not super().at_pos(pos): return None # TODO: Remove?
         for cl in self.clickables:
-            if cl.is_hovered(pos):
-                return cl
-        return None
-    
-    
-    def is_hovered(self, pos: Position) -> bool:
-        # TODO: This check may be counterproductive.
-        if not super().is_hovered(pos): return False
-        for cl in self.clickables:
-            if cl.is_hovered(pos):
-                return True
-        return False
-
-    def get_hovered(self, pos: Position) -> Optional[UIClickable]:
-        if not super().is_hovered(pos): return None
-        for cl in self.clickables:
-            if cl.is_hovered(pos):
-                return cl
+            hov = cl.get_hovered(pos)
+            if hov is not None:
+                return hov
         return None
     
     def click(self, pos: Position = None, m1: bool = True, m2: bool = False):
