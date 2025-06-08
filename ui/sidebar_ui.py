@@ -127,6 +127,15 @@ class TurnOrderUI(UIRegion):
     ui: object
     scale: int # TODO: Remove?
 
+    _faction_clickables: Dict[Loyalty, UIClickable] # Faction name -> clickable
+    _selected_faction: Loyalty = Loyalty.NONE  # Faction currently selected (for info display)
+
+    turn_pointer_sprite: pg.Surface
+    under_indicator: pg.Surface # TODO: Remove? Used for turn pointer?
+    over_indicator: pg.Surface # TODO: Remove? Used for turn pointer?
+    right_indicator: pg.Surface # TODO: Remove? Used for turn pointer?
+    
+    
     def __init__(self,
                  ui,
                  origin: Position,
@@ -142,74 +151,67 @@ class TurnOrderUI(UIRegion):
         turn_order_text = render_text('Turn Order', THIN_FONT, scale=self.scale)
         to_clickable = UIClickable(self.origin+(0, 0), turn_order_text.get_size(), turn_order_text)
         self.add_clickable(to_clickable)
-
-
-class LeftSidebar(UIRegion):
-    """
-    Sidebar which displays summative game information.
-    """
-    ui: object
-    scale: int # TODO: Remove?
-    
-    # _faction_backgrounds: Dict[Loyalty, pg.Surface] # Faction name -> background sprite
-    _faction_clickables: Dict[Loyalty, UIClickable] # Faction name -> clickable
-    
-    def __init__(self,
-                 ui,
-                 battle_name: str = 'Brinan Courtyard', # TODO: Rework, location name?
-                 scale: int = 2, # TODO: Remove?
-                 ):
-        origin = (0, 0)
-        size = (ui.b_origin[0], ui.height)
         
-        super().__init__(origin, size)
-        self.ui = ui
-        self.scale: int = scale
-        
-        # TODO: Does this need to be a clickable? (Map link??)
-        battle_title = render_text(battle_name, HEADER_FONT, scale=self.scale)
-        bt_clickable = UIClickable(self.origin + (8, 8), battle_title.get_size(), battle_title)
-        self.add_clickable(bt_clickable)
-
-        # Buttons at bottom of sidebar
-        # TODO: Anchor to bottom left corner
-        buttonsui_origin = (0, self.size[1] - 64) # TODO: Padding?
-        buttonsui_size = (self.size[0] - buttonsui_origin[0],
-                          self.size[1] - buttonsui_origin[1]) # TODO: Padding?
-        
-        self.buttons_ui = ButtonsUI(ui,
-                                   self.origin + buttonsui_origin,
-                                   buttonsui_size,
-                                   scale=self.scale)
-        
-        # Turn order between title and buttons
-        # TODO: Anchor to center left side of board (or window?)
-        turnorderui_origin = (8, 64)
-        turnorder_ui_size = (self.size[0] - turnorderui_origin[0],
-                             self.size[1] - turnorderui_origin[1] - buttonsui_origin[1])
-        
-        self.turn_order_ui = TurnOrderUI(ui,
-                                         self.origin + turnorderui_origin,
-                                         turnorder_ui_size,
-                                         scale=self.scale)
-        
-        self.add_clickable(self.turn_order_ui)
-        self.add_clickable(self.buttons_ui)
-
         self._faction_clickables: Dict[Loyalty, UIClickable] = {}
-        self.update_factions()  # Initialize faction clickables
-    
-    def update_turn(self):
+        self._selected_faction = Loyalty.NONE  # Faction currently selected (for info display)
+        self.turn_pointer_sprite = sprite_transform(al.indicator_sprites['turn'], size=(32 * self.scale, 32 * self.scale))
+        self.under_indicator = sprite_transform(al.indicator_sprites['under'], size=(32 * self.scale, 32 * self.scale))
+        self.over_indicator = sprite_transform(al.indicator_sprites['over'], size=(32 * self.scale, 32 * self.scale))
+        self.right_indicator = sprite_transform(al.indicator_sprites['right'], size=(32 * self.scale, 32 * self.scale))
+
+    def draw(self, surf: pg.Surface, hovered: Optional[UIClickable] = None):
         """
-        Update indicator for current faction.
+        Draw the turn order UI region.
         """
-        pass
-        # self.turn_order_ui.update_factions()
-    
-    def update_factions(self):
+        
+        self.draw_indicators(surf, hovered=hovered)
+        super().draw(surf, hovered=hovered)
+        
+        # TODO: Display faction info:
+        # Show info for hovered faction, default to current faction?
+        # OR allow click-to-select.
+        #       - Faction name
+        #       - Faction 'direction'
+        #       - Pieces taken
+        #       - Pieces remaining
+        #       - Misc information / morale / leadership / objectives?
+        #       - Information about bot priorities / decisionmaking?
+        #           - (The kings nephew was recently knighted, he will be protected at all costs.)
+
+
+    def draw_indicators(self, surf: pg.Surface, hovered: Optional[UIClickable] = None):
         """
-        Update the factions displayed in the sidebar.
+        Draw indicators for factions in the turn order.
         """
+        # hf = hovered in self._faction_clickables.values()
+        for i, (l, cl) in enumerate(self._faction_clickables.items()):
+            if l is self.ui.board.current_turn:
+                # cl._sprite_idx = 1  # Highlight current faction
+                # Draw turn pointer for current faction
+                over_pos = (cl.origin[0] + cl.size[0] // 2 - self.over_indicator.get_width() // 2,
+                            cl.origin[1]-4*self.scale)# - self.over_indicator.get_height())
+                under_pos = (cl.origin[0] + cl.size[0] // 2 - self.under_indicator.get_width() // 2,
+                             cl.origin[1]+4*self.scale)# - self.under_indicator.get_height())
+                surf.blit(self.under_indicator, under_pos)
+                surf.blit(self.over_indicator, over_pos)
+                # pointer_pos = (cl.origin[0] + cl.size[0] // 2 - self.turn_pointer_sprite.get_width() // 2,
+                #                cl.origin[1] - self.turn_pointer_sprite.get_height())
+                # surf.blit(self.turn_pointer_sprite, pointer_pos)
+            else:
+                pass
+                # cl._sprite_idx = 0
+                
+            if i != len(self._faction_clickables) - 1:
+                right_pos = (cl.origin[0] + cl.size[0] // 2 - self.right_indicator.get_width() // 2 + 4*self.scale,
+                        cl.origin[1] + cl.size[1] // 2 - self.right_indicator.get_height() // 2)
+                surf.blit(self.right_indicator, right_pos)
+
+        
+    def reset_faction_icons(self):
+        """
+        Update the factions displayed in the turn order.
+        """
+
         # TODO: Use faction UI regions?
         for _, cl in self._faction_clickables.items():
             if cl in self.clickables:
@@ -228,8 +230,8 @@ class LeftSidebar(UIRegion):
         w = self.size[0]
         px_per_faction = w // len(factions) if factions else 0
         
-        x = self.turn_order_ui.origin[0]# + (w - px_per_faction * len(factions)) # Start at right edge of sidebar
-        y = self.turn_order_ui.origin[1] + 32
+        x = self.origin[0]# + (w - px_per_faction * len(factions)) # Start at right edge of sidebar
+        y = self.origin[1] + 32
 
         icon_size = 32 * self.scale # TODO: Use UI scale / resolution
         padding = (px_per_faction - icon_size) // 2
@@ -262,7 +264,6 @@ class LeftSidebar(UIRegion):
             _selected_h = sprite_transform(bgselect[1], size=icon_size)
             _selected_h.blit(faction_sprite, (0, 0))
             
-            
             # sprite = render_text(faction.name, THIN_FONT, scale=self.scale)
             
             x += padding
@@ -274,9 +275,71 @@ class LeftSidebar(UIRegion):
             
             self.add_clickable(f_clickable)
             self._faction_clickables[faction] = f_clickable
+
+class LeftSidebar(UIRegion):
+    """
+    Sidebar which displays summative game information.
+    """
+    ui: object
+    scale: int # TODO: Remove?
         
+    def __init__(self,
+                 ui,
+                 battle_name: str = 'Brinan Courtyard', # TODO: Rework, location name?
+                 scale: int = 2, # TODO: Remove?
+                 ):
+        origin = (0, 0)
+        size = (ui.b_origin[0], ui.height)
         
+        super().__init__(origin, size)
+        self.ui = ui
+        self.scale: int = scale
         
+        # TODO: Does this need to be a clickable? (Map link??)
+        battle_title = render_text(battle_name, HEADER_FONT, scale=self.scale)
+        bt_clickable = UIClickable(self.origin + (8, 8), battle_title.get_size(), battle_title)
+        self.add_clickable(bt_clickable)
+        
+        # Buttons at bottom of sidebar
+        # TODO: Anchor to bottom left corner
+        buttonsui_origin = (0, self.size[1] - 64) # TODO: Padding?
+        buttonsui_size = (self.size[0] - buttonsui_origin[0],
+                          self.size[1] - buttonsui_origin[1]) # TODO: Padding?
+        
+        self.buttons_ui = ButtonsUI(ui,
+                                   self.origin + buttonsui_origin,
+                                   buttonsui_size,
+                                   scale=self.scale)
+        
+        # Turn order between title and buttons
+        # TODO: Anchor to center left side of board (or window?)
+        turnorderui_origin = (8, 64)
+        turnorder_ui_size = (self.size[0] - turnorderui_origin[0],
+                             buttonsui_origin[1] - turnorderui_origin[1]) # Padding?
+        
+        self.turn_order_ui = TurnOrderUI(ui,
+                                         self.origin + turnorderui_origin,
+                                         turnorder_ui_size,
+                                         scale=self.scale)
+        
+        self.add_clickable(self.turn_order_ui)
+        self.add_clickable(self.buttons_ui)
+        
+        self.reset_turn_order_ui()  # Initialize faction clickables
+    
+    def update_turn(self):
+        """
+        Update indicator for current faction.
+        """
+        pass
+        # self.turn_order_ui.update_factions()
+    
+    def reset_turn_order_ui(self):
+        """
+        Reset the turn order region.
+        """
+        self.turn_order_ui.reset_faction_icons()
+
     # def draw(self, surf):
     #     self.ui.surf.blit(self.text_surf, self.origin)
     

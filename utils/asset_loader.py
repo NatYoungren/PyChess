@@ -156,7 +156,10 @@ class AssetLoader:
     
     INDICATOR_SPRITE_DIRECTORY = os.path.join('assets', 'ui', 'indicators')
     INDICATOR_SPRITE_FILES = {
-        'turn': 'pointers4.png'
+        'turn': 'pointers4.png',
+        'under': 'pointers5.png',
+        'over': 'pointers6.png',
+        'right': 'pointers7.png',
     }
     
     
