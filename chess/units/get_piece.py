@@ -12,6 +12,7 @@ from chess.units.king import King
 # New chess pieces
 from chess.units.summoner import Summoner, Zombie
 from chess.units.jester import Jester
+from chess.units.sentry import Sentry
 
 from utils.chess_types import Loyalty, PieceType
 
@@ -30,6 +31,7 @@ piece_classes = {
     PieceType.SUMMONER: Summoner,
     PieceType.ZOMBIE: Zombie,
     PieceType.JESTER: Jester,
+    PieceType.SENTRY: Sentry,
 }
 
 def get_piece_class(piece_type: PieceType):

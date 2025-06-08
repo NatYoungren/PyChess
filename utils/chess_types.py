@@ -42,6 +42,7 @@ class PieceType(Enum):
     SUMMONER = 7
     ZOMBIE = 8
     JESTER = 9
+    SENTRY = 10
 
 
 class Loyalty(Enum):
