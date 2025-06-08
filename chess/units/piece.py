@@ -58,6 +58,12 @@ class ChessPiece(GlobalAccessObject):
     
     # # # # # # # # # #
     # ACTION METHODS
+    
+    def turn_changed(self):
+        """
+        Called when the turn changes.
+        """
+        
     def update(self):
         """
         Update all actions for this piece.

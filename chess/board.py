@@ -115,24 +115,27 @@ class Board(GlobalAccessObject):
     
     # # #
     # Turn logic
-    def update(self) -> None:
+    def update(self, turn_changed: bool = False) -> None:
         """
         Updates all pieces and board.  
-        Called at start of each turn
+        Called at start of each turn.
         """
         for tile in self:
             tile.update()
+            
             if tile.piece is not None:
+                if turn_changed: tile.piece.turn_changed()
                 tile.piece.update()
+        
         self._checks = self.get_checks() # TODO: Give outcomes a 'checking' flag which they can set?
-
+    
     def realize(self, outcome: Optional[Outcome]) -> bool:
         """
         Realizes the outcome of an action.
         """
         # self.selected_tile = None
         if outcome is None: return False
-        outcome.realize(self) # TODO: Have Outcomes store turn when generated?
+        outcome.realize() # TODO: Have Outcomes store turn when generated?
         self.history.append(outcome)
         self.next_turn()
         return True
@@ -143,7 +146,7 @@ class Board(GlobalAccessObject):
         """
         if loop_to is None: loop_to = self.current_turn
         self.turn += 1
-        self.update()
+        self.update(turn_changed=True)
         
         # Infinite loop prevention turn skipping.
         if loop_to != self.current_turn: # TODO: This is hacky, improve.    
@@ -151,7 +154,7 @@ class Board(GlobalAccessObject):
             lp = self.loyal_pieces()
             lpoc = [True if p.outcomes else False for p in lp]
             if not lp or not any(lpoc):
-                self.next_turn(loop_to=loop_to)
+                return self.next_turn(loop_to=loop_to)
     # # #
     
     
