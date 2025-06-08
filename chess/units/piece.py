@@ -194,9 +194,5 @@ class ChessPiece(GlobalAccessObject):
     def position(self, value: Position):
         self._position = np.array(value, dtype=int)
     
-    # @property
-    # def board(self) -> object:
-    #     return OBJREF.BOARD
-    
     def __repr__(self):
         return f'{self.loyalty.name} {self.name}'
