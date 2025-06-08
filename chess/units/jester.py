@@ -57,8 +57,6 @@ class JesterJump(Action):
                     self.outcomes[t] = Capture(self.piece, pos, p)
 
 
-
-
 class Jester(ChessPiece):
     def __init__(self, loyalty: Loyalty, position):
         super().__init__(loyalty=loyalty, piece_type=PieceType.JESTER, position=position)

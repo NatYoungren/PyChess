@@ -12,7 +12,7 @@ from chess.actions.outcome import Move, Capture
 
 class KnightJump(Action):
     """
-    Represents a move/capture action for a bishop.
+    Represents a move/capture action for a knight.
     """
     VECTORS: Tuple[Vector] = (D.f+D.f_l, D.f+D.f_r,
                               D.r+D.f_r, D.r+D.b_r,

@@ -215,7 +215,7 @@ class AssetLoader:
         return img
         # TODO: Test whether this actually speeds up drawing?
         # if alpha:
-        #     return img#.convert_alpha()
+        #     return img #.convert_alpha()
         # return img#.convert()
 
 asset_loader = AssetLoader()
