@@ -13,13 +13,22 @@ class PawnMoveOnly(Action):
     """
     Represents a move action for a pawn.
     """
+    
+    def flag_enpassant(self):
+        self.piece.en_passantable = True
+        
     def update(self):
         super().update()
-        for pos, t, p in self.get_line(D.f,
+        poss_moves = self.get_line(D.f,
                               length=2 if self.move_count == 0 else 1,
-                              enemy_ok=False):
-            self.outcomes[t] = Move(self.piece, pos)
-        
+                              enemy_ok=False)
+        for i, (pos, t, p) in enumerate(poss_moves):
+            if i == 1:
+                self.outcomes[t] = Move(self.piece, pos, callback = self.flag_enpassant)
+            else:
+                self.outcomes[t] = Move(self.piece, pos)
+
+
 class PawnCaptureOnly(Action):
     """
     Represents a capture action for a pawn.
@@ -31,11 +40,40 @@ class PawnCaptureOnly(Action):
                                           length=1,
                                           can_move=False):
                 self.outcomes[t] = Capture(self.piece, pos, p)
+                break
+
+
+class PawnPassant(Action):
+    """
+    Represents an en passant capture action for a pawn.
+    """
+    
+    def update(self):
+        super().update()
+        for hv, dv in ((D.l, D.f_l), (D.r, D.f_r)):
+            for pos, t, p in self.get_line(hv,
+                                           length=1,
+                                           can_move=False):
+                if isinstance(p, Pawn) and p.loyalty != self.piece.loyalty and p.en_passantable:
+                    
+                    for posD, tD, pD in self.get_line(dv, length=1, can_move=True, enemy_ok=False):
+                        self.outcomes[tD] = Capture(self.piece, posD, p)
+                        break
+                    
+                    
 
 
 class Pawn(ChessPiece):
+    en_passantable: bool
     
     def __init__(self, loyalty: Loyalty, position):
         super().__init__(loyalty=loyalty, piece_type=PieceType.PAWN, position=position)
+        self.en_passantable = False
         self.actions.append(PawnMoveOnly(self))
         self.actions.append(PawnCaptureOnly(self))
+        self.actions.append(PawnPassant(self))
+
+    def turn_changed(self):
+        if self.board.current_turn == self.loyalty:
+            self.en_passantable = False
+        super().turn_changed()
