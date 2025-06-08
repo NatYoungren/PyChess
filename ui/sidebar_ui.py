@@ -123,6 +123,21 @@ class ButtonsUI(UIRegion):
         # Undo last move?
 
 
+# class FactionIconClickable(UIClickable):
+#     """
+#     Clickable for a faction icon in the turn order.
+#     """
+#     turn_pointer_sprite: pg.Surface
+    
+#     def __init__(self, origin: Position, size: Vector,
+#                  sprite: Union[pg.Surface, Tuple[pg.Surface, ...]],
+#                  hsprite: Union[None, pg.Surface, Tuple[pg.Surface, ...]],
+#                  faction: Loyalty,
+#                  callback: Callable = lambda _: None):
+#         super().__init__(origin, size, sprite=sprite, hsprite=hsprite, callback=callback)
+#         self.faction = faction  # Faction this clickable represents
+        
+
 class TurnOrderUI(UIRegion):
     ui: object
     scale: int # TODO: Remove?
@@ -164,9 +179,9 @@ class TurnOrderUI(UIRegion):
         Draw the turn order UI region.
         """
         
-        self.draw_indicators(surf, hovered=hovered)
         super().draw(surf, hovered=hovered)
-        
+        self.draw_indicators(surf, hovered=hovered)
+
         # TODO: Display faction info:
         # Show info for hovered faction, default to current faction?
         # OR allow click-to-select.
@@ -186,7 +201,7 @@ class TurnOrderUI(UIRegion):
         # hf = hovered in self._faction_clickables.values()
         for i, (l, cl) in enumerate(self._faction_clickables.items()):
             if l is self.ui.board.current_turn:
-                # cl._sprite_idx = 1  # Highlight current faction
+                cl._sprite_idx = 1  # Highlight current faction
                 # Draw turn pointer for current faction
                 over_pos = (cl.origin[0] + cl.size[0] // 2 - self.over_indicator.get_width() // 2,
                             cl.origin[1]-4*self.scale)# - self.over_indicator.get_height())
@@ -199,7 +214,7 @@ class TurnOrderUI(UIRegion):
                 # surf.blit(self.turn_pointer_sprite, pointer_pos)
             else:
                 pass
-                # cl._sprite_idx = 0
+                cl._sprite_idx = 0
                 
             if i != len(self._faction_clickables) - 1:
                 right_pos = (cl.origin[0] + cl.size[0] // 2 - self.right_indicator.get_width() // 2 + 4*self.scale,
