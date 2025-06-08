@@ -26,6 +26,8 @@ class GameManager(GlobalAccessObject):
     FRAME_CLOCK: pg.time.Clock = pg.time.Clock()
     
     bots: Dict[Loyalty, Bot]
+    THINKING_FRAMES: int = 15  # Number of frames to wait before showing the outcome
+    PREVIEW_FRAMES: int = 15  # Number of frames to show the outcome before executing it
     
     def __init__(self, bots: Optional[Dict[Loyalty, Bot]] = None):
         self.auto_turn_timer: int = -1
@@ -67,12 +69,12 @@ class GameManager(GlobalAccessObject):
             if self.auto_oc is not None:
                 self.ui.s_piece = self.auto_oc.piece
                 self.ui.h_piece = self.auto_oc.piece
-                self.auto_turn_timer = 20
+                self.auto_turn_timer = self.THINKING_FRAMES + self.PREVIEW_FRAMES
             else:
                 self.auto_turn_timer = 0
 
         # Show selected outcome after delay
-        if self.auto_turn_timer <= 10:
+        if self.auto_turn_timer <= self.PREVIEW_FRAMES:
             self.ui.h_tile = self.auto_tile
             
         # Trigger selected outcome
@@ -91,6 +93,7 @@ class GameManager(GlobalAccessObject):
             if loyalty not in botdict:
                 # Default to RandomBot if no bot is provided for the loyalty
                 botdict[loyalty] = RandomBot(loyalty)
+                print(f'No bot provided for {loyalty}, using RandomBot.')
         return botdict
         
     def update(self):
