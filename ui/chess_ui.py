@@ -15,7 +15,7 @@ from utils.chess_types import Position, Vector
 from utils.chess_types import DirCls as D
 
 from chess.actions.action import Action
-from chess.actions.outcome import Outcome
+from chess.actions.outcome import Outcome, Capture
 from chess.tiles.tile import Tile
 from chess.units.piece import ChessPiece
 
@@ -167,7 +167,7 @@ class ChessUI(GlobalAccessObject):
         
         # Draw outcome hover effects
         if self.s_piece is not None and self.h_tile in self.s_piece.outcomes.keys():
-            if self.h_tile in self.s_piece.outcomes.keys():
+            if self.h_tile in self.s_piece.outcomes:
                 oc: Outcome = self.s_piece.outcomes[self.h_tile]
                 img = oc.get_hover_effect()
                 if img is not None:
@@ -207,7 +207,16 @@ class ChessUI(GlobalAccessObject):
                 img = check_moodles[1]
             img = sprite_transform(img, size=self.tile_size)
             self.b_blit(img, checker.position)
-            
+        
+        capture_anim = moodle_sprites['capture']
+        if self.s_piece is not None:
+            h_oc = self.s_piece.outcomes.get(self.h_tile, None)
+            if h_oc is not None and isinstance(h_oc, Capture):
+                img = capture_anim[self.frame//(self.fps//4)%len(capture_anim)]
+                img = sprite_transform(img, size=self.tile_size)
+                for p in h_oc.captured:
+                    # Draw capture moodle on captureable pieces
+                    self.b_blit(img, p.position)
     
     def draw_preview(self):
         # Currently-hovered outcome
@@ -361,4 +370,3 @@ class ChessUI(GlobalAccessObject):
                         img = al.tile_sprites[TileType.VOID]['left']
                     img = sprite_transform(img, size=self.tile_size)
                     self.b_blit(img, t.position)
-                    

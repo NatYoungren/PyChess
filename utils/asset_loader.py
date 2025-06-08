@@ -29,7 +29,6 @@ class AssetLoader:
         Loyalty.WHITE_AUTO: {
             PieceType.ZOMBIE: "Zombie1.png",
         },
-
         Loyalty.BLACK: {
             PieceType.PAWN: "B_Pawn.png",
             PieceType.KNIGHT: "B_Knight.png",
@@ -43,7 +42,6 @@ class AssetLoader:
         Loyalty.BLACK_AUTO: {
             PieceType.ZOMBIE: "Zombie2.png",
         },
-        
         # TODO: Find better solution.
         Loyalty.NONE: {
             PieceType.NONE: "defaultpiece.png",
@@ -66,11 +64,9 @@ class AssetLoader:
             "tiles5.png",
             "tiles6.png"
         ),
-            
         #     "center": "tiles6.png", # TODO: Use these on top of VOID tiles, to show perspective/bottom of normal tiles.
         #     "right": "tiles7.png",  #
         #     "left": "tiles8.png",   #
-        
         TileType.FLOOR: (
             "tiles1.png",
             "tiles2.png",
@@ -93,7 +89,7 @@ class AssetLoader:
         'Capture': "tile_effects2.png",
         'Castle': 'tile_effects5.png',
         'Summon': 'tile_effects6.png',
-
+        
         'hover': (
             "tile_effects3.png",
             "tile_effects4.png",
@@ -141,13 +137,16 @@ class AssetLoader:
             # TODO: Subdict by loyalty?
             #       Best to avoid storing/loading one sprite multiple times.
             'check': ("Moodles1.png", "Moodles2.png"), # Swords
+            
+            # TODO: Improve capture animation. (Phasing opacity?)
+            'capture': ('capture_anim1.png', 'capture_anim2.png', 'capture_anim3.png'), # Capture X animation
             # 'check': ("MoodlesSmall1.png", "MoodlesSmall2.png"), # Swords small
         },
         'faction': {
-            # 'bg': ('icon_bgs1.png', 'icon_bgs2.png'), # Unselected background (normal, hover)
-            # 'bgselect': ('icon_bgs3.png', 'icon_bgs4.png'), # Selected background (normal, hover)
-            'bg': ('icon_bgs5.png', 'icon_bgs6.png'), # Unselected background (normal, hover)
-            'bgselect': ('icon_bgs7.png', 'icon_bgs8.png'), # Selected background (normal, hover)
+            # 'bg': ('icon_bgs1.png', 'icon_bgs2.png'), # Unselected background (normal, hover) [rounded]
+            # 'bgselect': ('icon_bgs3.png', 'icon_bgs4.png'), # Selected background (normal, hover) [rounded]
+            'bg': ('icon_bgs5.png', 'icon_bgs6.png'), # Unselected background (normal, hover) [rect]
+            'bgselect': ('icon_bgs7.png', 'icon_bgs8.png'), # Selected background (normal, hover) [rect]
 
             Loyalty.NONE: 'faction_icons1.png', # Crossed sword/spear
             Loyalty.WHITE: 'faction_icons2.png', # White King
@@ -164,7 +163,6 @@ class AssetLoader:
         'over': 'pointers6.png',
         'right': 'pointers7.png',
     }
-    
     
     def __init__(self):
         
