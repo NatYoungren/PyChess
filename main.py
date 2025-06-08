@@ -39,9 +39,19 @@ ih = InputHandler()
 OBJREF.IH = ih
 
 
+# INITIALIZE BOTS (DEBUG)
+from engine.bots.bot import Bot
+from engine.bots.random_bot import RandomBot
+from engine.bots.aggro_bot import AggroBot
+from utils.chess_types import Loyalty
+debug_bots = {Loyalty.WHITE_AUTO: AggroBot(Loyalty.WHITE_AUTO),
+              Loyalty.BLACK_AUTO: AggroBot(Loyalty.BLACK_AUTO),
+              Loyalty.BLACK: AggroBot(Loyalty.BLACK)}
+
+
 # INITIALIZE GAME MANAGER
 from engine.game_manager import GameManager
-gm = GameManager()
+gm = GameManager(bots=debug_bots)
 OBJREF.GM = gm
 
 

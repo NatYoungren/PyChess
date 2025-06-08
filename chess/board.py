@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 import numpy as np
-from typing import Optional, List, Union, Tuple, TypeAlias
+from typing import Optional, List, Union, Tuple, TypeAlias, Dict
 
 from globalref import GlobalAccessObject
 
@@ -58,25 +58,6 @@ class Board(GlobalAccessObject):
         self.turn_order = turn_order
         self.turn = 0
         
-    # # #
-    # TEMPORARY - AI TURN LOGIC
-    # TODO: This is a placeholder for future bot logic.
-    def random_outcome(self, loyalty: Optional[Loyalty] = None) -> Tuple[Optional[Tile], Optional[Outcome]]:
-        """
-        Returns a random outcome for the given loyalty.
-        """        
-        # Get all pieces for the given loyalty.
-        pieces = self.loyal_pieces(loyalty)
-        np.random.shuffle(pieces)
-        for p in pieces:
-            if p.outcomes:
-                oc_t = np.random.choice(list(p.outcomes.keys()))
-                oc = p.outcomes[oc_t]
-                return oc_t, oc
-            # for oc in np.random.shuffle(list(p.outcomes.values())):
-            #     return oc
-        return None, None       
-    # # #
     
     # # #
     # Getters

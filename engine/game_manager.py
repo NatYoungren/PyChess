@@ -9,18 +9,31 @@ from chess.units.piece import ChessPiece
 from chess.tiles.tile import Tile
 from chess.actions.outcome import Outcome
 
+from engine.bots.bot import Bot
+from engine.bots.random_bot import RandomBot
+from engine.bots.aggro_bot import AggroBot
+
+from utils.chess_types import Loyalty, TileType
 
 class GameManager(GlobalAccessObject):
     """
     A class to manage the game state and logic.
     """
     
+    auto_turn_timer: int
+    auto_tile: Optional[Tile]
+    auto_oc: Optional[Outcome]
     FRAME_CLOCK: pg.time.Clock = pg.time.Clock()
     
-    def __init__(self):
+    bots: Dict[Loyalty, Bot]
+    
+    def __init__(self, bots: Optional[Dict[Loyalty, Bot]] = None):
         self.auto_turn_timer: int = -1
         self.auto_tile: Optional[Tile] = None
         self.auto_oc: Optional[Outcome] = None
+        
+        self.bots = self.init_bots(bots)
+        
     
     def run(self):
         """
@@ -47,7 +60,8 @@ class GameManager(GlobalAccessObject):
     def run_bot(self): # TODO: Improve to use meaningful bots.
         """ Allow bots to make moves. """
         if not self.locked_board:
-            self.auto_tile, self.auto_oc = self.board.random_outcome()
+            # self.auto_tile, self.auto_oc = self.board.random_outcome()
+            self.auto_tile, self.auto_oc = self.bots[self.board.current_turn].play() # type: ignore
             
             # Show selected piece + outcomes
             if self.auto_oc is not None:
@@ -67,6 +81,17 @@ class GameManager(GlobalAccessObject):
             self.board.realize(self.auto_oc) if self.auto_oc is not None else self.board.next_turn()
             self.ui.s_tile = None
 
+
+    def init_bots(self, bots: Optional[Dict[Loyalty, Bot]] = None) -> Dict[Loyalty, Bot]:
+        """
+        Initialize the bots for the game.
+        """
+        botdict = bots if bots is not None else {}
+        for loyalty in self.board.turn_order:
+            if loyalty not in botdict:
+                # Default to RandomBot if no bot is provided for the loyalty
+                botdict[loyalty] = RandomBot(loyalty)
+        return botdict
         
     def update(self):
         pass
