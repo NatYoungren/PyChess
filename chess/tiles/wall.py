@@ -7,9 +7,6 @@ from utils.chess_types import TileType#, Loyalty, Direction, Vector
 
 from chess.tiles.tile import Tile
 
-from utils.asset_loader import asset_loader as al
-# from globalref import OBJREF
-
 class WallTile(Tile):
     """
     Wall tile subclass.

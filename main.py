@@ -53,6 +53,7 @@ OBJREF.BOARD = board
 from ui.chess_ui import ChessUI
 ui = ChessUI.from_config()
 OBJREF.UI = ui
+ui.init_regions()
 
 
 # INITIALIZE INPUT HANDLER

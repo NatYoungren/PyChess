@@ -21,7 +21,6 @@ from chess.units.piece import ChessPiece
 
 
 from utils.ui_utils import sprite_transform, UIClickable, UIRegion
-from utils.asset_loader import asset_loader as al # Move to objref?
 
 from ui.sidebar_ui import LeftSidebar
 from ui.border_ui import TopBar, BottomBar
@@ -107,9 +106,16 @@ class ChessUI(GlobalAccessObject):
         self.h_tile: Optional[Tile] = None
         self.frame: int = 0
         
-        self.left_ui: LeftSidebar = LeftSidebar(self)
-        self.top_ui: TopBar = TopBar(self)
-        self.bottom_ui: BottomBar = BottomBar(self)
+        self.left_ui = None
+        self.top_ui = None
+        self.bottom_ui = None
+    
+    def init_regions(self):
+        self.left_ui: LeftSidebar = LeftSidebar(origin=(0, 0), size = (self.b_origin[0], self.height))
+        self.top_ui: TopBar = TopBar(origin=(self.b_origin[0], 0), size=(self.b_size[0], self.b_origin[1]))
+        self.bottom_ui: BottomBar = BottomBar(origin=(self.b_origin[0], self.b_origin[1] + self.b_size[1]),
+                                              size=(self.b_size[0], self.height - (self.b_origin[1] + self.b_size[1])))
+
     
     def draw(self):
         self.draw_background()
@@ -157,7 +163,7 @@ class ChessUI(GlobalAccessObject):
         
         # Selected tile effect
         if preview_piece is self.s_piece:
-            img = al.tile_effect_sprites['selected']
+            img = self.al.tile_effect_sprites['selected']
             img = sprite_transform(img=img,
                                 rotate_by=self.frame//(self.fps//4),
                                 size=self.tile_size)
@@ -189,7 +195,7 @@ class ChessUI(GlobalAccessObject):
                     
         # Draw non-outcome hover effect
         else:
-            img = al.tile_effect_sprites['hover'][self.frame//(self.fps)%len(al.tile_effect_sprites['hover'])]
+            img = self.al.tile_effect_sprites['hover'][self.frame//(self.fps)%len(self.al.tile_effect_sprites['hover'])]
             img = sprite_transform(img=img,
                                    rotate_by=self.frame//(self.fps//4),
                                    size=self.tile_size)
@@ -209,7 +215,7 @@ class ChessUI(GlobalAccessObject):
     
     def draw_moodles(self):
         # Check moodles
-        moodle_sprites = al.icon_sprites['moodle']
+        moodle_sprites = self.al.icon_sprites['moodle']
         check_moodles = moodle_sprites['check']
         for (checkee, checker, oc) in self.board._checks:
             if checker.loyalty in (Loyalty.WHITE, Loyalty.WHITE_AUTO):
@@ -237,18 +243,27 @@ class ChessUI(GlobalAccessObject):
         # Buttons, text, menus
         self.left_ui.draw(self.surf, self.h_clickable)
         self.top_ui.draw(self.surf, self.h_clickable)
+        
+        
+        delta = 0
+        if self.s_piece is not None:
+            oc = self.s_piece.outcomes.get(self.h_tile, None)
+            delta = oc.leadership_delta if oc is not None else 0
+            
+        self.bottom_ui.update_pips(self.board.get_leadership(), delta)
         self.bottom_ui.draw(self.surf, self.h_clickable)
+        
     
     def draw_cursor(self):
         if not self.hide_cursor: return # If using system cursor, don't draw.
         x, y = self.ih.m_pos#pg.mouse.get_pos()
         # x, y = self.m_pos
         if pg.mouse.get_pressed()[0]:
-            img = al.cursor_sprites['click']
+            img = self.al.cursor_sprites['click']
         elif self.h_piece is not None:
-            img = al.cursor_sprites['hover']
+            img = self.al.cursor_sprites['hover']
         else:
-            img = al.cursor_sprites['default']
+            img = self.al.cursor_sprites['default']
             
         img = pg.transform.scale(img, (self.tile_width//2, self.tile_height//2))
         self.surf.blit(img, (x - img.get_width()//2.25, y - img.get_height()//5))
@@ -380,10 +395,10 @@ class ChessUI(GlobalAccessObject):
                     cont_left = flt is not None and flt.tiletype != TileType.VOID and (lt is None or lt.tiletype == TileType.VOID)
                     cont_right = frt is not None and frt.tiletype != TileType.VOID and (rt is None or rt.tiletype == TileType.VOID)
                     if cont_left and cont_right:
-                        img = al.tile_sprites[TileType.VOID]['center']
+                        img = self.al.tile_sprites[TileType.VOID]['center']
                     elif cont_left:
-                        img = al.tile_sprites[TileType.VOID]['right']
+                        img = self.al.tile_sprites[TileType.VOID]['right']
                     elif cont_right:
-                        img = al.tile_sprites[TileType.VOID]['left']
+                        img = self.al.tile_sprites[TileType.VOID]['left']
                     img = sprite_transform(img, size=self.tile_size)
                     self.b_blit(img, t.position)

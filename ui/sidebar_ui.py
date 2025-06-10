@@ -10,13 +10,10 @@ from utils.chess_types import Position, Vector, Loyalty
 
 from utils.ui_utils import UIClickable, UIRegion
 
-from utils.asset_loader import asset_loader as al
-
 class ButtonsUI(UIRegion):
     """
     UI for buttons at the bottom of the sidebar.
     """
-    ui: object
     scale: int # TODO: Remove?
 
     # [Normal, Hover/Click]
@@ -30,18 +27,16 @@ class ButtonsUI(UIRegion):
     # quit_sprites: Tuple[pg.Surface, pg.Surface]
     
     def __init__(self,
-                 ui,
                  origin: Position = (0, 0),
                  size: Vector = (0, 0),
                  scale: int = 2, # TODO: Remove?
                  ):
         # Determine size based on scaled button dimensions?
         super().__init__(origin, size)
-        self.ui = ui
         self.scale: int = scale
 
         # Sprites
-        ui_icons = al.icon_sprites['ui']
+        ui_icons = self.al.icon_sprites['ui']
         self.pause_sprites: Tuple[pg.Surface, pg.Surface] = tuple(sprite_transform(s, size=self.size[1]) for s in ui_icons['pause'])
         self.play_sprites: Tuple[pg.Surface, pg.Surface] = tuple(sprite_transform(s, size=self.size[1]) for s in ui_icons['play'])
         self.undo_sprites: Tuple[pg.Surface, pg.Surface] = tuple(sprite_transform(s, size=self.size[1]) for s in ui_icons['undo'])
@@ -139,7 +134,6 @@ class ButtonsUI(UIRegion):
         
 
 class TurnOrderUI(UIRegion):
-    ui: object
     scale: int # TODO: Remove?
 
     _faction_clickables: Dict[Loyalty, UIClickable] # Faction name -> clickable
@@ -152,7 +146,6 @@ class TurnOrderUI(UIRegion):
     
     
     def __init__(self,
-                 ui,
                  origin: Position,
                  size: Vector,
                  scale: int, # TODO: Remove?
@@ -160,7 +153,6 @@ class TurnOrderUI(UIRegion):
         
         # TODO: Use or remove size?
         super().__init__(origin, size)
-        self.ui = ui
         self.scale: int = scale
         
         turn_order_text = render_text('Turn Order', THIN_FONT, scale=self.scale)
@@ -169,10 +161,10 @@ class TurnOrderUI(UIRegion):
         
         self._faction_clickables: Dict[Loyalty, UIClickable] = {}
         self._selected_faction = Loyalty.NONE  # Faction currently selected (for info display)
-        self.turn_pointer_sprite = sprite_transform(al.indicator_sprites['turn'], size=(32 * self.scale, 32 * self.scale))
-        self.under_indicator = sprite_transform(al.indicator_sprites['under'], size=(32 * self.scale, 32 * self.scale))
-        self.over_indicator = sprite_transform(al.indicator_sprites['over'], size=(32 * self.scale, 32 * self.scale))
-        self.right_indicator = sprite_transform(al.indicator_sprites['right'], size=(32 * self.scale, 32 * self.scale))
+        self.turn_pointer_sprite = sprite_transform(self.al.indicator_sprites['turn'], size=(32 * self.scale, 32 * self.scale))
+        self.under_indicator = sprite_transform(self.al.indicator_sprites['under'], size=(32 * self.scale, 32 * self.scale))
+        self.over_indicator = sprite_transform(self.al.indicator_sprites['over'], size=(32 * self.scale, 32 * self.scale))
+        self.right_indicator = sprite_transform(self.al.indicator_sprites['right'], size=(32 * self.scale, 32 * self.scale))
 
     def draw(self, surf: pg.Surface, hovered: Optional[UIClickable] = None):
         """
@@ -201,7 +193,6 @@ class TurnOrderUI(UIRegion):
         # hf = hovered in self._faction_clickables.values()
         for i, (l, cl) in enumerate(self._faction_clickables.items()):
             if l is self.ui.board.current_turn:
-                cl._sprite_idx = 1  # Highlight current faction
                 # Draw turn pointer for current faction
                 over_pos = (cl.origin[0] + cl.size[0] // 2 - self.over_indicator.get_width() // 2,
                             cl.origin[1]-4*self.scale)# - self.over_indicator.get_height())
@@ -212,8 +203,10 @@ class TurnOrderUI(UIRegion):
                 # pointer_pos = (cl.origin[0] + cl.size[0] // 2 - self.turn_pointer_sprite.get_width() // 2,
                 #                cl.origin[1] - self.turn_pointer_sprite.get_height())
                 # surf.blit(self.turn_pointer_sprite, pointer_pos)
+                
+                # Use highlight sprite for current faction
+                cl._sprite_idx = 1  
             else:
-                pass
                 cl._sprite_idx = 0
                 
             if i != len(self._faction_clickables) - 1:
@@ -253,7 +246,7 @@ class TurnOrderUI(UIRegion):
         
         # print(w, padding, px_per_faction, icon_size)
 
-        faction_sprites = al.icon_sprites['faction']
+        faction_sprites = self.al.icon_sprites['faction']
         bg = faction_sprites['bg']
         bgselect = faction_sprites['bgselect']
         
@@ -295,19 +288,15 @@ class LeftSidebar(UIRegion):
     """
     Sidebar which displays summative game information.
     """
-    ui: object
     scale: int # TODO: Remove?
         
     def __init__(self,
-                 ui,
+                 origin: Position,
+                 size: Vector,
                  battle_name: str = 'Brinan Courtyard', # TODO: Rework, location name?
                  scale: int = 2, # TODO: Remove?
-                 ):
-        origin = (0, 0)
-        size = (ui.b_origin[0], ui.height)
-        
+                 ):        
         super().__init__(origin, size)
-        self.ui = ui
         self.scale: int = scale
         
         # TODO: Does this need to be a clickable? (Map link??)
@@ -321,8 +310,7 @@ class LeftSidebar(UIRegion):
         buttonsui_size = (self.size[0] - buttonsui_origin[0],
                           self.size[1] - buttonsui_origin[1]) # TODO: Padding?
         
-        self.buttons_ui = ButtonsUI(ui,
-                                   self.origin + buttonsui_origin,
+        self.buttons_ui = ButtonsUI(self.origin + buttonsui_origin,
                                    buttonsui_size,
                                    scale=self.scale)
         
@@ -332,8 +320,7 @@ class LeftSidebar(UIRegion):
         turnorder_ui_size = (self.size[0] - turnorderui_origin[0],
                              buttonsui_origin[1] - turnorderui_origin[1]) # Padding?
         
-        self.turn_order_ui = TurnOrderUI(ui,
-                                         self.origin + turnorderui_origin,
+        self.turn_order_ui = TurnOrderUI(self.origin + turnorderui_origin,
                                          turnorder_ui_size,
                                          scale=self.scale)
         

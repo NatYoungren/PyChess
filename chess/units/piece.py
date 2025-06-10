@@ -6,8 +6,6 @@ from utils.chess_types import Position, Vector, Direction
 from utils.chess_types import Loyalty, PieceType, InitFacing
 from utils.chess_types import DirCls as D
 
-from utils.asset_loader import asset_loader as al
-
 from globalref import OBJREF, GlobalAccessObject
 
 
@@ -49,7 +47,7 @@ class ChessPiece(GlobalAccessObject):
         self.loyalty: Loyalty = loyalty
         self.piece_type: PieceType = piece_type
         
-        self._sprite = al.piece_sprites.get(self.loyalty, {}).get(self.piece_type, al.DEFAULT_PIECE_SPRITE)
+        self._sprite = self.al.piece_sprites.get(self.loyalty, {}).get(self.piece_type, self.al.DEFAULT_PIECE_SPRITE)
         
         self.facing = np.asarray(InitFacing[self.loyalty])
         

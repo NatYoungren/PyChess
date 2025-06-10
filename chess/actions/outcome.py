@@ -9,8 +9,6 @@ from utils.chess_types import DirCls as D
 from globalref import GlobalAccessObject
 
 from utils.ui_utils import sprite_transform
-from utils.asset_loader import asset_loader as al
-# from chess.units.get_piece import get_piece_class
 
 
 # TODO: Add 'captured pieces' property to outcomes.

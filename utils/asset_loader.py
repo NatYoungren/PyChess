@@ -154,8 +154,15 @@ class AssetLoader:
         'under': 'pointers5.png',
         'over': 'pointers6.png',
         'right': 'pointers7.png',
-        'pips': ('pips1.png', 'pips2.png', 'pips3.png', 'pips4.png'), # Empty, full, cost, gain
+        'pips': ('pips1.png', 'pips2.png', 'pips3.png', 'pips4.png', 'pips5.png'), # Empty, full, cost, gain, debt
     }
+    
+    FRAME_SPRITE_DIRECTORY = os.path.join('assets', 'ui', 'frame')
+    FRAME_SPRITE_FILES = {
+        'corner': 'frame_border1.png', # Top-left corner
+        'edge': ('frame_border2.png', 'frame_border3.png'), # Top edge alternating
+    }
+    
     
     def __init__(self):
         
@@ -170,6 +177,7 @@ class AssetLoader:
         self.cursor_sprites = self.load_sprites({}, self.CURSOR_SPRITE_FILES, self.CURSOR_SPRITE_DIRECTORY)
         self.icon_sprites = self.load_sprites({}, self.ICON_SPRITE_FILES, self.ICON_SPRITE_DIRECTORY)
         self.indicator_sprites = self.load_sprites({}, self.INDICATOR_SPRITE_FILES, self.INDICATOR_SPRITE_DIRECTORY)
+        self.frame_sprites = self.load_sprites({}, self.FRAME_SPRITE_FILES, self.FRAME_SPRITE_DIRECTORY)
         
         # TODO: DEPRECATE
         self.DEFAULT_PIECE_SPRITE = self.piece_sprites[Loyalty.NONE][PieceType.NONE]
@@ -208,5 +216,3 @@ class AssetLoader:
         # if alpha:
         #     return img #.convert_alpha()
         # return img#.convert()
-
-asset_loader = AssetLoader()

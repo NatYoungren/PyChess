@@ -7,8 +7,6 @@ from globalref import GlobalAccessObject
 from utils.chess_types import PieceType, Vector, Position
 from utils.chess_types import TileType, Loyalty, Direction, Vector
 
-from utils.asset_loader import asset_loader as al
-
 
 class Tile(GlobalAccessObject):
     position: Position
@@ -28,10 +26,9 @@ class Tile(GlobalAccessObject):
                  sprite: Optional[pg.Surface] = None,
                  # TODO: Biome, which decides sprite based on terrain/coords/rng?
                  ):
-    
         self.position: Position = position
         
-        self.sprite = self.get_sprite(tiletype, position) if sprite is None else sprite
+        self.sprite = self.get_tile_sprite(tiletype, position) if sprite is None else sprite
         
         self.tiletype: TileType = tiletype
         self.piece: Optional[PieceType] = None
@@ -74,15 +71,14 @@ class Tile(GlobalAccessObject):
     def __repr__(self):
         return f"Tile({self.position} : {self.tiletype.name}) -> ({self.piece})"# : {self.objects})"
     
-    @classmethod
-    def get_sprite(cls, tiletype: TileType, position: Position) -> pg.Surface:
+    def get_tile_sprite(self, tiletype: TileType, position: Position) -> pg.Surface:
         """
         Get the sprite for a given tile type and position.
         """
-        sprite = al.tile_sprites.get(tiletype, None)
+        sprite = self.al.tile_sprites.get(tiletype, None)
         if sprite is None:
             print(f"Warning: Tile sprite not found for tiletype {tiletype}. Using default sprite.")
-            sprite = al.DEFAULT_TILE_SPRITE
+            sprite = self.al.DEFAULT_TILE_SPRITE
         if isinstance(sprite, tuple) and len(sprite) == 2:
             sprite = sprite[int(position[0] % 2 == position[1] % 2)]
         return sprite

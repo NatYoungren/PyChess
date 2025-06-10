@@ -39,6 +39,10 @@ class Board(GlobalAccessObject):
     controlled_factions: Tuple[Loyalty, ...]
     turn_order: List[Loyalty]
     
+    # Leadership points per faction.
+    MAX_LEADERSHIP: int = 5
+    leadership_pts: Dict[Loyalty, int]
+    
     def __init__(self, tile_csv: str, piece_csv: str,
                  controlled_factions: Tuple[Loyalty, ...] = (Loyalty.WHITE,),
                  turn_order: Optional[List[Loyalty]] = None):
@@ -53,6 +57,7 @@ class Board(GlobalAccessObject):
         
         # self.initial_board = self.board.copy() # Store initial piece positions? Or just rely on file...
         self.move_history: List[Tuple[Position, Position]] = [] # Deprecate?
+        # self.faction_history: Dict[Loyalty, List[Tuple[int, ChessPiece]]] = {l: [] for l in Loyalty} # Deprecate?
         self.history: List[Outcome] = [] # NOTE: List[Optional[Outcome]] now?
         
         self._checks = []
@@ -63,6 +68,8 @@ class Board(GlobalAccessObject):
         self.turn_order = turn_order
         self.turn = 0
         
+        self.leadership_pts = {l: 3 for l in Loyalty}
+    
     
     # # #
     # Getters
@@ -84,6 +91,22 @@ class Board(GlobalAccessObject):
     def loyal_leaders(self, loyalty: Optional[Loyalty] = None) -> List[ChessPiece]:
         return [p for p in self.loyal_pieces(loyalty) if p.is_leader]
     
+    def get_leadership(self, loyalty: Optional[Loyalty] = None) -> int:
+        """
+        Returns the leadership points of the given faction (defaults to current faction).
+        """
+        if loyalty is None: loyalty = self.current_turn
+        return self.leadership_pts.get(loyalty, 0)
+    
+    def update_leadership(self, delta: int, loyalty: Optional[Loyalty] = None) -> None:
+        """
+        Updates the leadership points of the given faction.
+        """
+        if loyalty is None: loyalty = self.current_turn
+        if loyalty not in self.leadership_pts:
+            raise ValueError(f"Loyalty {loyalty} not found in leadership points.")
+        self.leadership_pts[loyalty] = max(0, min(self.MAX_LEADERSHIP, self.leadership_pts[loyalty] + delta))
+    
     def get_checks(self, loyalty: Optional[Loyalty] = None) -> List[Tuple[ChessPiece, ChessPiece, Outcome]]:
         checks = []
         ll = self.loyal_leaders(loyalty)
@@ -96,7 +119,6 @@ class Board(GlobalAccessObject):
                     # TODO: Add an effect or highlight to show checking pieces?
                     #       A preview system which has backtracking is becoming more necessary
         return checks
-                    
     
     def at_pos(self, pos: Position) -> Tuple[Optional[Tile], Optional[ChessPiece]]:
         """
