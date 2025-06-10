@@ -34,6 +34,13 @@ piece_csv_path = os.path.join(piece_dir, piece_csv)
 
 from globalref import OBJREF
 
+
+# INITIALIZE ASSET LOADER
+from utils.asset_loader import AssetLoader
+asset_loader = AssetLoader()
+OBJREF.AL = asset_loader
+
+
 # INITIALIZE BOARD
 from chess.board import Board
 board = Board(board_csv_path, piece_csv_path,

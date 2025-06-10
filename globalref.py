@@ -8,13 +8,16 @@ class GlobalReferenceObject:
         if not hasattr(cls, 'instance'):
             cls.instance = super(GlobalReferenceObject, cls).__new__(cls)
         return cls.instance
-
+    
     BOARD: object   # Current chess board
     # SURFACE: object # Current pygame window # TODO: Remove?
     
     UI: object      # Current ChessUI object
+    
     IH: object      # Current InputHandler object
     
+    AL: object      # AssetLoader instance
+
     GAME: object    # Current GameManager object
     
 
@@ -35,6 +38,9 @@ class GlobalAccessObject:
     @property
     def ih(self):
         return self.OBJREF.IH
+    @property
+    def al(self):
+        return self.OBJREF.AL
     @property
     def game(self):
         return self.OBJREF.GAME

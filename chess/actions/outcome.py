@@ -84,12 +84,11 @@ class Move(Outcome):
     
     LERP_MAX: float = 0.5 # TODO: Make this a constant?
     
-    _effect_sprite = al.tile_effect_sprites['Move']
-    _hover_sprites = al.tile_effect_sprites['blinds']['Move']
-
     def __init__(self, piece, target: Position, **kwargs):
         super().__init__(piece=piece, **kwargs)
         self.target = target
+        self._effect_sprite = self.al.tile_effect_sprites['Move']
+        self._hover_sprites = self.al.tile_effect_sprites['blinds']['Move']
     
     def realize(self):
         self.piece.move(self.target)
@@ -101,12 +100,12 @@ class Move(Outcome):
 class Capture(Move):
     captured: object
     
-    _effect_sprite = al.tile_effect_sprites['Capture']
-    _hover_sprites = al.tile_effect_sprites['blinds']['Capture']
-
     def __init__(self, piece, target: Position, captured: Union[object, Tuple[object]], **kwargs):
         super().__init__(piece=piece, target=target, **kwargs)
         self.captured = captured if isinstance(captured, tuple) else (captured,)
+        self._effect_sprite = self.al.tile_effect_sprites['Capture']
+        self._hover_sprites = self.al.tile_effect_sprites['blinds']['Capture']
+        # NOTE: Set ldelta based on capture?
     
     def realize(self):
         for p in self.captured:
@@ -135,13 +134,13 @@ class Promote(Move): # TODO: Could be capture???
 class Castle(Outcome):
     rook_piece: object
     
-    _effect_sprite = al.tile_effect_sprites['Castle']
-    _hover_sprites = al.tile_effect_sprites['blinds']['Castle']
-    
     def __init__(self, king_piece, rook_piece, ldelta: int = -1, **kwargs):
         super().__init__(piece=king_piece, ldelta=ldelta, **kwargs)
         # NOTE: self.piece is the king piece.
         self.rook_piece = rook_piece
+        self._effect_sprite = self.al.tile_effect_sprites['Castle']
+        self._hover_sprites = self.al.tile_effect_sprites['blinds']['Castle']
+
     
     def realize(self):
         # TODO: Should we really care if the king is in check?
@@ -158,9 +157,6 @@ class Summon(Outcome):
     summoned: object
     summon_loyalty: Loyalty
     
-    _effect_sprite = al.tile_effect_sprites['Summon']
-    _hover_sprites = al.tile_effect_sprites['blinds']['Summon']
-
     def __init__(self, piece, target: Position,
                  summoned: type, loyalty: Optional[Loyalty] = None,
                  ldelta: int = -1, **kwargs):
@@ -168,7 +164,11 @@ class Summon(Outcome):
         self.target = target
         self.summoned = summoned
         self.summon_loyalty = loyalty if loyalty is not None else self.piece.loyalty
-        
+        self._effect_sprite = self.al.tile_effect_sprites['Summon']
+        self._hover_sprites = self.al.tile_effect_sprites['blinds']['Summon']
+
+        # TODO: Make zombie cost 1 leadership per-turn?
+        # Consume zombie or adjacent pieces to regain leadership? (Does this end turn?)
     
     def realize(self):
         t, p = self.board.at_pos(self.target)
