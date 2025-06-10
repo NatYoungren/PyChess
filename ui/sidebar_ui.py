@@ -341,14 +341,7 @@ class LeftSidebar(UIRegion):
         self.add_clickable(self.buttons_ui)
         
         self.reset_turn_order_ui()  # Initialize faction clickables
-    
-    def update_turn(self):
-        """
-        Update indicator for current faction.
-        """
-        pass
-        # self.turn_order_ui.update_factions()
-    
+
     def reset_turn_order_ui(self):
         """
         Reset the turn order region.

@@ -24,7 +24,7 @@ from utils.ui_utils import sprite_transform, UIClickable, UIRegion
 from utils.asset_loader import asset_loader as al # Move to objref?
 
 from ui.sidebar_ui import LeftSidebar
-
+from ui.border_ui import TopBar, BottomBar
 
 # # #
 # Load the graphics JSON configuration
@@ -67,7 +67,9 @@ class ChessUI(GlobalAccessObject):
     _hide_cursor: bool = False
     
     # Clickable Regions
-    l_sbar: LeftSidebar
+    left_ui: LeftSidebar
+    top_ui: TopBar
+    bottom_ui: BottomBar
     
     # Hovered clickable
     h_clickable: Optional[UIClickable] = None
@@ -105,17 +107,22 @@ class ChessUI(GlobalAccessObject):
         self.h_tile: Optional[Tile] = None
         self.frame: int = 0
         
-        self.l_sbar: LeftSidebar = LeftSidebar(self)
+        self.left_ui: LeftSidebar = LeftSidebar(self)
+        self.top_ui: TopBar = TopBar(self)
+        self.bottom_ui: BottomBar = BottomBar(self)
     
     def draw(self):
         self.draw_background()
-        self.draw_tiles()
         
+        # Board and pieces
+        self.draw_tiles()
         self.draw_tile_effects()
         self.draw_pieces()
         
+        # Board moodles
         self.draw_moodles()
         
+        # Non-board UI (TODO: Move above board?)
         self.draw_ui()
         
         self.surf.blit(self.bsurf, (0, 0))
@@ -142,17 +149,22 @@ class ChessUI(GlobalAccessObject):
 
     def draw_selected(self):
         # Draw effects on selected + outcome tiles
-        if self.s_piece is None: return
-            
+        
+        # TODO: This allows hover-previewing outcomes for any piece
+        # preview_piece = self.s_piece if self.s_piece is not None else self.h_piece
+        preview_piece = self.s_piece
+        if preview_piece is None: return
+        
         # Selected tile effect
-        img = al.tile_effect_sprites['selected']
-        img = sprite_transform(img=img,
-                               rotate_by=self.frame//(self.fps//4),
-                               size=self.tile_size)
-        self.b_blit(img, self.s_pos)
+        if preview_piece is self.s_piece:
+            img = al.tile_effect_sprites['selected']
+            img = sprite_transform(img=img,
+                                rotate_by=self.frame//(self.fps//4),
+                                size=self.tile_size)
+            self.b_blit(img, preview_piece.position)
         
         # Draw outcome tile effects
-        for t, oc in self.s_piece.outcomes.items():
+        for t, oc in preview_piece.outcomes.items():
             img = oc.get_effect()
             if img is not None:
                 self.b_blit(img, t.position)
@@ -196,7 +208,6 @@ class ChessUI(GlobalAccessObject):
             self.b_blit(img, tile.position)
     
     def draw_moodles(self):
-        
         # Check moodles
         moodle_sprites = al.icon_sprites['moodle']
         check_moodles = moodle_sprites['check']
@@ -224,7 +235,9 @@ class ChessUI(GlobalAccessObject):
     
     def draw_ui(self):
         # Buttons, text, menus
-        self.l_sbar.draw(self.surf, self.h_clickable)
+        self.left_ui.draw(self.surf, self.h_clickable)
+        self.top_ui.draw(self.surf, self.h_clickable)
+        self.bottom_ui.draw(self.surf, self.h_clickable)
     
     def draw_cursor(self):
         if not self.hide_cursor: return # If using system cursor, don't draw.
@@ -242,7 +255,6 @@ class ChessUI(GlobalAccessObject):
     
     
     # TODO: Method to refresh tile effects?
-    
     def b_blit(self, img: Surface, pos: Position):
         """
         Blit an image to the board surface.
@@ -333,8 +345,13 @@ class ChessUI(GlobalAccessObject):
         """
         Update the currently hovered clickable UI element.
         """
-        self.h_clickable = self.l_sbar.get_hovered(pos)
-    
+        for _ui in (self.left_ui, self.top_ui, self.bottom_ui):
+            hovered = _ui.get_hovered(pos)
+            if hovered is not None:
+                self.h_clickable = hovered
+                return
+        self.h_clickable = None
+        
     def ui_click(self, pos: Position, m1:bool=True, m2:bool=False):
         # Click the currently hovered clickable
         if self.h_clickable is not None:

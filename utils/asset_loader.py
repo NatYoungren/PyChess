@@ -26,7 +26,7 @@ class AssetLoader:
             PieceType.SUMMONER: "Summoner1.png",
             PieceType.JESTER: ("Jester1.png", "Jester2.png"),
             PieceType.SENTRY: ("sentry1.png", "sentry2.png"),
-            },
+        },
         Loyalty.WHITE_AUTO: {
             PieceType.ZOMBIE: "Zombie1.png",
         },
@@ -49,16 +49,6 @@ class AssetLoader:
             PieceType.NONE: "defaultpiece.png",
         }
     }
-    
-    # BOARD_SPRITE_DIRECTORY = os.path.join('assets', 'boards')
-    # BOARD_SPRITE_FILES = {
-    #     1: "board_plain_01.png",
-    #     2: "board_plain_02.png",
-    #     3: "board_plain_03.png",
-    #     4: "board_plain_04.png",
-    #     5: "board_plain_05.png",
-    # }
-
     
     TILE_SPRITE_DIRECTORY = os.path.join('assets', 'tiles')
     TILE_SPRITE_FILES = {
@@ -114,7 +104,7 @@ class AssetLoader:
                        'tile_effect_blinds12.png'),
         }
     }
-
+    
     # UI_SPRITE_DIRECTORY = os.path.join('assets', 'ui')
     CURSOR_SPRITE_DIRECTORY = os.path.join('assets', 'ui', 'cursors')
     CURSOR_SPRITE_FILES = {
@@ -149,7 +139,7 @@ class AssetLoader:
             # 'bgselect': ('icon_bgs3.png', 'icon_bgs4.png'), # Selected background (normal, hover) [rounded]
             'bg': ('icon_bgs5.png', 'icon_bgs6.png'), # Unselected background (normal, hover) [rect]
             'bgselect': ('icon_bgs7.png', 'icon_bgs8.png'), # Selected background (normal, hover) [rect]
-
+            
             Loyalty.NONE: 'faction_icons1.png', # Crossed sword/spear
             Loyalty.WHITE: 'faction_icons2.png', # White King
             Loyalty.WHITE_AUTO: 'faction_icons3.png', # White Orb
@@ -164,6 +154,7 @@ class AssetLoader:
         'under': 'pointers5.png',
         'over': 'pointers6.png',
         'right': 'pointers7.png',
+        'pips': ('pips1.png', 'pips2.png', 'pips3.png', 'pips4.png'), # Empty, full, cost, gain
     }
     
     def __init__(self):
