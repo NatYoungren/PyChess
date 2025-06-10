@@ -48,6 +48,7 @@ class Outcome(GlobalAccessObject):
         Returns True if the turn should end.
         """
         self.callback() # TODO: Args? Kwargs?
+        self.board.update_leadership(self.leadership_delta)
         return self.end_turn
     
     # TODO: This would be neat.
