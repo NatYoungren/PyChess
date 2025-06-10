@@ -295,7 +295,7 @@ class LeftSidebar(UIRegion):
                  size: Vector,
                  battle_name: str = 'Brinan Courtyard', # TODO: Rework, location name?
                  scale: int = 2, # TODO: Remove?
-                 ):        
+                 ):
         super().__init__(origin, size)
         self.scale: int = scale
         

@@ -59,8 +59,8 @@ def sprite_transform(img: pg.Surface,
     
     return img
 
-# UI Base Classes
 
+# UI Base Classes
 class UIClickable(GlobalAccessObject):
     """
     Simple class for clickable buttons/sprites/text.  

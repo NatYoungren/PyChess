@@ -19,5 +19,3 @@ def next_in_enum(enum_val, enum: Enum):
     if r_next:
         for ev in enum:
             return ev
-    
-    

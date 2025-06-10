@@ -11,7 +11,6 @@ Position: TypeAlias = Tuple[int, int]   # TODO: Use numpy array
 # # #
 
 
-
 # TODO: How to handle promotion?
 #       What is a 'promotable' tile.
 #       Are promotions consumed?
@@ -21,7 +20,6 @@ class TileType(Enum):
     FLOOR = 1
     WALL = 2
     CHASM = 3
-
 
 
 # Each piece needs:
@@ -61,6 +59,7 @@ class Direction(Enum): # Make np?
     SOUTH = (0, -1)
     WEST = (-1, 0)
 
+
 InitFacing: Dict[Loyalty, Direction] = {
     Loyalty.NONE: (0, 0), # NOTE: SHOULD CREATE ERROR?
     
@@ -78,8 +77,9 @@ class classproperty(property):
     def __get__(self, owner_self, owner_cls):
         return self.fget(owner_cls)
 
-# TODO: Replace with simple dirvec (dv) namespace.
-#       This seems completely inane after the fact.
+
+# TODO: Replace with simple dirvec (dv) namespace?
+#       This seems inane.
 class DirCls:
     """
     Utility class for directional 2D numpy vectors.  
