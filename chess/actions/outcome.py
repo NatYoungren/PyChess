@@ -139,7 +139,7 @@ class Castle(Outcome):
     _hover_sprites = al.tile_effect_sprites['blinds']['Castle']
     
     def __init__(self, king_piece, rook_piece, ldelta: int = -1, **kwargs):
-        super().__init__(piece=king_piece, ldelta=ldelta **kwargs)
+        super().__init__(piece=king_piece, ldelta=ldelta, **kwargs)
         # NOTE: self.piece is the king piece.
         self.rook_piece = rook_piece
     
