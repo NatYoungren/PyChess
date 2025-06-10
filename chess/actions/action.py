@@ -50,7 +50,6 @@ class Action(GlobalAccessObject):
         """
         pass
     
-    
     @property
     def position(self) -> Position:
         return self.piece.position

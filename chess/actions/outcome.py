@@ -26,8 +26,8 @@ class Outcome(GlobalAccessObject):
     name: str
     piece: object
     callback: Callable
-    morale_cost: int = 0
-    leadership_cost: int = 0
+    morale_delta: int # TODO: Remove or implement? Probably not worth.
+    leadership_delta: int
     end_turn: bool = True
     
     # TODO: Store some info that could be used to preview the action?
@@ -38,10 +38,11 @@ class Outcome(GlobalAccessObject):
     _effect_sprite: Union[pg.Surface, None]
     _hover_sprites: Union[Tuple[pg.Surface], None]
     
-    def __init__(self, piece, callback: Callable=lambda: None, **kwargs):
+    def __init__(self, piece, ldelta:int=0, callback: Callable=lambda: None, **kwargs):
         self.name = self.__class__.__name__
         self.piece = piece
         self.callback = callback
+        self.leadership_delta = ldelta
     
     def realize(self) -> bool:
         """
@@ -136,10 +137,9 @@ class Castle(Outcome):
     
     _effect_sprite = al.tile_effect_sprites['Castle']
     _hover_sprites = al.tile_effect_sprites['blinds']['Castle']
-
     
-    def __init__(self, king_piece, rook_piece, **kwargs):
-        super().__init__(piece=king_piece, **kwargs)
+    def __init__(self, king_piece, rook_piece, ldelta: int = -1, **kwargs):
+        super().__init__(piece=king_piece, ldelta=ldelta **kwargs)
         # NOTE: self.piece is the king piece.
         self.rook_piece = rook_piece
     
@@ -161,11 +161,14 @@ class Summon(Outcome):
     _effect_sprite = al.tile_effect_sprites['Summon']
     _hover_sprites = al.tile_effect_sprites['blinds']['Summon']
 
-    def __init__(self, piece, target: Position, summoned: type, loyalty: Optional[Loyalty] = None, **kwargs):
-        super().__init__(piece=piece, **kwargs)
+    def __init__(self, piece, target: Position,
+                 summoned: type, loyalty: Optional[Loyalty] = None,
+                 ldelta: int = -1, **kwargs):
+        super().__init__(piece=piece, ldelta=ldelta, **kwargs)
         self.target = target
         self.summoned = summoned
         self.summon_loyalty = loyalty if loyalty is not None else self.piece.loyalty
+        
     
     def realize(self):
         t, p = self.board.at_pos(self.target)
