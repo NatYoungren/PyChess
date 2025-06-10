@@ -27,14 +27,17 @@ class Board(GlobalAccessObject):
     # Game data
     move_history: List[Tuple[Position, Position]]
     turn_order: List[Loyalty]
-    turn: int
-        
+    turn: int # Number of turns taken OR skipped.
+    # TODO: Need 'round number' to track cycles of turns.
+    
     # CSV file references (TODO: DEPRECATE)
     _initial_tiles: str
     _initial_pieces: str
     
-    # Checkee, checker, outcome
-    _checks: List[Tuple[ChessPiece, ChessPiece, Outcome]] = []
+    _checks: List[Tuple[ChessPiece, ChessPiece, Outcome]] # Checkee, checker, outcome
+    
+    controlled_factions: Tuple[Loyalty, ...]
+    turn_order: List[Loyalty]
     
     def __init__(self, tile_csv: str, piece_csv: str,
                  controlled_factions: Tuple[Loyalty, ...] = (Loyalty.WHITE,),
@@ -51,6 +54,8 @@ class Board(GlobalAccessObject):
         # self.initial_board = self.board.copy() # Store initial piece positions? Or just rely on file...
         self.move_history: List[Tuple[Position, Position]] = [] # Deprecate?
         self.history: List[Outcome] = [] # NOTE: List[Optional[Outcome]] now?
+        
+        self._checks = []
         
         self.controlled_factions = controlled_factions
         if turn_order is None:
