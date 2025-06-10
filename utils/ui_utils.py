@@ -3,6 +3,7 @@ import numpy as np
 from typing import Optional, Union, Tuple, Dict, List, Callable, Self
 
 from utils.chess_types import Position, Vector
+from globalref import GlobalAccessObject
 
 
 pg.font.init()
