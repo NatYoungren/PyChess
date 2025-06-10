@@ -5,7 +5,7 @@ from typing import Optional, Union, Tuple, Dict, List, Callable, Self
 from utils.chess_types import Position, Vector
 from globalref import GlobalAccessObject
 
-
+# TODO: Relocate?
 pg.font.init()
 MHEADER_FONT = pg.font.Font("assets/fonts/merlin-16x16-monospaced.ttf", 16)
 MSTANDARD_FONT = pg.font.Font("assets/fonts/merlin-8x8-monospaced.ttf", 8)
@@ -16,6 +16,10 @@ STANDARD_FONT = pg.font.Font("assets/fonts/merlin-8x8.ttf", 8)
 THIN_FONT = pg.font.Font("assets/fonts/merlin-light-8x8.ttf", 8)
 
 
+# TODO: Add render_text args:
+#       wraptext_width (Split / wrap text at spaces if width is too much)
+#       fill_size (transform sprite to this size if given)
+#       
 
 def render_text(text: str,
                 font: pg.font.Font = STANDARD_FONT,
