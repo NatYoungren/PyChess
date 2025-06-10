@@ -18,15 +18,22 @@ class ChessPiece(GlobalAccessObject):
     loyalty: Loyalty = Loyalty.NONE
     
     actions: List[object]
+    _outcomes: Optional[Dict[object, object]]
     
     _sprite: Union[pg.Surface, Tuple[pg.Surface]]
     
     facing: Direction # +0- X, +0- Y
     
     _position: tuple[int, int]
-    move_count: int
+    
+    move_count: int # TODO: Rethink this whole situation
+    position_history: List[Position]
+    move_history: List[Vector]
     
     is_leader: bool = False
+    
+    # TODO: Morale?
+    
     # TODO: Can I avoid having the pieces store the board?
     #       Global reference instead?
     #       Or pass it in as needed?
@@ -36,19 +43,19 @@ class ChessPiece(GlobalAccessObject):
                  position: Position = (0, 0),
                  piece_type: PieceType=PieceType.NONE,):
         self.name = self.__class__.__name__
-
+        
         self.actions: List[object] = []
         
         self.loyalty: Loyalty = loyalty
         self.piece_type: PieceType = piece_type
         
         self._sprite = al.piece_sprites.get(self.loyalty, {}).get(self.piece_type, al.DEFAULT_PIECE_SPRITE)
-            
+        
         self.facing = np.asarray(InitFacing[self.loyalty])
         
         self._position: Position = np.asarray(position) # TODO: Would this be good to store in piece?
         self.move_count: int = 0
-
+        
         # Should track a turn-stamped history of positions?
         self.position_history: List[Position] = [self.position]
         self.move_history: List[Vector] = []
