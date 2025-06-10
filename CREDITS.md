@@ -1,4 +1,8 @@
 # Giving Credit
 
 Sprites:  
-itch.io: @danimaccari -> https://dani-maccari.itch.io/
+@danimaccari -> https://dani-maccari.itch.io/
+
+Fonts:
+@mattwalkden -> https://mattwalkden.itch.io/
+    https://mattwalkden.itch.io/merlin-pixel-font-family
