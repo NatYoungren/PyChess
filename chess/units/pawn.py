@@ -23,10 +23,7 @@ class PawnMoveOnly(Action):
                               length=2 if self.move_count == 0 else 1,
                               enemy_ok=False)
         for i, (pos, t, p) in enumerate(poss_moves):
-            if i == 1:
-                self.outcomes[t] = Move(self.piece, pos, callback = self.flag_enpassant)
-            else:
-                self.outcomes[t] = Move(self.piece, pos)
+            self.add_outcome(t, Move(self.piece, pos, callback = self.flag_enpassant if i==1 else lambda: None))
 
 
 class PawnCaptureOnly(Action):
@@ -39,7 +36,7 @@ class PawnCaptureOnly(Action):
             for pos, t, p in self.get_line(v,
                                           length=1,
                                           can_move=False):
-                self.outcomes[t] = Capture(self.piece, pos, p)
+                self.add_outcome(t, Capture(self.piece, pos, p))
                 break
 
 
@@ -55,10 +52,9 @@ class PawnPassant(Action):
                                            length=1,
                                            can_move=False):
                 if isinstance(p, Pawn) and p.loyalty != self.piece.loyalty and p.en_passantable:
-                    
                     for posD, tD, pD in self.get_line(dv, length=1, can_move=True, enemy_ok=False):
-                        self.outcomes[tD] = Capture(self.piece, posD, p)
-                        break
+                        self.add_outcome(tD, Capture(self.piece, posD, p))
+                        # break
                     
                     
 

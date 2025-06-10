@@ -20,7 +20,8 @@ class JesterDiagonal(Action):
             return
         for v in D.diagonal: # Cardinal vectors
             for pos, t, p in self.get_line(v, length=2, enemy_ok=True): # NOTE: Testing limited length
-                self.outcomes[t] = Move(self.piece, pos) if p is None else Capture(self.piece, pos, p)
+                self.add_outcome(t, Move(self.piece, pos) if p is None else Capture(self.piece, pos, p))
+
 
 # class JesterCardinal(Action):
 #     """

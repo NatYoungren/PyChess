@@ -18,7 +18,8 @@ class SummonerMove(Action):
         for v in (D.f_l, D.f_r, D.b):
             for pos, t, p in self.get_line(v, length=1, enemy_ok=False):
                 if t is None: continue
-                self.outcomes[t] = Move(self.piece, pos)
+                self.add_outcome(t, Move(self.piece, pos))
+
     
 class SummonerSummon(Action):
     """
@@ -40,7 +41,7 @@ class SummonerSummon(Action):
             if t.is_void: continue # Void tile
             if p is not None: continue # Blocked by piece
             # print('Summon:', pos)
-            self.outcomes[t] = Summon(self.piece, pos, Zombie, self.summon_loyalty)
+            self.add_outcome(t, Summon(self.piece, pos, Zombie, self.summon_loyalty))
             
 class Summoner(ChessPiece):
     def __init__(self, loyalty: Loyalty, position):

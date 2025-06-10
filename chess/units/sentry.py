@@ -33,9 +33,9 @@ class SentryJump(Action):
             if t.is_void: continue # Void tile
             
             if p is None:
-                self.outcomes[t] = Move(self.piece, pos, callback=self.disable_lurk)
+                self.add_outcome(t, Move(self.piece, pos, callback=self.disable_lurk))
             elif p.loyalty != self.loyalty: # No friendly fire
-                self.outcomes[t] = Capture(self.piece, pos, p, callback=self.disable_lurk)
+                self.add_outcome(t, Capture(self.piece, pos, p, callback=self.disable_lurk))
 
 
 class SentryAmbush(Action):
@@ -50,7 +50,8 @@ class SentryAmbush(Action):
         if not self.piece.is_lurking: return
         for v in (D.f, D.b, D.l, D.r):
             for pos, t, p in self.get_line(v, length=4, can_move=False):
-                self.outcomes[t] = Capture(self.piece, pos, p, callback=self.disable_lurk)
+                self.add_outcome(t, Capture(self.piece, pos, p, callback=self.disable_lurk))
+
         
 
 class SentryLurk(Action):
@@ -64,8 +65,10 @@ class SentryLurk(Action):
         super().update()
         if self.piece.is_lurking:
             return
+        
         # TODO: Special color!
-        self.outcomes[self.board[self.piece.position]] = Move(self.piece, self.piece.position, callback=self.enable_lurk)
+        t = self.board[self.piece.position]
+        self.add_outcome(t, Move(self.piece, self.piece.position, callback=self.enable_lurk))
 
 
 class Sentry(ChessPiece):

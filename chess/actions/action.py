@@ -38,17 +38,40 @@ class Action(GlobalAccessObject):
         self.outcomes: Dict[Tile, Outcome] = {}
         # self.action_count = 0
     
+    def add_outcome(self, tile: Tile, outcome: Outcome) -> bool:
+        """
+        Add an outcome to the action.
+        """
+        
+        # TODO: Should still 'show' the possible outcome, but not allow it.
+        # Skip if cannot afford the leadership cost?
+        if self.board.get_leadership(self.piece.loyalty) - outcome.leadership_delta < 0:
+            print(f"Action: Not enough leadership to apply outcome {outcome} for tile {tile}.")
+            return False
+        
+        # TODO: Remove this check?
+        if tile in self.outcomes:
+            print(f"Action: Outcome already exists for tile {tile}.")
+            print(f'\tReplacing with {outcome}.')
+            print(f'\tPrevious outcome: {self.outcomes[tile]}')
+            print(f'\tPiece: {self.piece}')
+            # raise ValueError(f"Action: Outcome already exists for tile {tile}.")
+
+        self.outcomes[tile] = outcome
+        return True
+        
     def update(self):
         """
         Update outcomes.
         """
         self.outcomes.clear()
-    
-    def realize(self, pos: Position):
-        """
-        Apply a selected outcome to the board state.
-        """
-        pass
+        
+    # # TODO: Would this be useful?
+    # def realize(self, pos: Position):
+    #     """
+    #     Apply a selected outcome to the board state.
+    #     """
+    #     pass
     
     @property
     def position(self) -> Position:

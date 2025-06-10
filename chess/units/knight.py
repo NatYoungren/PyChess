@@ -28,9 +28,10 @@ class KnightJump(Action):
             if t.is_void: continue # Void tile
             
             if p is None:
-                self.outcomes[t] = Move(self.piece, pos)
+                self.add_outcome(t,  Move(self.piece, pos))
             elif p.loyalty != self.loyalty: # No friendly fire
-                self.outcomes[t] = Capture(self.piece, pos, p)
+                self.add_outcome(t, Capture(self.piece, pos, p))
+
 
 
 
