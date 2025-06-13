@@ -5,9 +5,7 @@ import pygame as pg
 from pygame import SRCALPHA, Color, Surface
 from typing import Optional, Tuple, Union, Dict, List
 
-
 from globalref import GlobalAccessObject
-
 
 import utils.chess_types as ct
 from utils.chess_types import Loyalty, PieceType, TileType
@@ -18,7 +16,6 @@ from chess.actions.action import Action
 from chess.actions.outcome import Outcome, Capture
 from chess.tiles.tile import Tile
 from chess.units.piece import ChessPiece
-
 
 from utils.ui_utils import sprite_transform, UIClickable, UIRegion
 
@@ -115,8 +112,7 @@ class ChessUI(GlobalAccessObject):
         self.top_ui: TopBar = TopBar(origin=(self.b_origin[0], 0), size=(self.b_size[0], self.b_origin[1]))
         self.bottom_ui: BottomBar = BottomBar(origin=(self.b_origin[0], self.b_origin[1] + self.b_size[1]),
                                               size=(self.b_size[0], self.height - (self.b_origin[1] + self.b_size[1])))
-
-    
+        
     def draw(self):
         self.draw_background()
         
@@ -152,7 +148,7 @@ class ChessUI(GlobalAccessObject):
     def draw_tile_effects(self):
         self.draw_selected()
         self.draw_hover()
-
+    
     def draw_selected(self):
         # Draw effects on selected + outcome tiles
         
@@ -200,8 +196,7 @@ class ChessUI(GlobalAccessObject):
                                    rotate_by=self.frame//(self.fps//4),
                                    size=self.tile_size)
             self.b_blit(img, self.h_pos)
-
-
+    
     def draw_pieces(self, exclude: Optional[list]=None):
         # All pieces on board
         for tile in self.board:
@@ -244,7 +239,6 @@ class ChessUI(GlobalAccessObject):
         self.left_ui.draw(self.surf, self.h_clickable)
         self.top_ui.draw(self.surf, self.h_clickable)
         
-        
         delta = 0
         if self.s_piece is not None:
             oc = self.s_piece.outcomes.get(self.h_tile, None)
@@ -253,10 +247,9 @@ class ChessUI(GlobalAccessObject):
         self.bottom_ui.update_pips(self.board.get_leadership(), delta)
         self.bottom_ui.draw(self.surf, self.h_clickable)
         
-    
     def draw_cursor(self):
         if not self.hide_cursor: return # If using system cursor, don't draw.
-        x, y = self.ih.m_pos#pg.mouse.get_pos()
+        x, y = self.ih.m_pos # pg.mouse.get_pos()
         # x, y = self.m_pos
         if pg.mouse.get_pressed()[0]:
             img = self.al.cursor_sprites['click']
@@ -267,7 +260,6 @@ class ChessUI(GlobalAccessObject):
             
         img = pg.transform.scale(img, (self.tile_width//2, self.tile_height//2))
         self.surf.blit(img, (x - img.get_width()//2.25, y - img.get_height()//5))
-    
     
     # TODO: Method to refresh tile effects?
     def b_blit(self, img: Surface, pos: Position):
@@ -331,7 +323,7 @@ class ChessUI(GlobalAccessObject):
         # TODO: Implement event response which readjusts board origin when window size changes.
         return np.array(((self.width - self.b_width) // 2, \
                         (self.height - self.b_height) // 2))
-
+        
     # Tile properties
     @property
     def tile_size(self) -> tuple:
