@@ -1,5 +1,6 @@
 import pygame as pg
 import numpy as np
+from typing import Optional
 
 from globalref import GlobalAccessObject
 
@@ -16,6 +17,8 @@ class InputHandler(GlobalAccessObject):
     """
     A class to handle user input for the chess game.
     """
+    
+    cache_idx_DEBUG: int = -1  # For debugging, to cache and restore board state.
     
     running: bool
     locked_board: bool
@@ -91,7 +94,11 @@ class InputHandler(GlobalAccessObject):
             return
 
         if event.key == pg.K_SPACE:
-            self.ui.hide_cursor = not self.ui.hide_cursor
+            # self.ui.hide_cursor = not self.ui.hide_cursor
+            if event.mod & pg.KMOD_SHIFT:
+                self.load_cached_state_DEBUG()
+            else:
+                self.cache_state_DEBUG()
             return
 
         if self.locked_board: return
@@ -207,6 +214,23 @@ class InputHandler(GlobalAccessObject):
                 if piece is not None and piece.loyalty == self.board.current_turn:
                     self.ui.s_tile = tile
 
+
     def ui_click(self, event: pg.event.Event):
         # print('HANDLING UI CLICK')
         self.ui.ui_click(event.pos) # TODO: Add m1, m2 parameters
+
+    def cache_state_DEBUG(self):
+        save_json_DEBUG = True
+        self.cache_idx_DEBUG = self.board.cache_state(save_json_DEBUG=save_json_DEBUG)
+        # print(self.board.state_cache[self.cache_idx_DEBUG])
+        print(f"DEBUG: INPUT_HANDLER.cache_state_DEBUG: Cached state at index {self.cache_idx_DEBUG}.")
+    
+    def load_cached_state_DEBUG(self, idx: Optional[int] = None):
+        if idx is None:
+            idx = self.cache_idx_DEBUG
+        print(f"DEBUG: INPUT_HANDLER.load_cached_state_DEBUG: Loading cached state {idx}.")
+        if self.board.load_cached_state(idx):
+            print(f"DEBUG: INPUT_HANDLER.load_cached_state_DEBUG: Loaded cached state {idx}.")
+        else:
+            print(f"DEBUG: INPUT_HANDLER.load_cached_state_DEBUG: Failed to load cached state {idx}.")
+        # self.ui.update()

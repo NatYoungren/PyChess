@@ -1,5 +1,3 @@
-import os
-from pathlib import Path
 import numpy as np
 from typing import Optional, List, Union, Tuple, TypeAlias, Dict
 
@@ -14,6 +12,8 @@ from chess.units.piece import ChessPiece
 from utils.chess_types import PieceType, TileType, Position, Vector
 from utils.chess_types import Loyalty, Direction
 from utils.chess_types import Direction as D
+
+from utils.game_utils import write_json, read_state_json # DEBUG
 
 from chess.actions.outcome import Outcome
 
@@ -43,17 +43,28 @@ class Board(GlobalAccessObject):
     MAX_LEADERSHIP: int = 5
     leadership_pts: Dict[Loyalty, int]
     
-    def __init__(self, tile_csv: str, piece_csv: str,
+    # Stored states of board and pieces.
+    #   Index = turn number?
+    #   None = no state, Dict = state for that turn.
+    
+    # State contents: # TODO: JSON compatible.
+    #   tiles: (TileType, Tile data) # TODO: Use a dataclass?
+    #   pieces: (PieceType, Piece data) # TODO: Use a dataclass?
+    #   current_turn: Loyalty
+    #   ~ turn order:  List[Loyalty, ...]?
+    #   ~ turn: int
+    #   leadership_pts: Dict[Loyalty, int]
+    #   
+    state_cache: List[Optional[Dict]]
+    
+    def __init__(self,
+                 state_json: Union[str, Dict],
                  controlled_factions: Tuple[Loyalty, ...] = (Loyalty.WHITE,),
                  turn_order: Optional[List[Loyalty]] = None):
         
-        # TODO: Do not require csvs.
-        #       Use dicts, and store as JSON.
-        self._initial_tiles = tile_csv
-        self._initial_pieces = piece_csv
-        
-        # Initialize board.
-        self.load_state(tile_csv, piece_csv)
+        state_data = state_json if isinstance(state_json, dict) else read_state_json(state_json)
+        if turn_order is not None: state_data['turn_order'] = [l.value for l in turn_order]
+        self.load_state(state_data)  # Load initial state from JSON
         
         # self.initial_board = self.board.copy() # Store initial piece positions? Or just rely on file...
         self.move_history: List[Tuple[Position, Position]] = [] # Deprecate?
@@ -63,12 +74,15 @@ class Board(GlobalAccessObject):
         self._checks = []
         
         self.controlled_factions = controlled_factions
-        if turn_order is None:
-            turn_order = [value for value in Loyalty]
-        self.turn_order = turn_order
-        self.turn = 0
+        # if turn_order is None:
+            # turn_order = [value for value in Loyalty]
+        # self.turn_order = turn_order
+        # self.turn = 0
         
-        self.leadership_pts = {l: 3 for l in Loyalty}
+        # self.leadership_pts = {l: 3 for l in Loyalty}
+        
+        self.state_cache: List[Dict] = []
+        # self.cache_state()  # Cache initial state?
     
     
     # # #
@@ -234,64 +248,86 @@ class Board(GlobalAccessObject):
         if isinstance(pos, (slice, int, np.int64)): pos = (pos, slice(0, None))
         self._board[pos[1], pos[0]] = value
     
-    # TODO: More complex state will be needed.
-    #       One option is using 3+dimensional arrays.
-    #           Each position having [tile, piece, loyalty, objects?]
-    #       This still does not work great once pieces have more data (i.e. have pawns moved?).
-    #       Also does not show whose turn it is.
-    #       JSON will be better.
-    def save_state(self, directory: Optional[str] = None) -> None:
+    
+    # def cache_state(self, state_layer: int = 0) -> int:
+    def cache_state(self, idx: Optional[int]=None, save_json_DEBUG: bool = False) -> int:
         """
-        Saves current tiles and pieces to CSV files.
+        Caches the current state of the board and pieces.
+        Returns the index of the cached state.
         """
-        if directory is None:
-            # Get path to parent/saves
-            directory = Path(__file__).parent / 'saves'
+        state = {
+            'tiles': np.array([[tile.tiletype.value for tile in row] for row in self._board]).T,
+            'pieces': np.array([[tile.piece.piece_type.value if tile.piece else 0 for tile in row] for row in self._board]).T,
+            'piece_loyalties': np.array([[tile.piece.loyalty.value if tile.piece else 0 for tile in row] for row in self._board]).T,
+            # 'current_turn': self.current_turn.value,
+            'turn_order': [l.value for l in self.turn_order],
+            'turn': self.turn,
+            'leadership_pts': {l.value: pts for l, pts in self.leadership_pts.items()}
+        }
         
-        filename1 = 'save{:%03d}_tiles.csv'
-        filename2 = 'save{:%03d}_pieces.csv'
-        i = 0
-        while os.path.exists(directory / (filename1.format(i))) or os.path.exists(directory / (filename2.format(i))):
-            i += 1
-        filename1 = filename1.format(i)
-        filename2 = filename2.format(i)
+        if idx is None:
+            idx = len(self.state_cache)
         
-        tiles = np.zeros(self.shape, dtype=int)
-        pieces = np.zeros(self.shape, dtype=int)
+        # Ensure cache is large enough
+        while len(self.state_cache) <= idx: # TODO: Is this dumb?
+            self.state_cache.append(None)
+        
+        self.state_cache[idx] = state
+        
+        # DEBUG
+        if save_json_DEBUG:
+            # Save state to JSON file
+            write_json(f'state_cache/state_{idx}.json', state)  # Save state to JSON file
+            print(f"DEBUG: Saved file state_cache/state_{idx}.json")
+        # DEBUG
+        
+        return idx
+    
+    def uncache_state(self, idx: int) -> Optional[Dict]:
+        """
+        Uncaches the state at the given index.
+        Returns the state or None if index is out of bounds.
+        """
+        if idx < 0 or idx >= len(self.state_cache):
+            print(f"Uncache state: Index {idx} out of bounds.")
+            return None
+        return self.state_cache[idx]
+    
+    def load_cached_state(self, idx: int) -> bool:
+        """
+        Loads the cached state at the given index.
+        """
+        state = self.uncache_state(idx)
+        if state is None:
+            print(f"Load cached state: No state found at index {idx}.")
+            return False
+        
+        self.load_state(state)
+        self.update()
+        return True
+    
+    def load_state(self, state: Dict):
+        # Load tiles
+        self._board = board_constructor(state['tiles'])
+        self.turn = state['turn']
+        self.turn_order = [Loyalty(l) for l in state['turn_order']]
+        self.leadership_pts = {Loyalty(l): pts for l, pts in state['leadership_pts'].items()}
+        
+        pieces = state['pieces']
+        piece_loyalties = state['piece_loyalties']
+        # Load pieces
         for x, y in np.ndindex(self.shape):
-            tiles[x, y] = self[x, y].tiletype.value
-            pieces[x, y] = self[x, y].piece.piece_type.value if self[x, y].piece is not None else 0
-        
-        np.savetxt(filename1, tiles.T, fmt='%d', delimiter=',')
-        np.savetxt(filename2, pieces.T, fmt='%d', delimiter=',')
-        print(f"Saved board state to {filename1}_tiles.csv and {filename2}_pieces.csv")
-        
-    def load_state(self, board_csv: str, piece_csv: str):
-    # def load_state(self, filename: Optional[str] = None, directory: Optional[str] = None):
-        """
-        Loads tiles and pieecs from CSV files.
-        """
-        tiles = np.loadtxt(board_csv, dtype=int, delimiter=',').T
-        pieces = np.loadtxt(piece_csv, dtype=int, delimiter=',').T
-        
-        self._board = board_constructor(tiles)
-        
-        for x, y in np.ndindex(pieces.shape):
             v = pieces[x, y]
             if v == 0: continue
             
-            l = Loyalty.WHITE if v > 0 else Loyalty.BLACK
+            l = Loyalty(piece_loyalties[x, y])
             
-            # Select piece type based on value (TODO: Update to JSON)
+            # Select piece type based on value
             pc = get_piece_class(PieceType(abs(v)))
             piece = pc(loyalty=l, position=(x, y))
-            
-            # TODO: Do not place pieces on void?
-            #       Have them die instantly? (TODO: Board.update?)
             self[x, y].piece = piece
-            
-        print(f"Loaded board state from {board_csv} and {piece_csv}") 
-
+        
+        return True
 
 # TODO: Classmethod?
 #       Add a piece constructor?
@@ -304,10 +340,10 @@ def board_constructor(tile_array: List[List[TileType]]) -> BoardTiles:
     
     board_tiles = np.zeros((height, width), dtype=object)
     
-    for y in range(height):
-        for x in range(width):
+    for x in range(height):
+        for y in range(width):
             tiletype = tile_array[x][y]
             tc = get_tile_class(TileType(tiletype))
             board_tiles[y][x] = tc((x, y))
     
-    return board_tiles
+    return board_tiles#.T if transpose else board_tiles
