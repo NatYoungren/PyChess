@@ -35,7 +35,6 @@ class GameManager(GlobalAccessObject):
         self.auto_oc: Optional[Outcome] = None
         
         self.bots = self.init_bots(bots)
-        
     
     def run(self):
         """

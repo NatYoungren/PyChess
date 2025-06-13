@@ -18,7 +18,7 @@ class GlobalReferenceObject:
     
     AL: object      # AssetLoader instance
 
-    GAME: object    # Current GameManager object
+    GM: object      # Current GameManager object
     
 
 OBJREF = GlobalReferenceObject()
@@ -42,6 +42,6 @@ class GlobalAccessObject:
     def al(self):
         return self.OBJREF.AL
     @property
-    def game(self):
-        return self.OBJREF.GAME
+    def gm(self):
+        return self.OBJREF.GM
 
