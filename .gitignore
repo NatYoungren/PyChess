@@ -4,3 +4,4 @@
 _dev_ignore/**
 aseprite/**
 assets/fonts/**
+state_cache/**
