@@ -50,6 +50,10 @@ class Bot(GlobalAccessObject):
         return self.board.loyal_pieces(self.loyalty)
     
     @property
+    def disloyal_pieces(self) -> List[ChessPiece]:
+        return self.board.disloyal_pieces(self.loyalty)
+    
+    @property
     def outcomes(self) -> Dict[ChessPiece, Dict[TileType, List[ChessPiece]]]:
         return {p: p.outcomes for p in self.pieces}
     
