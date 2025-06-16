@@ -89,7 +89,8 @@ class GameManager(GlobalAccessObject):
         """
         botdict = bots if bots is not None else {}
         for loyalty in self.board.turn_order:
-            if loyalty not in botdict:
+            # TODO: Use bot to select suggestions?
+            if loyalty not in botdict and loyalty not in self.board.controlled_factions:
                 # Default to RandomBot if no bot is provided for the loyalty
                 botdict[loyalty] = RandomBot(loyalty)
                 print(f'No bot provided for {loyalty}, using RandomBot.')
