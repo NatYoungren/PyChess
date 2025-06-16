@@ -249,21 +249,30 @@ class Board(GlobalAccessObject):
         self._board[pos[1], pos[0]] = value
     
     
+    def clear_cache(self) -> None:
+        self.state_cache.clear()
+    
+    def get_state(self) -> Dict:
+        """
+        Generates a state dictionary of the current board and pieces.
+        """
+        state = {
+                'tiles': np.array([[tile.tiletype.value for tile in row] for row in self._board]).T,
+                'pieces': np.array([[tile.piece.piece_type.value if tile.piece else 0 for tile in row] for row in self._board]).T,
+                'piece_loyalties': np.array([[tile.piece.loyalty.value if tile.piece else 0 for tile in row] for row in self._board]).T,
+                # 'current_turn': self.current_turn.value,
+                'turn_order': [l.value for l in self.turn_order],
+                'turn': self.turn,
+                'leadership_pts': {l.value: pts for l, pts in self.leadership_pts.items()}
+            }
+        return state
+    
     # def cache_state(self, state_layer: int = 0) -> int:
     def cache_state(self, idx: Optional[int]=None, save_json_DEBUG: bool = False) -> int:
         """
         Caches the current state of the board and pieces.
         Returns the index of the cached state.
         """
-        state = {
-            'tiles': np.array([[tile.tiletype.value for tile in row] for row in self._board]).T,
-            'pieces': np.array([[tile.piece.piece_type.value if tile.piece else 0 for tile in row] for row in self._board]).T,
-            'piece_loyalties': np.array([[tile.piece.loyalty.value if tile.piece else 0 for tile in row] for row in self._board]).T,
-            # 'current_turn': self.current_turn.value,
-            'turn_order': [l.value for l in self.turn_order],
-            'turn': self.turn,
-            'leadership_pts': {l.value: pts for l, pts in self.leadership_pts.items()}
-        }
         
         if idx is None:
             idx = len(self.state_cache)
@@ -272,12 +281,13 @@ class Board(GlobalAccessObject):
         while len(self.state_cache) <= idx: # TODO: Is this dumb?
             self.state_cache.append(None)
         
-        self.state_cache[idx] = state
+        self.state_cache[idx] = self.get_state()    # Insert current state
+        # self.state_cache = self.state_cache[:idx + 1]  # Trim cache to current index
         
         # DEBUG
         if save_json_DEBUG:
             # Save state to JSON file
-            write_json(f'state_cache/state_{idx}.json', state)  # Save state to JSON file
+            write_json(f'state_cache/state_{idx}.json', self.state_cache[idx])  # Save state to JSON file
             print(f"DEBUG: Saved file state_cache/state_{idx}.json")
         # DEBUG
         
