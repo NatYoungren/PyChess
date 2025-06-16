@@ -5,11 +5,12 @@ import pygame as pg
 # INITIALIZE BOTS (DEBUG)
 from engine.bots.bot import Bot
 from engine.bots.random_bot import RandomBot
-from engine.bots.aggro_bot import AggroBot
+from engine.bots.aggro_bot import AggroBot, AggroValueBot
 from utils.chess_types import Loyalty
 debug_bots = {Loyalty.WHITE_AUTO: AggroBot(Loyalty.WHITE_AUTO),
               Loyalty.BLACK_AUTO: AggroBot(Loyalty.BLACK_AUTO),
-              Loyalty.BLACK: AggroBot(Loyalty.BLACK)}
+              Loyalty.BLACK: AggroValueBot(Loyalty.BLACK) #AggroBot(Loyalty.BLACK)
+              }
 
 controlled_factions = (Loyalty.WHITE,
                        Loyalty.BLACK,
