@@ -27,15 +27,6 @@ class RandomBot(Bot):
         for piece in np.random.permutation(list(all_ocs.keys())):
             for tile, oc in all_ocs[piece].items(): # TODO: Store tile in oc?
                 evals.append((self.eval_outcome(oc), piece, tile, oc)) # TODO: Less?
-            # p_ocs = all_ocs[piece]
-            # if not p_ocs: continue
-            
-            # # Choose a random outcome.
-            # tile = np.random.choice(list(p_ocs.keys()))
-            # oc = p_ocs[tile]
-            
-            # return tile, oc
-            
             
         if evals:
             evals.sort(key=lambda x: x[0], reverse=True)
