@@ -69,14 +69,14 @@ class Bot(GlobalAccessObject):
         return self.board.disloyal_pieces(self.loyalty)
     
     @property
-    def outcomes(self) -> Dict[ChessPiece, Dict[TileType, List[ChessPiece]]]:
+    def outcomes(self) -> Dict[ChessPiece, Dict[TileType, List[ChessPiece]]]: # TODO: Not 'TileType'.
         return {p: p.outcomes for p in self.pieces}
         
     def assert_turn(self):
         if self.board.current_turn != self.loyalty:
             raise ValueError(f"Bot {self.loyalty} cannot play on {self.board.current_turn} turn.")
 
-    def play(self) -> Tuple[Optional[TileType], Optional[ChessPiece]]:
+    def play(self) -> Tuple[Optional[TileType], Optional[ChessPiece]]:  # TODO: Not 'TileType'.
         raise NotImplementedError("This method should be implemented by subclasses.")
 
 
