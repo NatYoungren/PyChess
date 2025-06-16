@@ -97,7 +97,7 @@ class Move(Outcome):
         pass
         
 class Capture(Move):
-    captured: object
+    captured: Tuple[object] # Captured pieces.
     
     def __init__(self, piece, target: Position, captured: Union[object, Tuple[object]], **kwargs):
         super().__init__(piece=piece, target=target, **kwargs)
