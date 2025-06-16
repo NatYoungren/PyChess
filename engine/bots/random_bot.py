@@ -22,15 +22,27 @@ class RandomBot(Bot):
         self.assert_turn() # TODO: Debug? Remove once logic is good.
         
         all_ocs = self.outcomes
+        evals = []
+        # best_oc = None
         for piece in np.random.permutation(list(all_ocs.keys())):
-            p_ocs = all_ocs[piece]
-            if not p_ocs: continue
+            for tile, oc in all_ocs[piece].items(): # TODO: Store tile in oc?
+                evals.append((self.eval_outcome(oc), piece, tile, oc)) # TODO: Less?
+            # p_ocs = all_ocs[piece]
+            # if not p_ocs: continue
             
-            # Choose a random outcome.
-            tile = np.random.choice(list(p_ocs.keys()))
-            oc = p_ocs[tile]
+            # # Choose a random outcome.
+            # tile = np.random.choice(list(p_ocs.keys()))
+            # oc = p_ocs[tile]
             
+            # return tile, oc
+            
+            
+        if evals:
+            evals.sort(key=lambda x: x[0], reverse=True)
+            best_eval, piece, tile, oc = evals[0]
+            print(f'RandomBot {self.loyalty} playing: {piece.name} -> {tile} with outcome {oc}')
+            print(f'Evaluation: {best_eval}\n')
             return tile, oc
-            
+        
         print(f'RandomBot {self.loyalty} has no moves.')
         return None, None # No valid moves available, return None or handle stalemate.
