@@ -3,6 +3,7 @@ from typing import Optional, Tuple, List, Dict
 
 from utils.chess_types import Loyalty, PieceType, TileType
 from chess.units.piece import ChessPiece
+from chess.tiles.tile import Tile
 from chess.actions.outcome import Outcome, Move, Capture
 
 from globalref import GlobalAccessObject
@@ -69,14 +70,14 @@ class Bot(GlobalAccessObject):
         return self.board.disloyal_pieces(self.loyalty)
     
     @property
-    def outcomes(self) -> Dict[ChessPiece, Dict[TileType, List[ChessPiece]]]: # TODO: Not 'TileType'.
+    def outcomes(self) -> Dict[ChessPiece, Dict[Tile, List[ChessPiece]]]:
         return {p: p.outcomes for p in self.pieces}
         
     def assert_turn(self):
         if self.board.current_turn != self.loyalty:
             raise ValueError(f"Bot {self.loyalty} cannot play on {self.board.current_turn} turn.")
 
-    def play(self) -> Tuple[Optional[TileType], Optional[ChessPiece]]:  # TODO: Not 'TileType'.
+    def play(self) -> Tuple[Optional[Tile], Optional[ChessPiece]]:
         raise NotImplementedError("This method should be implemented by subclasses.")
 
 
@@ -104,7 +105,7 @@ class Bot(GlobalAccessObject):
         
     # TODO: Is depth worth considering here?
     #       Or focus on 'immediate' check avoidance.
-    def safe_outcomes(self, depth: int = 0) -> Dict[ChessPiece, Dict[TileType, Outcome]]:
+    def safe_outcomes(self, depth: int = 0) -> Dict[ChessPiece, Dict[Tile, Outcome]]:
         pass
     
     def count_material(self, l: Optional[Loyalty]=None) -> float:
