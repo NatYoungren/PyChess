@@ -15,6 +15,11 @@ from utils.ui_utils import sprite_transform
 #       This way an outcome doesn't need to be a 'capture' to be flagged as such.
 
 
+# TODO: Add an outcome which represents a move with multiple possible targets?
+#       I.E. Replace outcomes.
+#           Have actions take an input position and apply their effects directly.
+
+
 
 class Outcome(GlobalAccessObject):
     """
@@ -174,4 +179,46 @@ class Summon(Outcome):
         if p is not None: # TODO: Debug, remove eventually.
             raise ValueError("CANNOT SUMMON: Board is occupied.")
         t.piece = self.summoned(loyalty=self.summon_loyalty, position=self.target)
+        return super().realize()
+
+class MultiMove(Outcome):
+    """
+    Represents a move that moves multiple pieces.
+    """
+    pieces: List[object]
+    targets: List[Position]
+    
+    def __init__(self, pieces: List[object], targets: List[Position], **kwargs):
+        super().__init__(piece=pieces[0], **kwargs)
+        
+        assert len(pieces) == len(targets), "Number of pieces must match number of targets."
+        self.pieces = pieces
+        self.targets = targets
+        
+        self._effect_sprite = self.al.tile_effect_sprites['Move']
+        self._hover_sprites = self.al.tile_effect_sprites['blinds']['Move']
+    
+    def realize(self):
+        for p, t in zip(self.pieces, self.targets):
+            p.move(t)
+        return super().realize()
+
+class MultiCapture(MultiMove):
+    """
+    Represents a move that moves multiple pieces and involves at least one capture..
+    """
+    captured: List[object]  # Captured pieces.
+    
+    def __init__(self, pieces: List[object], targets: List[Position], captured: List[object], **kwargs):
+        super().__init__(pieces=pieces, targets=targets, **kwargs)
+        self.captured = captured
+        self.pieces = self.pieces[::-1]
+        self.targets = self.targets[::-1]
+        self._effect_sprite = self.al.tile_effect_sprites['Capture']
+        self._hover_sprites = self.al.tile_effect_sprites['blinds']['Capture']
+    
+    def realize(self):
+        for p in self.captured:
+            t = self.board.get_tile(p.position)
+            t.piece = None
         return super().realize()
