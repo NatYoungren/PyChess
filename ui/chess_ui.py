@@ -242,7 +242,7 @@ class ChessUI(GlobalAccessObject):
         delta = 0
         if self.s_piece is not None:
             oc = self.s_piece.outcomes.get(self.h_tile, None)
-            delta = oc.leadership_delta if oc is not None else 0
+            delta = oc.l_delta if oc is not None else 0
             
         self.bottom_ui.update_pips(self.board.get_leadership(), delta)
         self.bottom_ui.draw(self.surf, self.h_clickable)

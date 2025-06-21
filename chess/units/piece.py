@@ -114,8 +114,7 @@ class ChessPiece(GlobalAccessObject):
         self.move_history.append(vector)
         
         self.move_count += 1
-
-    
+        
     def capture(self, piece: Self):
         # self.capture_history.append(piece)
         piece.captured(self)
@@ -131,8 +130,7 @@ class ChessPiece(GlobalAccessObject):
                  can_move: bool = True,
                  enemy_ok: bool = True, ally_ok: bool = False,
                  jump_enemy: bool = False, jump_ally: bool = False,
-                 jump_gap: bool = False,
-                 ) -> List[Tuple[Position, Optional[object], Optional[Self]]]:
+                 jump_gap: bool = False) -> List[Tuple[Position, Optional[object], Optional[Self]]]:
         """
         Get a line of (pos, tile, piece) tuples in the given direction.
         """

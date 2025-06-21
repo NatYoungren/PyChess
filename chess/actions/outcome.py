@@ -25,7 +25,7 @@ class Outcome(GlobalAccessObject):
     piece: object
     callback: Callable
     morale_delta: int # TODO: Remove or implement? Probably not worth.
-    leadership_delta: int
+    l_delta: int
     end_turn: bool = True
     
     # TODO: Store some info that could be used to preview the action?
@@ -36,11 +36,11 @@ class Outcome(GlobalAccessObject):
     _effect_sprite: Union[pg.Surface, None]
     _hover_sprites: Union[Tuple[pg.Surface], None]
     
-    def __init__(self, piece, ldelta:int=0, callback: Callable=lambda: None, **kwargs):
+    def __init__(self, piece, l_delta:int=0, callback: Callable=lambda: None, **kwargs):
         self.name = self.__class__.__name__
         self.piece = piece
         self.callback = callback
-        self.leadership_delta = ldelta
+        self.l_delta = l_delta
     
     def realize(self) -> bool:
         """
@@ -48,7 +48,7 @@ class Outcome(GlobalAccessObject):
         Returns True if the turn should end.
         """
         self.callback() # TODO: Args? Kwargs?
-        self.board.update_leadership(self.leadership_delta)
+        self.board.update_leadership(self.l_delta)
         return self.end_turn
     
     # TODO: This would be neat.
@@ -81,7 +81,7 @@ class Outcome(GlobalAccessObject):
 class Move(Outcome):
     target: Position
     
-    LERP_MAX: float = 0.5 # TODO: Make this a constant?
+    # LERP_MAX: float = 0.5 # TODO: Make this a constant?
     
     def __init__(self, piece, target: Position, **kwargs):
         super().__init__(piece=piece, **kwargs)
@@ -104,7 +104,7 @@ class Capture(Move):
         self.captured = captured if isinstance(captured, tuple) else (captured,)
         self._effect_sprite = self.al.tile_effect_sprites['Capture']
         self._hover_sprites = self.al.tile_effect_sprites['blinds']['Capture']
-        # NOTE: Set ldelta based on capture?
+        # NOTE: Set l_delta based on capture?
     
     def realize(self):
         for p in self.captured:
@@ -133,8 +133,8 @@ class Promote(Move): # TODO: Could be capture???
 class Castle(Outcome):
     rook_piece: object
     
-    def __init__(self, king_piece, rook_piece, ldelta: int = -1, **kwargs):
-        super().__init__(piece=king_piece, ldelta=ldelta, **kwargs)
+    def __init__(self, king_piece, rook_piece, l_delta: int = -1, **kwargs):
+        super().__init__(piece=king_piece, l_delta=l_delta, **kwargs)
         # NOTE: self.piece is the king piece.
         self.rook_piece = rook_piece
         self._effect_sprite = self.al.tile_effect_sprites['Castle']
@@ -158,8 +158,8 @@ class Summon(Outcome):
     
     def __init__(self, piece, target: Position,
                  summoned: type, loyalty: Optional[Loyalty] = None,
-                 ldelta: int = -1, **kwargs):
-        super().__init__(piece=piece, ldelta=ldelta, **kwargs)
+                 l_delta: int = -1, **kwargs):
+        super().__init__(piece=piece, l_delta=l_delta, **kwargs)
         self.target = target
         self.summoned = summoned
         self.summon_loyalty = loyalty if loyalty is not None else self.piece.loyalty

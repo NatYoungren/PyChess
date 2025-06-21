@@ -45,7 +45,7 @@ class Action(GlobalAccessObject):
         
         # TODO: Should still 'show' the possible outcome, but not allow it.
         # Skip if cannot afford the leadership cost?
-        if self.board.get_leadership(self.piece.loyalty) - outcome.leadership_delta < 0:
+        if self.board.get_leadership(self.piece.loyalty) - outcome.l_delta < 0:
             print(f"Action: Not enough leadership to apply outcome {outcome} for tile {tile}.")
             return False
         

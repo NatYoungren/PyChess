@@ -53,7 +53,7 @@ class PawnPassant(Action):
                                            can_move=False):
                 if isinstance(p, Pawn) and p.loyalty != self.piece.loyalty and p.en_passantable:
                     for posD, tD, pD in self.get_line(dv, length=1, can_move=True, enemy_ok=False):
-                        self.add_outcome(tD, Capture(self.piece, posD, p))
+                        self.add_outcome(tD, Capture(self.piece, posD, p, l_delta=2))
                         # break
                     
                     
