@@ -24,8 +24,8 @@ class AssetLoader:
             PieceType.QUEEN: "W_Queen.png",
             PieceType.KING: "W_King.png",
             PieceType.SUMMONER: "Summoner1.png",
-            PieceType.JESTER: ("Jester1.png", "Jester2.png"),
-            PieceType.SENTRY: ("sentry1.png", "sentry2.png"),
+            PieceType.JESTER: ("Jester1.png", "Jester2.png"), # Knight/Bishop modes
+            PieceType.SENTRY: ("sentry1.png", "sentry2.png", "sentry3.png", "sentry4.png"), # lurking/not_lurking (ready, tired) for each
         },
         Loyalty.WHITE_AUTO: {
             PieceType.ZOMBIE: "Zombie1.png",
@@ -38,8 +38,8 @@ class AssetLoader:
             PieceType.QUEEN: "B_Queen.png",
             PieceType.KING: "B_King.png",
             PieceType.SUMMONER: "Summoner2.png",
-            PieceType.JESTER: ("Jester3.png", "Jester4.png"),
-            PieceType.SENTRY: ("sentry3.png", "sentry4.png"),
+            PieceType.JESTER: ("Jester3.png", "Jester4.png"), # Knight/Bishop modes
+            PieceType.SENTRY: ("sentry5.png", "sentry6.png", "sentry7.png", "sentry8.png"), # lurking/not_lurking (ready, tired) for each
         },
         Loyalty.BLACK_AUTO: {
             PieceType.ZOMBIE: "Zombie2.png",
