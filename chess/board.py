@@ -176,9 +176,13 @@ class Board(GlobalAccessObject):
         """
         # self.selected_tile = None
         if outcome is None: return False
+        end_turn = outcome.end_turn
         outcome.realize() # TODO: Have Outcomes store turn when generated?
         self.history.append(outcome)
-        self.next_turn()
+        if end_turn:
+            self.next_turn()
+        else:
+            self.update(turn_changed=False)
         return True
     
     def next_turn(self, loop_to: Optional[Loyalty]=None) -> None:
@@ -325,6 +329,7 @@ class Board(GlobalAccessObject):
         
         pieces = state['pieces']
         piece_loyalties = state['piece_loyalties']
+        
         # Load pieces
         for x, y in np.ndindex(self.shape):
             v = pieces[x, y]
@@ -336,6 +341,8 @@ class Board(GlobalAccessObject):
             pc = get_piece_class(PieceType(abs(v)))
             piece = pc(loyalty=l, position=(x, y))
             self[x, y].piece = piece
+            
+            # TODO: Load piece data if available.
         
         return True
 

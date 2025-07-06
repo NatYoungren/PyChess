@@ -29,7 +29,8 @@ class Outcome(GlobalAccessObject):
     name: str
     piece: object
     callback: Callable
-    morale_delta: int # TODO: Remove or implement? Probably not worth.
+    
+    # m_delta: int # TODO: Remove or implement? Probably not worth.
     l_delta: int
     end_turn: bool = True
     
@@ -41,11 +42,18 @@ class Outcome(GlobalAccessObject):
     _effect_sprite: Union[pg.Surface, None]
     _hover_sprites: Union[Tuple[pg.Surface], None]
     
-    def __init__(self, piece, l_delta:int=0, callback: Callable=lambda: None, **kwargs):
+    def __init__(self,
+                 piece: object,
+                 l_delta: int = 0,
+                 callback: Callable=lambda: None,
+                 end_turn: bool = True, # TODO: Should turns just end when you run out of leadership or 'actions'?
+                #  **kwargs
+                 ):
         self.name = self.__class__.__name__
         self.piece = piece
         self.callback = callback
         self.l_delta = l_delta
+        self.end_turn = end_turn
     
     def realize(self) -> bool:
         """
