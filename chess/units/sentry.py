@@ -18,10 +18,10 @@ class SentryJump(Action):
                               D.r+D.f_r, D.r+D.b_r,
                               D.b+D.b_l, D.b+D.b_r,
                               D.l+D.f_l, D.l+D.b_l)
-    def disable_lurk(self):
+    def on_jump(self):
         self.piece.is_lurking = False
         self.piece.jump_timer = 2
-    
+        
     def update(self):
         super().update()
         if self.piece.jump_timer > 0:
@@ -33,28 +33,35 @@ class SentryJump(Action):
             if t.is_void: continue # Void tile
             
             if p is None:
-                self.add_outcome(t, Move(self.piece, pos, callback=self.disable_lurk))
+                self.add_outcome(t, Move(self.piece, pos, callback=self.on_jump))
             elif p.loyalty != self.loyalty: # No friendly fire
-                self.add_outcome(t, Capture(self.piece, pos, p, callback=self.disable_lurk))
+                self.add_outcome(t, Capture(self.piece, pos, p, callback=self.on_jump))
 
 
-class SentryAmbush(Action):
+class SentryAmbush(Action): # TOOD: Should not cost your action.
     """
     Represents an ambush action for a sentry.
+    Gain leadership on capture.
     """
-    def disable_lurk(self):
+    def on_ambush(self):
         self.piece.is_lurking = False
+        self.piece.jump_timer = 1
 
     def update(self):
         super().update()
         if not self.piece.is_lurking: return
         for v in (D.f, D.b, D.l, D.r):
-            for pos, t, p in self.get_line(v, length=4, can_move=False):
-                self.add_outcome(t, Capture(self.piece, pos, p, callback=self.disable_lurk))
+            # NOTE: Ambush can jump over allies, but not enemies.
+            for pos, t, p in self.get_line(v, length=4, can_move=False, jump_ally=True):
+                self.add_outcome(t, Capture(self.piece,
+                                            pos,
+                                            p,
+                                            l_delta=1,
+                                            callback=self.on_ambush,
+                                            end_turn=False))
 
-        
 
-class SentryLurk(Action):
+class SentryLurk(Action): # TODO: Could cost 1 leadership, return 2 on capture?
     """
     Moves nowhere, enables ambush.
     """
@@ -72,9 +79,9 @@ class SentryLurk(Action):
 
 
 class Sentry(ChessPiece):
-    # Sentries cannot jump on consecutive turns
-    jump_timer: int = 0 # TODO: This is not indicated visually!
-    is_lurking: bool = False # NOTE: Lurking is indicated with sprite change.
+    # NOTE: When lurking, eye is larger. When on cooldown, eye is redder.
+    jump_timer: int = 0 # NOTE: Sentries cannot jump (like a knight) on consecutive turns
+    is_lurking: bool = False
     
     def __init__(self, loyalty: Loyalty, position):
         super().__init__(loyalty=loyalty, piece_type=PieceType.SENTRY, position=position)    
@@ -89,5 +96,5 @@ class Sentry(ChessPiece):
     @property
     def sprite(self):
         if isinstance(self._sprite, tuple):
-            return self._sprite[int(self.is_lurking)]
+            return self._sprite[int(self.is_lurking)*2 + int(self.jump_timer > 0)]
         return self._sprite
