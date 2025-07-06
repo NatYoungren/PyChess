@@ -13,6 +13,7 @@ from chess.units.king import King
 from chess.units.summoner import Summoner, Zombie
 from chess.units.jester import Jester
 from chess.units.sentry import Sentry
+from chess.units.berserker import Berserker
 
 from utils.chess_types import Loyalty, PieceType
 
@@ -32,6 +33,7 @@ piece_classes = {
     PieceType.ZOMBIE: Zombie,
     PieceType.JESTER: Jester,
     PieceType.SENTRY: Sentry,
+    PieceType.BERSERKER: Berserker,
 }
 
 def get_piece_class(piece_type: PieceType):
